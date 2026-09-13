@@ -1,14 +1,14 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:purrrfolio}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/purrrfolio}
+    username: ${DATABASE_USER:purrrfolio}
+    password: ${DATABASE_PASSWORD:purrrfolio}
   flyway:
     enabled: true
 
 purrrfolio:
-  public-base-url: ${PUBLIC_BASE_URL:http://localhost:8080}
+  public-base-url: ${PUBLIC_BASE_URL:https://purrrfolio.tg-games.com}
   telegram:
     bot-token: ${TELEGRAM_BOT_TOKEN}
     webhook-secret: ${TELEGRAM_WEBHOOK_SECRET}
-    polling-enabled: false
+    polling-enabled: true
