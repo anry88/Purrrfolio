@@ -1,20 +1,59 @@
+name: ${COMPOSE_PROJECT_NAME:-purrrfolio}
+
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: purrrfolio-postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: purrrfolio
-      POSTGRES_USER: purrrfolio
-      POSTGRES_PASSWORD: purrrfolio
-    ports:
-      - "5433:5432"
+      POSTGRES_DB: ${POSTGRES_DB:-purrrfolio}
+      POSTGRES_USER: ${POSTGRES_USER:-purrrfolio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - purrrfolio_pg_data:/var/lib/postgresql/data
+      - type: bind
+        source: ${POSTGRES_DATA_DIR:?POSTGRES_DATA_DIR is required}
+        target: /var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U purrrfolio -d purrrfolio"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 12
+      start_period: 20s
 
-volumes:
-  purrrfolio_pg_data:
+  app:
+    image: ${PURRRFOLIO_IMAGE:-purrrfolio:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-purrrfolio}
+      DATABASE_USER: ${POSTGRES_USER:-purrrfolio}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?TELEGRAM_BOT_TOKEN is required}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:?TELEGRAM_WEBHOOK_SECRET is required}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://purrrfolio.tg-games.com}
+      PORT: 8080
+      MANAGEMENT_PORT: 9090
+    expose:
+      - "8080"
+      - "9090"
+    networks:
+      default:
+      tunnel:
+        aliases:
+          - ${TUNNEL_APP_ALIAS:-purrrfolio-prod-app}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/actuator/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+networks:
+  tunnel:
+    external: true
+    name: ${HDC_TUNNEL_NETWORK:-hdc-tunnel}
