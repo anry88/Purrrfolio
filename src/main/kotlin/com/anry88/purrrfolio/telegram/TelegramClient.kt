@@ -72,6 +72,18 @@ class TelegramClient(
             .toBodilessEntity()
     }
 
+    fun answerCallbackQuery(callbackQueryId: String) {
+        if (!isConfigured()) {
+            logger.warn("Telegram bot token is not configured; skipping answerCallbackQuery")
+            return
+        }
+        restClient.post()
+            .uri("answerCallbackQuery")
+            .body(mapOf("callback_query_id" to callbackQueryId))
+            .retrieve()
+            .toBodilessEntity()
+    }
+
     fun sendPhoto(chatId: Long, photoResource: Resource, caption: String? = null, replyMarkup: TelegramReplyMarkup? = null) {
         if (!isConfigured()) {
             logger.warn("Telegram bot token is not configured; skipping sendPhoto")
@@ -85,19 +97,20 @@ class TelegramClient(
             bodyBuilder.part("parse_mode", "Markdown")
         }
         if (replyMarkup != null) {
-            // Need to convert to JSON string for multipart
-            // Luckily RestClient can serialize it directly if we add it, but telegram expects a JSON string in multipart for reply_markup.
-            // However, we can just pass the object and let jackson handle it if we have proper converters, or we serialize manually.
-            // For now, to keep it safe, we'll avoid sending reply markup in sendPhoto in this MVP, or send it as string.
-            // Let's just serialize it or omit it. For simplicity we omit replyMarkup in sendPhoto for now.
+            // Telegram expects reply_markup as a JSON string in a multipart body; not sent in this MVP.
         }
 
-        restClient.post()
-            .uri("sendPhoto")
-            .contentType(MediaType.MULTIPART_FORM_DATA)
-            .body(bodyBuilder.build())
-            .retrieve()
-            .toBodilessEntity()
+        try {
+            restClient.post()
+                .uri("sendPhoto")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(bodyBuilder.build())
+                .retrieve()
+                .toBodilessEntity()
+        } catch (e: Exception) {
+            logger.warn("Failed to send photo to chat {}", chatId, e)
+            throw e
+        }
     }
 }
 

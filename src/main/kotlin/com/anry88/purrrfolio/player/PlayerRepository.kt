@@ -1,8 +1,8 @@
 package com.anry88.purrrfolio.player
 
+import com.anry88.purrrfolio.i18n.GameLocale
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 import java.time.OffsetDateTime
@@ -30,7 +30,7 @@ class PlayerRepository(private val jdbcTemplate: JdbcTemplate) {
         return results.firstOrNull()
     }
 
-    fun findOrCreate(telegramId: Long, username: String?, displayName: String?): Player {
+    fun findOrCreate(telegramId: Long, username: String?, displayName: String?, languageCode: String? = null): Player {
         val existing = findByTelegramId(telegramId)
         if (existing != null) {
             return existing
@@ -42,11 +42,18 @@ class PlayerRepository(private val jdbcTemplate: JdbcTemplate) {
             ON CONFLICT (telegram_id) DO NOTHING
             RETURNING *
         """.trimIndent()
-        
+
+        val locale = GameLocale.fromTelegramLanguageCode(languageCode).code
+
         // Use query instead of queryForObject to handle race conditions where it might return 0 rows if inserted by another thread
-        val results = jdbcTemplate.query(sql, playerRowMapper, telegramId, username, displayName, 100, "ru")
-        
+        val results = jdbcTemplate.query(sql, playerRowMapper, telegramId, username, displayName, 100, locale)
+
         return results.firstOrNull() ?: findByTelegramId(telegramId)!!
+    }
+
+    fun updateLocale(playerId: Long, localeCode: String) {
+        val sql = "UPDATE players SET locale = ?, updated_at = NOW() WHERE id = ?"
+        jdbcTemplate.update(sql, localeCode, playerId)
     }
 
     fun updateFishBalance(playerId: Long, newBalance: Int) {
