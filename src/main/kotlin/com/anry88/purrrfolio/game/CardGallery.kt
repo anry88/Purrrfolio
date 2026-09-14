@@ -76,3 +76,10 @@ fun galleryKeyboard(
             ),
         ),
     )
+
+fun galleryMedia(fileId: String, caption: String): Map<String, Any?> = mapOf(
+    "type" to "photo",
+    "media" to fileId,
+    "caption" to caption,
+    "parse_mode" to "Markdown",
+)

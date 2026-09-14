@@ -143,6 +143,23 @@ class TelegramClient(
             .retrieve()
             .toBodilessEntity()
     }
+
+    fun deleteMessage(chatId: Long, messageId: Long) {
+        if (!isConfigured()) {
+            logger.warn("Telegram bot token is not configured; skipping deleteMessage")
+            return
+        }
+        try {
+            restClient.post()
+                .uri("deleteMessage")
+                .body(mapOf("chat_id" to chatId, "message_id" to messageId))
+                .retrieve()
+                .toBodilessEntity()
+        } catch (e: Exception) {
+            logger.warn("Failed to delete message {} in chat {}", messageId, chatId, e)
+            throw e
+        }
+    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

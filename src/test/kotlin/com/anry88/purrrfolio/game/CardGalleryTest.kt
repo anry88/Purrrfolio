@@ -81,4 +81,14 @@ class CardGalleryTest {
         assertThat(buttons.map { it.callbackData })
             .containsExactly("gal:col:-1", "gal:col:1", GalleryActions.BACK)
     }
+
+    @Test
+    fun `gallery media references the target card file id`() {
+        val media = galleryMedia("sleepy-large-file", "⚪ *Sleepy*")
+
+        assertThat(media["type"]).isEqualTo("photo")
+        assertThat(media["media"]).isEqualTo("sleepy-large-file")
+        assertThat(media["caption"]).isEqualTo("⚪ *Sleepy*")
+        assertThat(media["parse_mode"]).isEqualTo("Markdown")
+    }
 }

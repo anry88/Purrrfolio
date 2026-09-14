@@ -54,6 +54,7 @@ class GameService(
     )
 
     private val chatGalleries = ConcurrentHashMap<Long, ChatGallery>()
+    private val knownFileIds = ConcurrentHashMap<String, String>()
 
     fun handle(update: TelegramUpdate) {
         val updateId = update.updateId
@@ -343,15 +344,11 @@ class GameService(
         val resource = ClassPathResource("static/assets/cards/${card.id}.png")
 
         val existing = chatGalleries[chatId]
-        if (existing != null && existing.messageId == tappedMessageId && existing.key == key && resource.exists()) {
-            val media = mapOf(
-                "type" to "photo",
-                "media" to existing.fileId,
-                "caption" to caption,
-                "parse_mode" to "Markdown",
-            )
+        val cachedFileId = knownFileIds[card.id]
+
+        if (existing != null && existing.messageId == tappedMessageId && existing.key == key && cachedFileId != null) {
             try {
-                telegramClient.editMessageMedia(chatId, existing.messageId, media, keyboard)
+                telegramClient.editMessageMedia(chatId, existing.messageId, galleryMedia(cachedFileId, caption), keyboard)
                 chatGalleries[chatId] = existing.copy(index = index)
                 return
             } catch (e: Throwable) {
@@ -360,17 +357,21 @@ class GameService(
         }
 
         try {
-            if (resource.exists()) {
-                val sent = telegramClient.sendPhoto(chatId, resource, caption, keyboard)
-                val messageId = sent?.messageId
-                val fileId = sent?.photo?.lastOrNull()?.fileId
-                if (messageId != null && fileId != null) {
-                    chatGalleries[chatId] = ChatGallery(messageId, fileId, key, index)
-                } else {
-                    chatGalleries.remove(chatId)
-                }
-            } else {
+            if (!resource.exists()) {
                 telegramClient.sendMessage(chatId, caption, keyboard)
+                chatGalleries.remove(chatId)
+                return
+            }
+            val sent = telegramClient.sendPhoto(chatId, resource, caption, keyboard)
+            val messageId = sent?.messageId
+            val fileId = sent?.photo?.lastOrNull()?.fileId
+            if (messageId != null && fileId != null) {
+                if (cachedFileId == null) knownFileIds[card.id] = fileId
+                if (existing != null && existing.key == key) {
+                    runCatching { telegramClient.deleteMessage(chatId, existing.messageId) }
+                }
+                chatGalleries[chatId] = ChatGallery(messageId, fileId, key, index)
+            } else {
                 chatGalleries.remove(chatId)
             }
         } catch (e: Throwable) {
