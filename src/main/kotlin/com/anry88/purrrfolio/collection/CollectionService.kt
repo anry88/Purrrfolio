@@ -1,6 +1,8 @@
 package com.anry88.purrrfolio.collection
 
 import com.anry88.purrrfolio.catalog.CardCatalog
+import com.anry88.purrrfolio.i18n.GameLocale
+import com.anry88.purrrfolio.i18n.Messages
 import org.springframework.stereotype.Service
 
 @Service
@@ -15,6 +17,7 @@ class CollectionService(
             ThemeProgress(
                 themeId = theme.id,
                 themeNameRu = theme.nameRu,
+                themeNameEn = theme.nameEn,
                 ownedUnique = ownedUnique,
                 totalCards = themeCards.size,
                 completionBonusFish = theme.completionBonusFish,
@@ -23,12 +26,16 @@ class CollectionService(
             )
         }
 
-    fun formatThemeLine(progress: ThemeProgress): String {
-        val status = when {
-            progress.claimed -> "✅ бонус получен"
-            progress.completed -> "🎁 бонус доступен"
-            else -> "в процессе"
+    fun formatThemeLine(progress: ThemeProgress, locale: GameLocale): String {
+        val themeName = when (locale) {
+            GameLocale.RU -> progress.themeNameRu
+            GameLocale.EN -> progress.themeNameEn
         }
-        return "• ${progress.themeNameRu}: ${progress.ownedUnique}/${progress.totalCards} — $status"
+        val status = when {
+            progress.claimed -> Messages.t("themeStatus.claimed", locale)
+            progress.completed -> Messages.t("themeStatus.completed", locale)
+            else -> Messages.t("themeStatus.inProgress", locale)
+        }
+        return "• $themeName: ${progress.ownedUnique}/${progress.totalCards} — $status"
     }
 }

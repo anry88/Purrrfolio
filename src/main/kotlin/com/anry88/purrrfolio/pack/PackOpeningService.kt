@@ -3,6 +3,9 @@ package com.anry88.purrrfolio.pack
 import com.anry88.purrrfolio.catalog.CardCatalog
 import com.anry88.purrrfolio.catalog.CardDefinition
 import com.anry88.purrrfolio.catalog.CardRarity
+import com.anry88.purrrfolio.i18n.GameLocale
+import com.anry88.purrrfolio.i18n.Messages
+import com.anry88.purrrfolio.i18n.nameFor
 import org.springframework.stereotype.Service
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.max
@@ -27,9 +30,13 @@ class PackOpeningService(
         }
     }
 
-    fun formatReveal(card: CardDefinition, isNew: Boolean): String {
-        val badge = if (isNew) " ✨ NEW" else ""
-        return "${card.rarity.emoji} *${card.nameRu}* — ${card.rarity.labelRu}$badge"
+    fun formatReveal(card: CardDefinition, isNew: Boolean, locale: GameLocale): String {
+        val badge = if (isNew) Messages.t("pack.newCard", locale) else ""
+        val rarityLabel = when (locale) {
+            GameLocale.RU -> card.rarity.labelRu
+            GameLocale.EN -> card.rarity.labelEn
+        }
+        return "${card.rarity.emoji} *${card.nameFor(locale)}* — $rarityLabel$badge"
     }
 
     private fun drawOne(random: ThreadLocalRandom): CardDefinition {
