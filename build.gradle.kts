@@ -25,6 +25,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    // MultipartBodyBuilder (RestClient multipart upload) references org.reactivestreams.Publisher
+    // at runtime; without it sendPhoto fails with NoClassDefFoundError.
+    implementation("org.reactivestreams:reactive-streams")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")

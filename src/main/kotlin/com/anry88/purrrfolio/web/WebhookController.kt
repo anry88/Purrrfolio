@@ -18,6 +18,8 @@ class WebhookController(
     private val gameService: GameService,
     private val properties: PurrrfolioProperties,
 ) {
+    private val logger = org.slf4j.LoggerFactory.getLogger(javaClass)
+
     @GetMapping("/")
     fun index() = mapOf(
         "name" to "Purrrfolio",
@@ -38,7 +40,13 @@ class WebhookController(
         if (expected.isBlank() || providedSecret == null || !constantTimeEquals(expected, providedSecret)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
         }
-        gameService.handle(update)
+        try {
+            gameService.handle(update)
+        } catch (e: Throwable) {
+            // Always ACK the webhook: Telegram retries non-2xx deliveries, and re-processing
+            // the same update would double-deduct fish. Log and move on.
+            logger.error("Failed to process Telegram webhook update {}", update.updateId, e)
+        }
     }
 
     private fun constantTimeEquals(expected: String, actual: String): Boolean = MessageDigest.isEqual(

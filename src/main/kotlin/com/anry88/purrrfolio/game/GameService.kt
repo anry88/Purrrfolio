@@ -34,8 +34,17 @@ class GameService(
     private val telegramClient: TelegramClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val processedUpdateIds = java.util.concurrent.ConcurrentHashMap.newKeySet<Long>()
 
     fun handle(update: TelegramUpdate) {
+        val updateId = update.updateId
+        if (updateId != null && !processedUpdateIds.add(updateId)) {
+            logger.warn("Skipping already processed update {}", updateId)
+            return
+        }
+        if (processedUpdateIds.size > 1000) {
+            processedUpdateIds.clear()
+        }
         update.callbackQuery?.let {
             handleCallback(it)
             return
@@ -131,7 +140,7 @@ class GameService(
                 } else {
                     telegramClient.sendMessage(chatId, caption)
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 logger.warn("Failed to send card photo for {}", card.id, e)
                 runCatching { telegramClient.sendMessage(chatId, caption) }
             }
