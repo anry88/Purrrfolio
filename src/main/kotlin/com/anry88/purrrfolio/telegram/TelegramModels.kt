@@ -5,13 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TelegramUpdate(
+    @JsonProperty("update_id")
     val updateId: Long? = null,
     val message: TelegramMessage? = null,
+    @JsonProperty("callback_query")
     val callbackQuery: TelegramCallbackQuery? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TelegramMessage(
+    @JsonProperty("message_id")
     val messageId: Long? = null,
     val text: String? = null,
     val chat: TelegramChat? = null,
@@ -36,7 +39,9 @@ data class TelegramChat(
 data class TelegramUser(
     val id: Long? = null,
     val username: String? = null,
+    @JsonProperty("first_name")
     val firstName: String? = null,
+    @JsonProperty("language_code")
     val languageCode: String? = null,
 )
 
