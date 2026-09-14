@@ -12,6 +12,7 @@ Thumbs.db
 # Local agent and tool state
 .codex/
 .agents/
+.sisyphus/
 
 # Secrets and local configuration
 .env
@@ -42,6 +43,7 @@ replay_pid*
 
 # Runtime data
 .runtime/
+postgres_data/
 logs/
 *.log
 *.db
