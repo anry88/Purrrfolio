@@ -103,6 +103,21 @@ object Messages {
         "themeStatus.claimed" to ("✅ bonus claimed" to "✅ бонус получен"),
         "themeStatus.completed" to ("🎁 bonus available" to "🎁 бонус доступен"),
         "themeStatus.inProgress" to ("in progress" to "в процессе"),
+        "gallery.back" to ("🔙 Back" to "🔙 Назад"),
+        "gallery.viewCards" to ("🖼 View cards" to "🖼 Смотреть карточки"),
+        "gallery.owned" to ("In collection: ×%s" to "В коллекции: ×%s"),
+        "gallery.missing" to ("Not collected yet" to "Ещё не собрана"),
+        "gallery.counter" to ("%s / %s" to "%s / %s"),
+        "cmd.start" to ("Open the menu" to "Открыть меню"),
+        "cmd.pack" to ("Open a pack" to "Открыть набор"),
+        "cmd.collection" to ("View cat collection" to "Посмотреть коллекцию котиков"),
+        "cmd.themes" to ("View themes" to "Посмотреть темы"),
+        "cmd.trade" to ("Swap duplicates" to "Обменяться дубликатами"),
+        "cmd.market" to ("Buy or sell cards" to "Купить или продать карточки"),
+        "cmd.daily" to ("Claim fish" to "Забрать рыбки"),
+        "cmd.profile" to ("My profile" to "Мой профиль"),
+        "cmd.language" to ("Switch language" to "Сменить язык"),
+        "cmd.help" to ("Help" to "Помощь"),
     )
 
     fun t(key: String, locale: GameLocale, vararg args: Any?): String {

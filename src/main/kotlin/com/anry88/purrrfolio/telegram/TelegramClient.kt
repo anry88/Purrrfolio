@@ -3,6 +3,7 @@ package com.anry88.purrrfolio.telegram
 import com.anry88.purrrfolio.config.PurrrfolioProperties
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.Resource
 import org.springframework.http.MediaType
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestClient
 class TelegramClient(
     properties: PurrrfolioProperties,
     restClientBuilder: RestClient.Builder,
+    private val objectMapper: ObjectMapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val botToken = properties.telegram.botToken
@@ -84,10 +86,10 @@ class TelegramClient(
             .toBodilessEntity()
     }
 
-    fun sendPhoto(chatId: Long, photoResource: Resource, caption: String? = null, replyMarkup: TelegramReplyMarkup? = null) {
+    fun sendPhoto(chatId: Long, photoResource: Resource, caption: String? = null, replyMarkup: TelegramReplyMarkup? = null): TelegramMessage? {
         if (!isConfigured()) {
             logger.warn("Telegram bot token is not configured; skipping sendPhoto")
-            return
+            return null
         }
         val bodyBuilder = MultipartBodyBuilder()
         bodyBuilder.part("chat_id", chatId)
@@ -97,20 +99,49 @@ class TelegramClient(
             bodyBuilder.part("parse_mode", "Markdown")
         }
         if (replyMarkup != null) {
-            // Telegram expects reply_markup as a JSON string in a multipart body; not sent in this MVP.
+            bodyBuilder.part("reply_markup", objectMapper.writeValueAsString(replyMarkup))
+                .contentType(MediaType.APPLICATION_JSON)
         }
 
         try {
-            restClient.post()
+            return restClient.post()
                 .uri("sendPhoto")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(bodyBuilder.build())
                 .retrieve()
-                .toBodilessEntity()
+                .body(TelegramMessageResponse::class.java)
+                ?.takeIf { it.ok }
+                ?.result
         } catch (e: Exception) {
             logger.warn("Failed to send photo to chat {}", chatId, e)
             throw e
         }
+    }
+
+    fun editMessageMedia(chatId: Long, messageId: Long, media: Map<String, Any?>, replyMarkup: TelegramReplyMarkup? = null) {
+        if (!isConfigured()) {
+            logger.warn("Telegram bot token is not configured; skipping editMessageMedia")
+            return
+        }
+        try {
+            restClient.post()
+                .uri("editMessageMedia")
+                .body(TelegramEditMessageMediaRequest(chatId, messageId, media, replyMarkup))
+                .retrieve()
+                .toBodilessEntity()
+        } catch (e: Exception) {
+            logger.warn("Failed to edit message media in chat {}", chatId, e)
+            throw e
+        }
+    }
+
+    fun setMyCommands(commands: List<TelegramBotCommand>, scope: TelegramBotCommandScope) {
+        if (!isConfigured()) return
+        restClient.post()
+            .uri("setMyCommands")
+            .body(mapOf("commands" to commands, "scope" to scope))
+            .retrieve()
+            .toBodilessEntity()
     }
 }
 

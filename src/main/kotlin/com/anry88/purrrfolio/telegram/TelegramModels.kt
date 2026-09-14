@@ -19,6 +19,13 @@ data class TelegramMessage(
     val text: String? = null,
     val chat: TelegramChat? = null,
     val from: TelegramUser? = null,
+    val photo: List<TelegramPhotoSize>? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramPhotoSize(
+    @JsonProperty("file_id")
+    val fileId: String? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -78,4 +85,34 @@ data class TelegramInlineButton(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TelegramKeyboardButton(
     val text: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramMessageResponse(
+    val ok: Boolean = false,
+    val result: TelegramMessage? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramEditMessageMediaRequest(
+    @JsonProperty("chat_id")
+    val chatId: Long,
+    @JsonProperty("message_id")
+    val messageId: Long,
+    val media: Map<String, Any?>,
+    @JsonProperty("reply_markup")
+    val replyMarkup: TelegramReplyMarkup? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramBotCommand(
+    val command: String,
+    val description: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramBotCommandScope(
+    val type: String,
+    @JsonProperty("language_code")
+    val languageCode: String? = null,
 )

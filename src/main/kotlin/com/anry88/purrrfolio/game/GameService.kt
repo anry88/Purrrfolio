@@ -1,13 +1,17 @@
 package com.anry88.purrrfolio.game
 
 import com.anry88.purrrfolio.catalog.CardCatalog
+import com.anry88.purrrfolio.catalog.CardDefinition
+import com.anry88.purrrfolio.catalog.ThemeDefinition
 import com.anry88.purrrfolio.collection.CollectionService
+import com.anry88.purrrfolio.collection.ThemeProgress
 import com.anry88.purrrfolio.config.PurrrfolioProperties
 import com.anry88.purrrfolio.i18n.GameLocale
 import com.anry88.purrrfolio.i18n.Messages
 import com.anry88.purrrfolio.i18n.nameFor
 import com.anry88.purrrfolio.pack.PackOpeningService
 import com.anry88.purrrfolio.player.Player
+import com.anry88.purrrfolio.player.PlayerCard
 import com.anry88.purrrfolio.player.PlayerCardRepository
 import com.anry88.purrrfolio.player.PlayerRepository
 import com.anry88.purrrfolio.telegram.TelegramCallbackQuery
@@ -22,6 +26,7 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class GameService(
@@ -35,6 +40,20 @@ class GameService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val processedUpdateIds = java.util.concurrent.ConcurrentHashMap.newKeySet<Long>()
+
+    private sealed interface GalleryKey {
+        data object Collection : GalleryKey
+        data class Theme(val themeId: String) : GalleryKey
+    }
+
+    private data class ChatGallery(
+        val messageId: Long,
+        val fileId: String,
+        val key: GalleryKey,
+        val index: Int,
+    )
+
+    private val chatGalleries = ConcurrentHashMap<Long, ChatGallery>()
 
     fun handle(update: TelegramUpdate) {
         val updateId = update.updateId
@@ -72,9 +91,9 @@ class GameService(
             Action.START -> telegramClient.sendMessage(chatId, Messages.t("welcome", gameLocale(player)), mainMenuKeyboard(gameLocale(player)))
             Action.HELP -> telegramClient.sendMessage(chatId, Messages.t("help", gameLocale(player)), mainMenuKeyboard(gameLocale(player)))
             Action.LANGUAGE -> handleLanguage(chatId, player)
-            Action.COLLECTION -> telegramClient.sendMessage(chatId, buildCollectionPreview(player), mainMenuKeyboard(gameLocale(player)))
+            Action.COLLECTION -> sendCollectionView(chatId, player)
             Action.PACK -> handlePackOpening(chatId, player)
-            Action.THEMES -> telegramClient.sendMessage(chatId, buildThemesPreview(player), mainMenuKeyboard(gameLocale(player)))
+            Action.THEMES -> sendThemesView(chatId, player)
             Action.DAILY -> handleDaily(chatId, player)
             Action.PROFILE -> telegramClient.sendMessage(chatId, buildProfilePreview(player), mainMenuKeyboard(gameLocale(player)))
             Action.TRADE -> telegramClient.sendMessage(chatId, Messages.t("trade.hint", gameLocale(player)), mainMenuKeyboard(gameLocale(player)))
@@ -205,6 +224,13 @@ class GameService(
 
         callback.id?.let { telegramClient.answerCallbackQuery(it) }
 
+        callback.data?.let { data ->
+            GalleryActions.parse(data)?.let { action ->
+                handleGalleryAction(chatId, player, callback.message?.messageId, action)
+                return
+            }
+        }
+
         when (callback.data) {
             "lang:en" -> {
                 playerRepository.updateLocale(player.id, GameLocale.EN.code)
@@ -214,16 +240,148 @@ class GameService(
                 playerRepository.updateLocale(player.id, GameLocale.RU.code)
                 telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.RU), mainMenuKeyboard(GameLocale.RU))
             }
-            "menu:collection" -> telegramClient.sendMessage(chatId, buildCollectionPreview(player), mainMenuKeyboard(gameLocale(player)))
+            "menu:collection" -> sendCollectionView(chatId, player)
             "menu:pack" -> handlePackOpening(chatId, player)
-            "menu:themes" -> telegramClient.sendMessage(chatId, buildThemesPreview(player), mainMenuKeyboard(gameLocale(player)))
+            "menu:themes" -> sendThemesView(chatId, player)
             else -> telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", gameLocale(player)), mainMenuKeyboard(gameLocale(player)))
         }
     }
 
-    private fun buildCollectionPreview(player: Player): String {
+    private fun sendCollectionView(chatId: Long, player: Player) {
         val locale = gameLocale(player)
         val playerCards = playerCardRepository.getPlayerCards(player.id)
+        val keyboard = if (playerCards.isEmpty()) {
+            mainMenuKeyboard(locale)
+        } else {
+            TelegramReplyMarkup(
+                inlineKeyboard = listOf(
+                    listOf(TelegramInlineButton(Messages.t("gallery.viewCards", locale), GalleryActions.collection(0))),
+                ),
+            )
+        }
+        telegramClient.sendMessage(chatId, buildCollectionPreview(player, playerCards), keyboard)
+    }
+
+    private fun sendThemesView(chatId: Long, player: Player) {
+        val locale = gameLocale(player)
+        val ownedCardIds = playerCardRepository.getPlayerCards(player.id).map { it.cardId }.toSet()
+        val progress = collectionService.buildThemeProgress(ownedCardIds, emptySet())
+        telegramClient.sendMessage(chatId, buildThemesPreview(progress, locale), themesKeyboard(progress, locale))
+    }
+
+    private fun handleGalleryAction(chatId: Long, player: Player, tappedMessageId: Long?, action: GalleryAction) {
+        when (action) {
+            is GalleryAction.Collection -> {
+                val ownedCards = ownedUniqueCards(player.id)
+                if (ownedCards.isEmpty()) {
+                    telegramClient.sendMessage(chatId, Messages.t("collection.empty", gameLocale(player)), mainMenuKeyboard(gameLocale(player)))
+                    return
+                }
+                val index = action.index.coerceIn(0, ownedCards.size - 1)
+                if (index != action.index) return
+                val quantities = ownedQuantities(player.id)
+                val card = ownedCards[index]
+                showGalleryCard(
+                    chatId = chatId,
+                    player = player,
+                    tappedMessageId = tappedMessageId,
+                    key = GalleryKey.Collection,
+                    card = card,
+                    theme = null,
+                    ownedCount = quantities[card.id] ?: 0,
+                    index = index,
+                    total = ownedCards.size,
+                    actionForIndex = { i -> GalleryActions.collection(i) },
+                )
+            }
+            is GalleryAction.Theme -> {
+                val cards = cardCatalog.cardsByTheme(action.themeId)
+                if (cards.isEmpty()) return
+                val index = action.index.coerceIn(0, cards.size - 1)
+                if (index != action.index) return
+                val quantities = ownedQuantities(player.id)
+                val card = cards[index]
+                showGalleryCard(
+                    chatId = chatId,
+                    player = player,
+                    tappedMessageId = tappedMessageId,
+                    key = GalleryKey.Theme(action.themeId),
+                    card = card,
+                    theme = cardCatalog.theme(action.themeId),
+                    ownedCount = quantities[card.id] ?: 0,
+                    index = index,
+                    total = cards.size,
+                    actionForIndex = { i -> GalleryActions.theme(action.themeId, i) },
+                )
+            }
+            GalleryAction.Back -> {
+                val key = chatGalleries.remove(chatId)?.key
+                when (key) {
+                    GalleryKey.Collection -> sendCollectionView(chatId, player)
+                    is GalleryKey.Theme -> sendThemesView(chatId, player)
+                    null -> telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", gameLocale(player)), mainMenuKeyboard(gameLocale(player)))
+                }
+            }
+        }
+    }
+
+    private fun showGalleryCard(
+        chatId: Long,
+        player: Player,
+        tappedMessageId: Long?,
+        key: GalleryKey,
+        card: CardDefinition,
+        theme: ThemeDefinition?,
+        ownedCount: Int,
+        index: Int,
+        total: Int,
+        actionForIndex: (Int) -> String,
+    ) {
+        val locale = gameLocale(player)
+        val caption = galleryCaption(card, theme, ownedCount, locale, index + 1, total)
+        val keyboard = galleryKeyboard(locale, actionForIndex, index, total)
+        val resource = ClassPathResource("static/assets/cards/${card.id}.png")
+
+        val existing = chatGalleries[chatId]
+        if (existing != null && existing.messageId == tappedMessageId && existing.key == key && resource.exists()) {
+            val media = mapOf(
+                "type" to "photo",
+                "media" to existing.fileId,
+                "caption" to caption,
+                "parse_mode" to "Markdown",
+            )
+            try {
+                telegramClient.editMessageMedia(chatId, existing.messageId, media, keyboard)
+                chatGalleries[chatId] = existing.copy(index = index)
+                return
+            } catch (e: Throwable) {
+                logger.warn("Failed to edit gallery photo in chat {}", chatId, e)
+            }
+        }
+
+        try {
+            if (resource.exists()) {
+                val sent = telegramClient.sendPhoto(chatId, resource, caption, keyboard)
+                val messageId = sent?.messageId
+                val fileId = sent?.photo?.lastOrNull()?.fileId
+                if (messageId != null && fileId != null) {
+                    chatGalleries[chatId] = ChatGallery(messageId, fileId, key, index)
+                } else {
+                    chatGalleries.remove(chatId)
+                }
+            } else {
+                telegramClient.sendMessage(chatId, caption, keyboard)
+                chatGalleries.remove(chatId)
+            }
+        } catch (e: Throwable) {
+            logger.warn("Failed to send gallery photo for {}", card.id, e)
+            runCatching { telegramClient.sendMessage(chatId, caption, keyboard) }
+            chatGalleries.remove(chatId)
+        }
+    }
+
+    private fun buildCollectionPreview(player: Player, playerCards: List<PlayerCard>): String {
+        val locale = gameLocale(player)
         if (playerCards.isEmpty()) {
             return Messages.t("collection.empty", locale)
         }
@@ -243,11 +401,7 @@ class GameService(
         """.trimIndent()
     }
 
-    private fun buildThemesPreview(player: Player): String {
-        val locale = gameLocale(player)
-        val playerCards = playerCardRepository.getPlayerCards(player.id).map { it.cardId }.toSet()
-        // theme claims not yet implemented in DB, just pass empty set for now
-        val progress = collectionService.buildThemeProgress(playerCards, emptySet())
+    private fun buildThemesPreview(progress: List<ThemeProgress>, locale: GameLocale): String {
         val lines = progress.joinToString("\n") { collectionService.formatThemeLine(it, locale) }
         return """
             ${Messages.t("themes.title", locale)}
@@ -255,6 +409,25 @@ class GameService(
             $lines
         """.trimIndent()
     }
+
+    private fun themesKeyboard(progress: List<ThemeProgress>, locale: GameLocale): TelegramReplyMarkup {
+        val buttons = progress.map { t ->
+            val name = when (locale) {
+                GameLocale.RU -> t.themeNameRu
+                GameLocale.EN -> t.themeNameEn
+            }
+            TelegramInlineButton("$name (${t.ownedUnique}/${t.totalCards})", GalleryActions.theme(t.themeId, 0))
+        }
+        return TelegramReplyMarkup(inlineKeyboard = buttons.map { listOf(it) })
+    }
+
+    private fun ownedUniqueCards(playerId: Long): List<CardDefinition> =
+        playerCardRepository.getPlayerCards(playerId)
+            .mapNotNull { pc -> runCatching { cardCatalog.card(pc.cardId) }.getOrNull() }
+            .distinctBy { it.id }
+
+    private fun ownedQuantities(playerId: Long): Map<String, Int> =
+        playerCardRepository.getPlayerCards(playerId).associate { it.cardId to it.quantity }
 
     private fun buildProfilePreview(player: Player): String {
         val locale = gameLocale(player)
