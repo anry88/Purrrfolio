@@ -10,6 +10,7 @@ Core business logic is split into small packages:
 
 - `catalog/` — JSON-driven cards, themes, rarities
 - `collection/` — themed set progress
+- `i18n/` — localized player copy (EN/RU) and locale helpers
 - `pack/` — weighted random pack openings
 - `trade/` — trade and marketplace rules
 - `game/` — command routing (persistence to be added)
@@ -56,6 +57,14 @@ Core business logic is split into small packages:
 
 1. Seller lists duplicate → `market_listings` row, quantity decremented.
 2. Buyer purchases → fish transfer minus fee, card quantity incremented.
+
+## Localization
+
+All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strings, resolved through `Messages.t(key, locale, vararg args)`.
+
+- New players default to English; the stored `players.locale` is set to Russian only when their Telegram `language_code` starts with `ru`.
+- `/language` opens an inline keyboard (`lang:en` / `lang:ru` callbacks) that persists the choice via `PlayerRepository.updateLocale`.
+- Card, theme, and pack display names are localized via the `nameFor(locale)` extensions in `i18n/LocalizedNames.kt`; rarity labels via `CardRarity.labelEn`/`labelRu`.
 
 ## Persistence
 

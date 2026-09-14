@@ -22,6 +22,7 @@ AI-oriented repository guide for coding assistants and code-review tools.
 
 - `src/main/kotlin/com/anry88/purrrfolio/catalog/`: JSON card/theme catalog and rarity weights.
 - `src/main/kotlin/com/anry88/purrrfolio/collection/`: themed set progress formatting.
+- `src/main/kotlin/com/anry88/purrrfolio/i18n/`: localized player copy (EN/RU) and locale helpers.
 - `src/main/kotlin/com/anry88/purrrfolio/pack/`: weighted pack roll logic.
 - `src/main/kotlin/com/anry88/purrrfolio/trade/`: trade/market models and policy constants.
 - `src/main/kotlin/com/anry88/purrrfolio/telegram/`: Telegram client and update DTOs.
@@ -68,8 +69,12 @@ You usually need to touch:
 You usually need to touch:
 
 - `src/main/kotlin/com/anry88/purrrfolio/game/GameService.kt`
-- `src/main/kotlin/com/anry88/purrrfolio/game/GameGuide.kt`
+- `src/main/kotlin/com/anry88/purrrfolio/i18n/Messages.kt` (player-facing copy lives here, not in GameService)
 - persistence layer once JDBC repositories exist
+
+### Language and copy
+
+New players default to English. Russian is auto-selected when the Telegram `language_code` starts with `ru`; `/language` switches at any time. The locale is stored on `players.locale`. To change any player-facing text, edit `src/main/kotlin/com/anry88/purrrfolio/i18n/Messages.kt`. Menu button labels are matched case- and space-insensitively in both languages, so new button labels must stay emoji-prefixed (e.g. `🎁 Набор` / `🎁 Pack`).
 
 ### Economy or rarity
 

@@ -80,10 +80,17 @@
 /market list card_id price — выставить дубликат (мин. 2 копии)
 /market browse [page]     — лоты биржи
 /market buy listing_id    — купить лот
+/language       — сменить язык интерфейса (inline-кнопки EN/RU)
 /help           — справка
 ```
 
-Reply-клавиатура дублирует основные разделы: Коллекция, Набор, Темы, Обмен, Биржа, Профиль.
+Reply-клавиатура дублирует основные разделы: Коллекция, Набор, Темы, Обмен, Биржа, Профиль, Язык.
+
+## Локализация
+
+- Язык по умолчанию — английский. Новый игрок получает русский только если его `language_code` в Telegram начинается с `ru`.
+- Выбор хранится в `players.locale` и меняется командой `/language` (inline-клавиатура `lang:en` / `lang:ru`).
+- Весь текст игроку берётся из `i18n/Messages.kt`; кнопки reply-меню локализованы и сопоставляются по нажатию независимо от регистра и пробелов.
 
 ## Потоки
 
@@ -123,7 +130,7 @@ Reply-клавиатура дублирует основные разделы: �
 
 ## Модель данных
 
-См. [`V1__initial_schema.sql`](../src/main/resources/db/migration/V1__initial_schema.sql):
+См. [`V1__initial_schema.sql`](../src/main/resources/db/migration/V1__initial_schema.sql) и [`V2__default_locale_en.sql`](../src/main/resources/db/migration/V2__default_locale_en.sql) (дефолт `players.locale` — `'en'`):
 
 - `players` — профиль и баланс рыбок
 - `player_cards` — инвентарь (card_id → quantity)

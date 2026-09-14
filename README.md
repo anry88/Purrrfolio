@@ -18,7 +18,10 @@ Open `@purrrfolio_bot` and use:
 - `/market` — list or buy duplicate cards on the in-game market
 - `/daily` — claim daily fish tokens
 - `/profile` — balance and collection stats
+- `/language` — switch between English and Russian
 - `/help` — command help
+
+The bot is English by default; players whose Telegram language is Russian see Russian copy automatically. Use `/language` at any time to switch.
 
 ## Product Principles
 
