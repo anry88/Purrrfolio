@@ -1,5 +1,13 @@
 -- New schema based on PDF specification v1.3
--- Drop old tables
+-- Replaces the fish-era tables (V1) with the Stars model. Old tables are
+-- dropped (test data only). Card ids stay TEXT: the JSON catalog
+-- (catalog/cards.json, e.g. 'sleepy') remains the authority for the MVP.
+--
+-- NOTE: V3 was never successfully applied anywhere before this revision
+-- (first prod deploy attempt failed on duplicate processed_telegram_updates),
+-- so editing it in place is safe.
+
+-- Old card-for-fish tables are dropped (test data only, owner confirmed).
 DROP TABLE IF EXISTS trade_offers CASCADE;
 DROP TABLE IF EXISTS market_listings CASCADE;
 DROP TABLE IF EXISTS pack_openings CASCADE;
@@ -64,11 +72,12 @@ CREATE TABLE users (
     updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- User cards
+-- User cards (TEXT card_id matches catalog/cards.json ids; no FK while
+-- the JSON catalog is the authority)
 CREATE TABLE user_cards (
     id              BIGSERIAL PRIMARY KEY,
     user_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    card_id         BIGINT NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
+    card_id         TEXT NOT NULL,
     quantity        INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
     first_obtained  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -92,11 +101,11 @@ CREATE TABLE pack_ledger (
 CREATE INDEX idx_pack_ledger_user ON pack_ledger(user_id);
 CREATE INDEX idx_pack_ledger_payment ON pack_ledger(payment_id);
 
--- Random trade pool
+-- Random trade pool (TEXT card_id, see above)
 CREATE TABLE random_trade_pool (
     id              BIGSERIAL PRIMARY KEY,
     user_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    card_id         BIGINT NOT NULL REFERENCES cards(id),
+    card_id         TEXT NOT NULL,
     status          TEXT NOT NULL,
     matched_trade_id BIGINT REFERENCES random_trade_pool(id),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -106,11 +115,11 @@ CREATE TABLE random_trade_pool (
 CREATE INDEX idx_random_trade_pool_status ON random_trade_pool(status);
 CREATE INDEX idx_random_trade_pool_matched ON random_trade_pool(matched_trade_id);
 
--- Market listings
+-- Market listings (TEXT card_id, see above)
 CREATE TABLE market_listings (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     seller_id       BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    card_id         BIGINT NOT NULL REFERENCES cards(id),
+    card_id         TEXT NOT NULL,
     status          TEXT NOT NULL,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -159,8 +168,9 @@ INSERT INTO rarities (code, probability_weight, frame_theme, sort_order) VALUES
 ('MYTHIC', 3, 'magenta', 5),
 ('LEGENDARY', 2, 'gold', 6);
 
--- Processed Telegram updates (idempotency)
-CREATE TABLE processed_telegram_updates (
+-- Processed Telegram updates (idempotency). V1 already created this table,
+-- so keep existing rows.
+CREATE TABLE IF NOT EXISTS processed_telegram_updates (
     update_id           BIGINT PRIMARY KEY,
     processed_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
