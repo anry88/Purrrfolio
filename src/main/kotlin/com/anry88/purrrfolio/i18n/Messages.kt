@@ -105,6 +105,42 @@ object Messages {
             "No active listings on market." to
                 "Нет активных лотов на бирже."
             ),
+        "market.myListings" to (
+            "Your listings:" to
+                "Твои лоты:"
+            ),
+        "market.noDuplicates" to (
+            "You don't have duplicates to list." to
+                "У тебя нет дубликатов для выставления."
+            ),
+        "market.selectCard" to (
+            "Select a duplicate to list:" to
+                "Выбери дубликат для выставления:"
+            ),
+        "market.cardListing" to (
+            "🎴 %s (%s)\n🔄 Offered %s times" to
+                "🎴 %s (%s)\n🔄 Предложено %s раз"
+            ),
+        "market.browsingListings" to (
+            "Active market listings:\n\n%s\n\n%s" to
+                "Активные лоты на бирже:\n\n%s\n\n%s"
+            ),
+        "market.offerMade" to (
+            "Trade offer sent! Waiting for response..." to
+                "Предложение отправлено! Ожидаю ответ..."
+            ),
+        "market.offerReceived" to (
+            "New trade offer for: %s\nOffered: %s\n\nAccept or reject?" to
+                "Новое предложение за: %s\nПредлагает: %s\n\nПринять или отклонить?"
+            ),
+        "market.offerAccepted" to (
+            "Trade accepted! Cards exchanged." to
+                "Обмен принят! Карточки обменены."
+            ),
+        "market.offerRejected" to (
+            "Trade rejected." to
+                "Обмен отклонен."
+            ),
         "unknownCommand" to ("Unknown command. Send /help." to "Неизвестная команда. Напиши /help."),
         "unknownText" to ("Use /help to see available commands." to "Используй /help, чтобы увидеть доступные команды."),
         "callback.underDevelopment" to ("This section is under development." to "Раздел в разработке."),

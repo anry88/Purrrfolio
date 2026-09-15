@@ -11,7 +11,9 @@ import com.anry88.purrrfolio.i18n.Messages
 import com.anry88.purrrfolio.i18n.nameFor
 import com.anry88.purrrfolio.models.User
 import com.anry88.purrrfolio.models.UserCard
+import com.anry88.purrrfolio.models.MarketListing
 import com.anry88.purrrfolio.pack.PackOpeningService
+import com.anry88.purrrfolio.repository.MarketRepository
 import com.anry88.purrrfolio.repository.PackLedgerRepository
 import com.anry88.purrrfolio.repository.ProcessedUpdateRepository
 import com.anry88.purrrfolio.repository.UserCardRepository
@@ -39,6 +41,7 @@ class GameService(
     private val userRepository: UserRepository,
     private val userCardRepository: UserCardRepository,
     private val packLedgerRepository: PackLedgerRepository,
+    private val marketRepository: MarketRepository,
     private val processedUpdateRepository: ProcessedUpdateRepository,
     private val telegramClient: TelegramClient,
 ) {
@@ -97,7 +100,7 @@ class GameService(
             Action.PACK -> handlePackOpening(chatId, user)
             Action.THEMES -> sendThemesView(chatId, user)
             Action.TRADE -> telegramClient.sendMessage(chatId, Messages.t("trade.hint", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
-            Action.MARKET -> telegramClient.sendMessage(chatId, Messages.t("market.hint", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+            Action.MARKET -> handleMarket(chatId, user)
             Action.UNKNOWN_COMMAND -> telegramClient.sendMessage(chatId, Messages.t("unknownCommand", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
             Action.UNKNOWN_TEXT -> telegramClient.sendMessage(chatId, Messages.t("unknownText", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
         }
@@ -114,7 +117,7 @@ class GameService(
 
     private fun handlePackOpening(chatId: Long, user: User) {
         val locale = gameLocale(user)
-        val availablePacks = packLedgerRepository.getTotalAvailablePacks(user.id)
+        var availablePacks = packLedgerRepository.getTotalAvailablePacks(user.id)
         
         if (availablePacks <= 0) {
             // Check if free pack is available
@@ -123,19 +126,20 @@ class GameService(
             val hoursSinceLastFree = if (lastFree != null) ChronoUnit.HOURS.between(lastFree, now).toInt() else Int.MAX_VALUE
             
             if (hoursSinceLastFree >= properties.economy.freePackIntervalHours) {
-                // Grant free pack
+                // Grant free pack and immediately update timer
                 packLedgerRepository.addPacks(user.id, "free", 1)
                 userRepository.updateLastFreePackOpenedAt(user.id, now)
                 telegramClient.sendMessage(chatId, Messages.t("pack.freeAvailable", locale), mainMenuKeyboard(locale))
+                availablePacks = 1
             } else {
-                val hoursLeft = properties.economy.freePackIntervalHours - hoursSinceLastFree.toInt()
+                val hoursLeft = properties.economy.freePackIntervalHours - hoursSinceLastFree
                 telegramClient.sendMessage(
                     chatId,
                     Messages.t("pack.noPacks", locale) + "\n" + Messages.t("pack.nextFreeIn", locale, hoursLeft),
                     mainMenuKeyboard(locale),
                 )
+                return
             }
-            return
         }
 
         // Open pack
@@ -166,6 +170,49 @@ class GameService(
             }
         }
         telegramClient.sendMessage(chatId, Messages.t("pack.opened", locale), mainMenuKeyboard(locale))
+    }
+
+    private fun handleMarket(chatId: Long, user: User) {
+        val locale = gameLocale(user)
+        
+        // Get user's active market listings
+        val myListings = marketRepository.findActiveListingsBySeller(user.id)
+        
+        if (myListings.isEmpty()) {
+            // Show browse market button
+            val allListings = marketRepository.findAllActiveListings()
+            if (allListings.isEmpty()) {
+                telegramClient.sendMessage(chatId, Messages.t("market.noListings", locale), mainMenuKeyboard(locale))
+                return
+            }
+            
+            // Show first few listings
+            showMarketListings(chatId, user, allListings.take(5))
+        } else {
+            // Show user's own listings
+            telegramClient.sendMessage(
+                chatId,
+                Messages.t("market.myListings", locale) + "\n\n" +
+                myListings.joinToString("\n") { listing ->
+                    cardCatalog.card(listing.cardId.toString()).nameFor(locale)
+                },
+                mainMenuKeyboard(locale)
+            )
+        }
+    }
+
+    private fun showMarketListings(chatId: Long, user: User, listings: List<MarketListing>) {
+        val locale = gameLocale(user)
+        val listingText = listings.mapIndexed { i, listing ->
+            val card = cardCatalog.card(listing.cardId.toString())
+            "%d. %s %s".format(i + 1, card.rarity.emoji, card.nameFor(locale))
+        }.joinToString("\n")
+        
+        telegramClient.sendMessage(
+            chatId,
+            Messages.t("market.browsingListings", locale, listingText, "Available listings on market"),
+            mainMenuKeyboard(locale)
+        )
     }
 
     private enum class Action {
@@ -251,12 +298,52 @@ class GameService(
             "menu:collection" -> sendCollectionView(chatId, user)
             "menu:pack" -> handlePackOpening(chatId, user)
             "menu:themes" -> sendThemesView(chatId, user)
-            else -> telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+            else -> {
+                // Try to handle market offer callbacks
+                if (callback.data?.startsWith("market:") == true) {
+                    handleMarketCallback(chatId, user, callback.data!!)
+                } else {
+                    telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+                }
+            }
         }
     }
 
     private fun grantStarterPacks(userId: Long) {
         packLedgerRepository.addPacks(userId, "starter", properties.economy.starterPacks)
+    }
+
+    private fun handleMarketCallback(chatId: Long, user: User, data: String) {
+        val locale = gameLocale(user)
+        val parts = data.split(":")
+        
+        if (parts.size < 2) {
+            telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", locale), mainMenuKeyboard(locale))
+            return
+        }
+        
+        // market:accept:offerId or market:reject:offerId
+        val action = parts[1]
+        when (action) {
+            "accept" -> {
+                telegramClient.sendMessage(
+                    chatId,
+                    Messages.t("market.offerAccepted", locale),
+                    mainMenuKeyboard(locale)
+                )
+                // TODO: Execute card transfer atomically
+            }
+            "reject" -> {
+                telegramClient.sendMessage(
+                    chatId,
+                    Messages.t("market.offerRejected", locale),
+                    mainMenuKeyboard(locale)
+                )
+            }
+            else -> {
+                telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", locale), mainMenuKeyboard(locale))
+            }
+        }
     }
 
     private fun sendCollectionView(chatId: Long, user: User) {
