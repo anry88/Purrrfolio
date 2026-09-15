@@ -76,4 +76,9 @@ class RandomTradeRepository(private val jdbcTemplate: JdbcTemplate) {
         val sql = "SELECT * FROM random_trade_pool WHERE user_id = ? ORDER BY created_at DESC"
         return jdbcTemplate.query(sql, randomTradeRowMapper, userId)
     }
+
+    fun findAllWaiting(): List<RandomTradePool> {
+        val sql = "SELECT * FROM random_trade_pool WHERE status = 'WAITING' ORDER BY created_at ASC"
+        return jdbcTemplate.query(sql, randomTradeRowMapper)
+    }
 }

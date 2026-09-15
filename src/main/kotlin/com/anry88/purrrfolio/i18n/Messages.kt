@@ -141,6 +141,30 @@ object Messages {
             "Trade rejected." to
                 "Обмен отклонен."
             ),
+        "market.settlementFailed" to (
+            "Failed to complete trade. Please contact support." to
+                "Не удалось завершить обмен. Свяжись с поддержкой."
+            ),
+        "error.general" to (
+            "An error occurred. Please try again." to
+                "Произошла ошибка. Пожалуйста, попробуй ещё раз."
+            ),
+        "trade.hint" to (
+            "🎲 *Random Trade*\n\nAdd duplicate cards to the pool and automatically exchange them with other players' duplicates." to
+                "🎲 *Случайный обмен*\n\nДобавляй дубликаты в пул и автоматически обменивай их на дубликаты других игроков."
+            ),
+        "trade.added" to (
+            "Card added to random trade pool!" to
+                "Карточка добавлена в пул случайного обмена!"
+            ),
+        "trade.matched" to (
+            "Trade matched! You received: %s" to
+                "Обмен совершён! Ты получил: %s"
+            ),
+        "trade.noDuplicates" to (
+            "You have no duplicate cards to trade." to
+                "У тебя нет дубликатов для обмена."
+            ),
         "unknownCommand" to ("Unknown command. Send /help." to "Неизвестная команда. Напиши /help."),
         "unknownText" to ("Use /help to see available commands." to "Используй /help, чтобы увидеть доступные команды."),
         "callback.underDevelopment" to ("This section is under development." to "Раздел в разработке."),

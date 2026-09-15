@@ -16,6 +16,7 @@ import com.anry88.purrrfolio.pack.PackOpeningService
 import com.anry88.purrrfolio.repository.MarketRepository
 import com.anry88.purrrfolio.repository.PackLedgerRepository
 import com.anry88.purrrfolio.repository.ProcessedUpdateRepository
+import com.anry88.purrrfolio.repository.RandomTradeRepository
 import com.anry88.purrrfolio.repository.UserCardRepository
 import com.anry88.purrrfolio.repository.UserRepository
 import com.anry88.purrrfolio.telegram.TelegramCallbackQuery
@@ -42,6 +43,7 @@ class GameService(
     private val userCardRepository: UserCardRepository,
     private val packLedgerRepository: PackLedgerRepository,
     private val marketRepository: MarketRepository,
+    private val randomTradeRepository: RandomTradeRepository,
     private val processedUpdateRepository: ProcessedUpdateRepository,
     private val telegramClient: TelegramClient,
 ) {
@@ -99,7 +101,7 @@ class GameService(
             Action.COLLECTION -> sendCollectionView(chatId, user)
             Action.PACK -> handlePackOpening(chatId, user)
             Action.THEMES -> sendThemesView(chatId, user)
-            Action.TRADE -> telegramClient.sendMessage(chatId, Messages.t("trade.hint", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+            Action.TRADE -> handleTrade(chatId, user)
             Action.MARKET -> handleMarket(chatId, user)
             Action.UNKNOWN_COMMAND -> telegramClient.sendMessage(chatId, Messages.t("unknownCommand", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
             Action.UNKNOWN_TEXT -> telegramClient.sendMessage(chatId, Messages.t("unknownText", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
@@ -199,6 +201,33 @@ class GameService(
                 mainMenuKeyboard(locale)
             )
         }
+    }
+
+    private fun handleTrade(chatId: Long, user: User) {
+        val locale = gameLocale(user)
+        
+        // Get user's duplicate cards
+        val userCards = userCardRepository.findByUserId(user.id)
+        val duplicates = userCards.filter { it.quantity > 1 }
+        
+        if (duplicates.isEmpty()) {
+            telegramClient.sendMessage(
+                chatId,
+                Messages.t("trade.noDuplicates", locale),
+                mainMenuKeyboard(locale)
+            )
+            return
+        }
+        
+        telegramClient.sendMessage(
+            chatId,
+            Messages.t("trade.hint", locale) + "\n\n" +
+            duplicates.joinToString("\n") { card ->
+                val cardDef = cardCatalog.card(card.cardId.toString())
+                "• ${cardDef.nameFor(locale)} (×${card.quantity - 1} duplicate${if (card.quantity > 2) "s" else ""})"
+            },
+            mainMenuKeyboard(locale)
+        )
     }
 
     private fun showMarketListings(chatId: Long, user: User, listings: List<MarketListing>) {
@@ -317,28 +346,37 @@ class GameService(
         val locale = gameLocale(user)
         val parts = data.split(":")
         
-        if (parts.size < 2) {
+        if (parts.size < 3) {
             telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", locale), mainMenuKeyboard(locale))
             return
         }
         
         // market:accept:offerId or market:reject:offerId
         val action = parts[1]
+        val offerId = parts[2]
+        
         when (action) {
             "accept" -> {
-                telegramClient.sendMessage(
-                    chatId,
-                    Messages.t("market.offerAccepted", locale),
-                    mainMenuKeyboard(locale)
-                )
-                // TODO: Execute card transfer atomically
+                val settled = settleMarketplaceOffer(offerId, user.id)
+                val message = if (settled) {
+                    Messages.t("market.offerAccepted", locale)
+                } else {
+                    Messages.t("market.settlementFailed", locale)
+                }
+                telegramClient.sendMessage(chatId, message, mainMenuKeyboard(locale))
             }
             "reject" -> {
-                telegramClient.sendMessage(
-                    chatId,
-                    Messages.t("market.offerRejected", locale),
-                    mainMenuKeyboard(locale)
-                )
+                try {
+                    marketRepository.rejectTradeOffer(java.util.UUID.fromString(offerId))
+                    telegramClient.sendMessage(
+                        chatId,
+                        Messages.t("market.offerRejected", locale),
+                        mainMenuKeyboard(locale)
+                    )
+                } catch (e: Exception) {
+                    logger.error("Failed to reject trade offer", e)
+                    telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+                }
             }
             else -> {
                 telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", locale), mainMenuKeyboard(locale))
@@ -620,4 +658,74 @@ class GameService(
         "media" to fileId,
         "caption" to caption,
     )
+
+    private fun settleMarketplaceOffer(offerId: String, buyerId: Long): Boolean {
+        return try {
+            val offer = marketRepository.findPendingOffersForTarget(java.util.UUID.fromString(offerId)).firstOrNull()
+                ?: return false
+            
+            // Get both listings
+            val targetListing = marketRepository.findAllActiveListings().find { it.id == offer.targetListingId }
+                ?: return false
+            val offeredListing = marketRepository.findAllActiveListings().find { it.id == offer.offeredListingId }
+                ?: return false
+            
+            // Seller of offered listing, buyer of target listing
+            val seller = userRepository.findById(offeredListing.sellerId) ?: return false
+            val buyer = userRepository.findById(targetListing.sellerId) ?: return false
+            
+            // Atomic card transfer: buyer gets offered card, seller gets target card
+            userCardRepository.removeCard(buyer.id, targetListing.cardId, 1)
+            userCardRepository.removeCard(seller.id, offeredListing.cardId, 1)
+            userCardRepository.addCards(seller.id, listOf(targetListing.cardId))
+            userCardRepository.addCards(buyer.id, listOf(offeredListing.cardId))
+            
+            // Mark listings as sold
+            marketRepository.markListingSold(offer.targetListingId)
+            marketRepository.markListingSold(offer.offeredListingId)
+            
+            // Mark offer as accepted
+            marketRepository.acceptTradeOffer(offer.id)
+            
+            true
+        } catch (e: Exception) {
+            logger.error("Failed to settle marketplace offer", e)
+            false
+        }
+    }
+
+    private fun attemptRandomTradeMatching(userId: Long, cardId: Long): Boolean {
+        return try {
+            // Find any waiting trade from a different user with a different card
+            val waitingTrades = randomTradeRepository.findAllWaiting()
+            val matchCandidates = waitingTrades.filter { it.userId != userId && it.cardId != cardId }
+            
+            if (matchCandidates.isNotEmpty()) {
+                val matchedTrade = matchCandidates.first()
+                
+                // First, add user's trade to the pool
+                val userTrade = randomTradeRepository.addToPool(userId, cardId)
+                
+                // Perform atomic card swap
+                userCardRepository.removeCard(userId, cardId, 1)
+                userCardRepository.removeCard(matchedTrade.userId, matchedTrade.cardId, 1)
+                userCardRepository.addCards(userId, listOf(matchedTrade.cardId))
+                userCardRepository.addCards(matchedTrade.userId, listOf(cardId))
+                
+                // Mark both trades as matched
+                randomTradeRepository.matchTrades(userTrade.id, matchedTrade.id)
+                
+                logger.info("Random trade matched: user $userId card $cardId with user ${matchedTrade.userId} card ${matchedTrade.cardId}")
+                return true
+            } else {
+                // No match found, add to pool as waiting
+                randomTradeRepository.addToPool(userId, cardId)
+                logger.debug("No matching random trade found. User $userId card $cardId added to waiting pool")
+                return false
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to process random trade matching", e)
+            return false
+        }
+    }
 }

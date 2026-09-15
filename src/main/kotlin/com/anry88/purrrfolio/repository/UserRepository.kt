@@ -28,6 +28,12 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
         return results.firstOrNull()
     }
 
+    fun findById(id: Long): User? {
+        val sql = "SELECT * FROM users WHERE id = ?"
+        val results = jdbcTemplate.query(sql, userRowMapper, id)
+        return results.firstOrNull()
+    }
+
     fun create(telegramUserId: Long, language: String): User {
         val sql = """
             INSERT INTO users (telegram_user_id, language, available_packs)
