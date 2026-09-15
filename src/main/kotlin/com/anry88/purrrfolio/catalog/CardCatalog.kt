@@ -10,24 +10,28 @@ class CardCatalog(
 ) {
     private data class CatalogPayload(
         val themes: List<ThemeDefinition>,
-        val packs: List<PackDefinition>,
         val cards: List<CardRecord>,
+        val packs: List<PackDefinition> = emptyList(),
     )
 
     private data class CardRecord(
         val id: String,
-        val nameRu: String,
         val nameEn: String,
+        val nameRu: String,
         val themeId: String,
         val rarity: String,
         val imagePath: String,
+        val special: Boolean = false,
+        val limited: Boolean = false,
+        val event: String? = null,
+        val source: String? = null,
+        val sortOrder: Int = 0,
     )
 
     private val payload: CatalogPayload =
         objectMapper.readValue(ClassPathResource("catalog/cards.json").inputStream, CatalogPayload::class.java)
 
-    val themes: List<ThemeDefinition> = payload.themes
-    val packs: List<PackDefinition> = payload.packs
+    val collections: List<ThemeDefinition> = payload.themes
     val cards: List<CardDefinition> = payload.cards.map {
         CardDefinition(
             id = it.id,
@@ -36,19 +40,25 @@ class CardCatalog(
             themeId = it.themeId,
             rarity = CardRarity.fromSlug(it.rarity),
             imagePath = it.imagePath,
+            special = it.special,
+            limited = it.limited,
+            event = it.event,
+            source = it.source,
+            sortOrder = it.sortOrder,
         )
     }
 
     private val cardsById: Map<String, CardDefinition> = cards.associateBy { it.id }
-    private val themesById: Map<String, ThemeDefinition> = themes.associateBy { it.id }
+    private val collectionsById: Map<String, ThemeDefinition> = collections.associateBy { it.id }
 
     fun card(id: String): CardDefinition =
         cardsById[id] ?: throw IllegalArgumentException("Unknown card: $id")
 
-    fun theme(id: String): ThemeDefinition =
-        themesById[id] ?: throw IllegalArgumentException("Unknown theme: $id")
+    fun collection(id: String): ThemeDefinition =
+        collectionsById[id] ?: throw IllegalArgumentException("Unknown collection: $id")
 
-    fun cardsByTheme(themeId: String): List<CardDefinition> = cards.filter { it.themeId == themeId }
+    fun cardsByCollection(collectionId: String): List<CardDefinition> = 
+        cards.filter { it.themeId == collectionId }.sortedBy { it.sortOrder }
 
     fun cardsByRarity(rarity: CardRarity): List<CardDefinition> = cards.filter { it.rarity == rarity }
 }

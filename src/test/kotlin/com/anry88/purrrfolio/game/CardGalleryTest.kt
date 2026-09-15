@@ -16,13 +16,14 @@ class CardGalleryTest {
         themeId = "cozy-home",
         rarity = CardRarity.COMMON,
         imagePath = "assets/cards/sleepy.png",
+        sortOrder = 0,
     )
 
     private val cozyHome = ThemeDefinition(
         id = "cozy-home",
         nameRu = "Уютный дом",
         nameEn = "Cozy Home",
-        completionBonusFish = 20,
+        sortOrder = 1,
     )
 
     @Test

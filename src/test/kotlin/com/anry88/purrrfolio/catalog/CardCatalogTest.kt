@@ -10,9 +10,9 @@ class CardCatalogTest {
     private val catalog = CardCatalog(ObjectMapper().registerModule(kotlinModule()))
 
     @Test
-    fun loadsStarterCardsAndThemes() {
+    fun loadsStarterCardsAndCollections() {
         assertEquals(10, catalog.cards.size)
-        assertTrue(catalog.themes.isNotEmpty())
+        assertTrue(catalog.collections.isNotEmpty())
         assertEquals("Соня", catalog.card("sleepy").nameRu)
         assertEquals(CardRarity.LEGENDARY, catalog.card("baker").rarity)
     }

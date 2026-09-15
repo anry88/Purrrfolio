@@ -18,8 +18,15 @@ data class TelegramProperties(
 )
 
 data class EconomyProperties(
-    val starterFish: Int = 100,
-    val dailyFish: Int = 25,
-    val packCostFish: Int = 50,
+    val starterPacks: Int = 3,
+    val freePackIntervalHours: Int = 23,
     val cardsPerPack: Int = 3,
+    val starsPricing: StarsPricing = StarsPricing(),
+)
+
+data class StarsPricing(
+    val onePack: Int = 5,
+    val threePacks: Int = 12,
+    val fivePacks: Int = 16,
+    val tenPacks: Int = 25,
 )

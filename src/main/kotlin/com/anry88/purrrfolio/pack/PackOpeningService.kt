@@ -21,8 +21,8 @@ data class PackOpenResult(
 class PackOpeningService(
     private val cardCatalog: CardCatalog,
 ) {
-    fun rollCards(count: Int, ownedCardIds: Set<String>, seed: Long? = null): List<CardDefinition> {
-        val random = seed?.let { ThreadLocalRandom.current() } ?: ThreadLocalRandom.current()
+    fun rollCards(count: Int, ownedCardIds: Set<String>): List<CardDefinition> {
+        val random = ThreadLocalRandom.current()
         return buildList {
             repeat(count) {
                 add(drawOne(random))
@@ -50,7 +50,16 @@ class PackOpeningService(
                 break
             }
         }
-        val pool = cardCatalog.cardsByRarity(chosenRarity)
+        
+        // Find a rarity with available cards
+        var pool = cardCatalog.cardsByRarity(chosenRarity)
+        if (pool.isEmpty()) {
+            // Fallback to any available rarity with cards
+            pool = CardRarity.entries
+                .map { cardCatalog.cardsByRarity(it) }
+                .firstOrNull { it.isNotEmpty() } ?: listOf(cardCatalog.card("sleepy"))
+        }
+        
         return pool[random.nextInt(pool.size)]
     }
 }

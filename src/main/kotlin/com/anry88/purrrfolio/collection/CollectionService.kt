@@ -10,8 +10,8 @@ class CollectionService(
     private val cardCatalog: CardCatalog,
 ) {
     fun buildThemeProgress(ownedCardIds: Set<String>, claimedThemeIds: Set<String>): List<ThemeProgress> =
-        cardCatalog.themes.map { theme ->
-            val themeCards = cardCatalog.cardsByTheme(theme.id)
+        cardCatalog.collections.map { theme ->
+            val themeCards = cardCatalog.cardsByCollection(theme.id)
             val ownedUnique = themeCards.count { ownedCardIds.contains(it.id) }
             val completed = ownedUnique == themeCards.size
             ThemeProgress(
@@ -20,7 +20,7 @@ class CollectionService(
                 themeNameEn = theme.nameEn,
                 ownedUnique = ownedUnique,
                 totalCards = themeCards.size,
-                completionBonusFish = theme.completionBonusFish,
+                completionBonusFish = 0, // Removed in new spec
                 completed = completed,
                 claimed = claimedThemeIds.contains(theme.id),
             )

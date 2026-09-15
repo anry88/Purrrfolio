@@ -28,15 +28,19 @@ class MessagesTest {
     }
 
     @Test
-    fun `pack insufficient formats with args`() {
-        val result = Messages.t("pack.insufficient", en, 50, 30)
-        assertEquals("Not enough fish! A pack costs 50 🐟, you have 30 🐟.", result)
+    fun `pack no packs returns text in both locales`() {
+        val enResult = Messages.t("pack.noPacks", en)
+        val ruResult = Messages.t("pack.noPacks", ru)
+        assertTrue(enResult.isNotBlank())
+        assertTrue(ruResult.isNotBlank())
     }
 
     @Test
-    fun `pack insufficient formats in Russian`() {
-        val result = Messages.t("pack.insufficient", ru, 50, 30)
-        assertEquals("Недостаточно рыбок! Набор стоит 50 🐟, а у тебя 30 🐟.", result)
+    fun `pack starter formats with args`() {
+        val enResult = Messages.t("pack.starter", en, 3)
+        val ruResult = Messages.t("pack.starter", ru, 3)
+        assertTrue(enResult.contains("3"))
+        assertTrue(ruResult.contains("3"))
     }
 
     @Test
@@ -45,14 +49,6 @@ class MessagesTest {
         val ruResult = Messages.t("collection.title", ru, 5, 10)
         assertEquals("🗂 *Your collection* (5 / 10)", enResult)
         assertEquals("🗂 *Твоя коллекция* (5 / 10)", ruResult)
-    }
-
-    @Test
-    fun `daily reward formats with two args`() {
-        val enResult = Messages.t("daily.reward", en, 25, 125)
-        val ruResult = Messages.t("daily.reward", ru, 25, 125)
-        assertEquals("Daily reward: +25 🐟\nYour balance: 125 🐟", enResult)
-        assertEquals("Ежедневная награда: +25 🐟\nТвой баланс: 125 🐟", ruResult)
     }
 
     @Test
@@ -65,16 +61,15 @@ class MessagesTest {
     fun `all locale keys are present for both locales`() {
         val knownKeys = listOf(
             "welcome", "help",
-            "menu.collection", "menu.pack", "menu.themes", "menu.trade", "menu.market", "menu.profile", "menu.language",
+            "menu.collection", "menu.pack", "menu.trade", "menu.market", "menu.language",
             "language.title", "language.changed",
-            "pack.insufficient", "pack.opening", "pack.opened", "pack.newCard",
+            "pack.noPacks", "pack.opening", "pack.opened", "pack.newCard", "pack.starter", "pack.freeAvailable", "pack.nextFreeIn",
             "collection.empty", "collection.title", "collection.more",
-            "themes.title",
-            "profile.title", "profile.player", "profile.fish", "profile.unique", "profile.themes",
+            "profile.title", "profile.unique", "profile.packs",
             "trade.hint", "market.hint",
-            "daily.already", "daily.reward",
             "unknownCommand", "unknownText", "callback.underDevelopment",
-            "themeStatus.claimed", "themeStatus.completed", "themeStatus.inProgress",
+            "gallery.back", "gallery.viewCards", "gallery.owned", "gallery.missing", "gallery.counter",
+            "cmd.start", "cmd.pack", "cmd.collection", "cmd.trade", "cmd.market", "cmd.language", "cmd.help",
         )
         for (key in knownKeys) {
             assertDoesNotThrow({ Messages.t(key, en) }, "Key '$key' missing for EN")

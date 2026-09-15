@@ -7,19 +7,25 @@ data class CardDefinition(
     val themeId: String,
     val rarity: CardRarity,
     val imagePath: String,
+    val special: Boolean = false,
+    val limited: Boolean = false,
+    val event: String? = null,
+    val source: String? = null,
+    val sortOrder: Int = 0,
 )
 
 data class ThemeDefinition(
     val id: String,
     val nameRu: String,
     val nameEn: String,
-    val completionBonusFish: Int,
+    val sortOrder: Int = 0,
+    val completionBonusFish: Int = 0,
 )
 
 data class PackDefinition(
     val id: String,
     val nameRu: String,
     val nameEn: String,
-    val costFish: Int,
-    val cardsCount: Int,
+    val costFish: Int = 50,
+    val cardsCount: Int = 3,
 )

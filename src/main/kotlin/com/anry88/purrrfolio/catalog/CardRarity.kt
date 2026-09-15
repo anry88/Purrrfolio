@@ -1,11 +1,12 @@
 package com.anry88.purrrfolio.catalog
 
 enum class CardRarity(val weight: Int, val emoji: String, val labelRu: String, val labelEn: String) {
-    COMMON(55, "⚪", "Обычная", "Common"),
-    RARE(25, "🔵", "Редкая", "Rare"),
-    EPIC(12, "🟣", "Эпическая", "Epic"),
-    LEGENDARY(6, "🟠", "Легендарная", "Legendary"),
-    SPECIAL(2, "🔴", "Особая", "Special"),
+    COMMON(48, "⚪", "Обычная", "Common"),
+    UNCOMMON(25, "🟢", "Необычная", "Uncommon"),
+    RARE(15, "🔵", "Редкая", "Rare"),
+    EPIC(7, "🟣", "Эпическая", "Epic"),
+    MYTHIC(3, "�", "Мифическая", "Mythic"),
+    LEGENDARY(2, "�", "Легендарная", "Legendary"),
     ;
 
     companion object {

@@ -15,7 +15,7 @@ class PackOpeningServiceTest {
 
     @Test
     fun rollsRequestedNumberOfCards() {
-        val cards = service.rollCards(count = 3, ownedCardIds = emptySet(), seed = 7L)
+        val cards = service.rollCards(count = 3, ownedCardIds = emptySet())
         assertEquals(3, cards.size)
     }
 
@@ -28,6 +28,7 @@ class PackOpeningServiceTest {
             themeId = "cozy-home",
             rarity = CardRarity.COMMON,
             imagePath = "/assets/cards/sleepy.png",
+            sortOrder = 0,
         )
         val result = service.formatReveal(card, isNew = true, locale = GameLocale.EN)
         assertTrue(result.contains("Sleepy"))
@@ -44,6 +45,7 @@ class PackOpeningServiceTest {
             themeId = "professions",
             rarity = CardRarity.LEGENDARY,
             imagePath = "/assets/cards/baker.png",
+            sortOrder = 0,
         )
         val result = service.formatReveal(card, isNew = false, locale = GameLocale.RU)
         assertTrue(result.contains("Пекарь"))
