@@ -61,15 +61,29 @@ class MessagesTest {
     fun `all locale keys are present for both locales`() {
         val knownKeys = listOf(
             "welcome", "help",
-            "menu.collection", "menu.pack", "menu.trade", "menu.market", "menu.language",
+            "menu.collection", "menu.pack", "menu.buy", "menu.trade", "menu.market", "menu.language",
             "language.title", "language.changed",
             "pack.noPacks", "pack.opening", "pack.opened", "pack.newCard", "pack.starter", "pack.freeAvailable", "pack.nextFreeIn",
-            "collection.empty", "collection.title", "collection.more",
+            "buy.title", "buy.option1", "buy.option3", "buy.option5", "buy.option10",
+            "buy.invoiceTitle", "buy.invoiceDesc", "buy.success",
+            "paysupport.text",
+            "collection.empty", "collection.title", "collection.more", "collection.page",
+            "collection.next", "collection.prev",
             "profile.title", "profile.unique", "profile.packs",
-            "trade.hint", "market.hint",
+            "themeStatus.claimed", "themeStatus.completed", "themeStatus.inProgress", "themes.title",
+            "trade.hint", "trade.added", "trade.addedToPool", "trade.matched", "trade.noDuplicates",
+            "trade.pickCard", "trade.offerButton",
+            "market.hint", "market.listed", "market.returned", "market.noListings", "market.myListings",
+            "market.noDuplicates", "market.selectCard", "market.browsingListings", "market.browseHint",
+            "market.chooseOffer", "market.offerMade", "market.offerReceived",
+            "market.offerAccepted", "market.offerRejected", "market.settlementFailed",
+            "market.listButton", "market.returnButton", "market.offerButton", "market.accept", "market.reject",
+            "error.general",
             "unknownCommand", "unknownText", "callback.underDevelopment",
             "gallery.back", "gallery.viewCards", "gallery.owned", "gallery.missing", "gallery.counter",
-            "cmd.start", "cmd.pack", "cmd.collection", "cmd.trade", "cmd.market", "cmd.language", "cmd.help",
+            "gallery.trade", "gallery.listMarket",
+            "cmd.start", "cmd.pack", "cmd.collection", "cmd.buy", "cmd.trade", "cmd.market",
+            "cmd.language", "cmd.help", "cmd.paysupport",
         )
         for (key in knownKeys) {
             assertDoesNotThrow({ Messages.t(key, en) }, "Key '$key' missing for EN")

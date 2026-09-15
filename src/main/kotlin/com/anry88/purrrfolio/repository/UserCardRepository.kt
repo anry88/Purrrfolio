@@ -14,7 +14,7 @@ class UserCardRepository(private val jdbcTemplate: JdbcTemplate) {
         UserCard(
             id = rs.getLong("id"),
             userId = rs.getLong("user_id"),
-            cardId = rs.getLong("card_id"),
+            cardId = rs.getString("card_id"),
             quantity = rs.getInt("quantity"),
             firstObtained = rs.getObject("first_obtained", OffsetDateTime::class.java),
             updatedAt = rs.getObject("updated_at", OffsetDateTime::class.java),
@@ -26,13 +26,13 @@ class UserCardRepository(private val jdbcTemplate: JdbcTemplate) {
         return jdbcTemplate.query(sql, userCardRowMapper, userId)
     }
 
-    fun findByUserIdAndCardId(userId: Long, cardId: Long): UserCard? {
+    fun findByUserIdAndCardId(userId: Long, cardId: String): UserCard? {
         val sql = "SELECT * FROM user_cards WHERE user_id = ? AND card_id = ?"
         val results = jdbcTemplate.query(sql, userCardRowMapper, userId, cardId)
         return results.firstOrNull()
     }
 
-    fun addCards(userId: Long, cardIds: List<Long>) {
+    fun addCards(userId: Long, cardIds: List<String>) {
         if (cardIds.isEmpty()) return
         
         val cardCounts = cardIds.groupingBy { it }.eachCount()
@@ -52,7 +52,7 @@ class UserCardRepository(private val jdbcTemplate: JdbcTemplate) {
         jdbcTemplate.batchUpdate(sql, batchArgs)
     }
 
-    fun removeCard(userId: Long, cardId: Long, quantity: Int = 1) {
+    fun removeCard(userId: Long, cardId: String, quantity: Int = 1) {
         val sql = """
             UPDATE user_cards 
             SET quantity = quantity - ?, updated_at = NOW() 
@@ -65,7 +65,7 @@ class UserCardRepository(private val jdbcTemplate: JdbcTemplate) {
         jdbcTemplate.update(deleteSql, userId, cardId)
     }
 
-    fun transferCard(fromUserId: Long, toUserId: Long, cardId: Long, quantity: Int = 1) {
+    fun transferCard(fromUserId: Long, toUserId: Long, cardId: String, quantity: Int = 1) {
         removeCard(fromUserId, cardId, quantity)
         addCards(toUserId, listOf(cardId))
     }

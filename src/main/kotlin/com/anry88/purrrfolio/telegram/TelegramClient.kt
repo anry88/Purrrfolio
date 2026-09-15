@@ -86,6 +86,60 @@ class TelegramClient(
             .toBodilessEntity()
     }
 
+    fun sendInvoice(
+        chatId: Long,
+        title: String,
+        description: String,
+        payload: String,
+        currency: String = "XTR",
+        prices: List<TelegramLabeledPrice>,
+    ) {
+        if (!isConfigured()) {
+            logger.warn("Telegram bot token is not configured; skipping sendInvoice")
+            return
+        }
+        restClient.post()
+            .uri("sendInvoice")
+            .body(
+                mapOf(
+                    "chat_id" to chatId,
+                    "title" to title,
+                    "description" to description,
+                    "payload" to payload,
+                    "currency" to currency,
+                    "prices" to prices,
+                ),
+            )
+            .retrieve()
+            .toBodilessEntity()
+    }
+
+    fun answerPreCheckoutQuery(preCheckoutQueryId: String, ok: Boolean, errorMessage: String? = null) {
+        if (!isConfigured()) {
+            logger.warn("Telegram bot token is not configured; skipping answerPreCheckoutQuery")
+            return
+        }
+        val body = mutableMapOf<String, Any>("pre_checkout_query_id" to preCheckoutQueryId, "ok" to ok)
+        if (errorMessage != null) body["error_message"] = errorMessage
+        restClient.post()
+            .uri("answerPreCheckoutQuery")
+            .body(body)
+            .retrieve()
+            .toBodilessEntity()
+    }
+
+    fun refundStarPayment(userId: Long, telegramChargeId: String) {
+        if (!isConfigured()) {
+            logger.warn("Telegram bot token is not configured; skipping refundStarPayment")
+            return
+        }
+        restClient.post()
+            .uri("refundStarPayment")
+            .body(mapOf("user_id" to userId, "telegram_payment_charge_id" to telegramChargeId))
+            .retrieve()
+            .toBodilessEntity()
+    }
+
     fun sendPhoto(chatId: Long, photoResource: Resource, caption: String? = null, replyMarkup: TelegramReplyMarkup? = null): TelegramMessage? {
         if (!isConfigured()) {
             logger.warn("Telegram bot token is not configured; skipping sendPhoto")

@@ -16,7 +16,7 @@ class RandomTradeRepository(private val jdbcTemplate: JdbcTemplate) {
         RandomTradePool(
             id = rs.getLong("id"),
             userId = rs.getLong("user_id"),
-            cardId = rs.getLong("card_id"),
+            cardId = rs.getString("card_id"),
             status = RandomTradeStatus.valueOf(rs.getString("status")),
             matchedTradeId = rs.getObject("matched_trade_id", Long::class.java),
             createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
@@ -24,7 +24,7 @@ class RandomTradeRepository(private val jdbcTemplate: JdbcTemplate) {
         )
     }
 
-    fun addToPool(userId: Long, cardId: Long): RandomTradePool {
+    fun addToPool(userId: Long, cardId: String): RandomTradePool {
         val sql = """
             INSERT INTO random_trade_pool (user_id, card_id, status)
             VALUES (?, ?, 'WAITING')
@@ -34,7 +34,7 @@ class RandomTradeRepository(private val jdbcTemplate: JdbcTemplate) {
         return results.first()
     }
 
-    fun findWaitingTradesForCard(cardId: Long): List<RandomTradePool> {
+    fun findWaitingTradesForCard(cardId: String): List<RandomTradePool> {
         val sql = """
             SELECT * FROM random_trade_pool 
             WHERE card_id = ? AND status = 'WAITING' 

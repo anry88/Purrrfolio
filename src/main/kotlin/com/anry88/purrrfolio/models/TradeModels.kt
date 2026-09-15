@@ -12,7 +12,7 @@ enum class RandomTradeStatus {
 data class RandomTradePool(
     val id: Long,
     val userId: Long,
-    val cardId: Long,
+    val cardId: String,
     val status: RandomTradeStatus,
     val matchedTradeId: Long?,
     val createdAt: OffsetDateTime,
@@ -28,7 +28,7 @@ enum class MarketListingStatus {
 data class MarketListing(
     val id: UUID,
     val sellerId: Long,
-    val cardId: Long,
+    val cardId: String,
     val status: MarketListingStatus,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,

@@ -32,31 +32,38 @@ Core business logic is split into small packages:
 
 1. Telegram update arrives at `/bot`.
 2. Webhook validates secret token and deduplicates by `update_id`.
-3. Service upserts `players` by `telegram_id`, grants starter fish balance.
+3. Service upserts `users` by `telegram_user_id`, grants 3 starter packs via `pack_ledger`.
 
 ### Pack opening (planned)
 
-1. `/pack` checks `fish_balance >= pack.costFish`.
-2. Transaction debits fish, inserts `pack_openings`, rolls cards via `PackOpeningService`.
-3. Inventory upsert into `player_cards`.
+1. `/pack` checks `pack_ledger` sum > 0, else grants a free pack if 23h passed since `last_free_pack_opened_at`.
+2. Transaction inserts a negative `pack_ledger` row, rolls cards via `PackOpeningService`.
+3. Inventory upsert into `user_cards` (TEXT card ids matching `catalog/cards.json`).
 4. Bot sends card PNGs from `/static/assets/cards/{id}.png`.
+
+### Stars purchase
+
+1. `/buy` sends a Telegram Stars invoice (XTR, 5/12/16/25 Stars for 1/3/5/10 packs).
+2. `pre_checkout_query` is answered OK after payload/amount validation.
+3. `successful_payment` inserts `payments` + positive `pack_ledger` row (idempotent by Telegram charge id).
 
 ### Theme completion (planned)
 
-1. `/themes` reads owned unique cards per theme from `player_cards`.
-2. When complete and unclaimed, player claims bonus through inline button.
-3. Transaction inserts `theme_completion_claims` and credits fish.
+1. `/collection` reads owned unique cards per theme from `user_cards` (10 collections per page).
+2. Gallery navigation shows only opened cards; duplicates expose trade/market buttons.
 
 ### Trading (planned)
 
 1. Seller must own at least two copies (`TradePolicy.MIN_DUPLICATES_TO_TRADE`).
-2. Offer stored in `trade_offers` with TTL.
-3. Buyer accepts → atomic quantity transfer between `player_cards` rows.
+2. Card copy leaves inventory into `random_trade_pool` with WAITING status.
+3. First waiting card of another player with a different card id matches → both cards dealt out, MATCHED.
 
 ### Marketplace (planned)
 
-1. Seller lists duplicate → `market_listings` row, quantity decremented.
-2. Buyer purchases → fish transfer minus fee, card quantity incremented.
+1. Seller lists duplicate → `market_listings` row, one copy removed from inventory.
+2. Seller can return the card (`CANCELLED` + inventory credit).
+3. Buyer picks a foreign listing, chooses one of their own listings as offer → `trade_offers` PENDING.
+4. Owner accepts → atomic card exchange, both listings SOLD; rejects → REJECTED.
 
 ## Localization
 
@@ -68,16 +75,17 @@ All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strin
 
 ## Persistence
 
-PostgreSQL schema is defined in `src/main/resources/db/migration/V1__initial_schema.sql`.
+PostgreSQL schema is defined in `src/main/resources/db/migration/` (`V1` legacy fish schema, `V3` Stars schema per PDF v1.3, `V4` card-id/ledger fixes).
 
 Main tables:
 
-- `players`
-- `player_cards`
-- `theme_completion_claims`
-- `pack_openings`
-- `trade_offers`
+- `users`
+- `user_cards` (TEXT `card_id` matching `catalog/cards.json`)
+- `pack_ledger` (positive grants, negative `opened` consumption rows)
+- `random_trade_pool`
 - `market_listings`
+- `trade_offers`
+- `payments`
 - `processed_telegram_updates`
 
 ## Catalog and Assets

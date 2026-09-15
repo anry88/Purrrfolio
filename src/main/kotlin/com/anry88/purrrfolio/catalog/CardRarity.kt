@@ -5,8 +5,8 @@ enum class CardRarity(val weight: Int, val emoji: String, val labelRu: String, v
     UNCOMMON(25, "🟢", "Необычная", "Uncommon"),
     RARE(15, "🔵", "Редкая", "Rare"),
     EPIC(7, "🟣", "Эпическая", "Epic"),
-    MYTHIC(3, "�", "Мифическая", "Mythic"),
-    LEGENDARY(2, "�", "Легендарная", "Legendary"),
+    MYTHIC(3, "🔴", "Мифическая", "Mythic"),
+    LEGENDARY(2, "🟠", "Легендарная", "Legendary"),
     ;
 
     companion object {

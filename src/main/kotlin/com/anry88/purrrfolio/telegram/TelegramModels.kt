@@ -10,6 +10,8 @@ data class TelegramUpdate(
     val message: TelegramMessage? = null,
     @JsonProperty("callback_query")
     val callbackQuery: TelegramCallbackQuery? = null,
+    @JsonProperty("pre_checkout_query")
+    val preCheckoutQuery: TelegramPreCheckoutQuery? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -20,6 +22,8 @@ data class TelegramMessage(
     val chat: TelegramChat? = null,
     val from: TelegramUser? = null,
     val photo: List<TelegramPhotoSize>? = null,
+    @JsonProperty("successful_payment")
+    val successfulPayment: TelegramSuccessfulPayment? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -102,6 +106,36 @@ data class TelegramEditMessageMediaRequest(
     val media: Map<String, Any?>,
     @JsonProperty("reply_markup")
     val replyMarkup: TelegramReplyMarkup? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramPreCheckoutQuery(
+    val id: String? = null,
+    val from: TelegramUser? = null,
+    val currency: String? = null,
+    @JsonProperty("total_amount")
+    val totalAmount: Int? = null,
+    @JsonProperty("invoice_payload")
+    val invoicePayload: String? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramSuccessfulPayment(
+    val currency: String? = null,
+    @JsonProperty("total_amount")
+    val totalAmount: Int? = null,
+    @JsonProperty("invoice_payload")
+    val invoicePayload: String? = null,
+    @JsonProperty("telegram_payment_charge_id")
+    val telegramPaymentChargeId: String? = null,
+    @JsonProperty("provider_payment_charge_id")
+    val providerPaymentChargeId: String? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramLabeledPrice(
+    val label: String,
+    val amount: Int,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

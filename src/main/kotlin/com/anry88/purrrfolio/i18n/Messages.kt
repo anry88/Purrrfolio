@@ -8,6 +8,7 @@ object Messages {
                 "Main commands:\n" +
                 "/collection — your collection\n" +
                 "/pack — open a pack\n" +
+                "/buy — get more packs with Telegram Stars\n" +
                 "/trade — random trade\n" +
                 "/market — card market\n" +
                 "/language — change language\n" +
@@ -17,6 +18,7 @@ object Messages {
                 "Основные команды:\n" +
                 "/collection — твоя коллекция\n" +
                 "/pack — открыть набор\n" +
+                "/buy — купить наборы за Telegram Stars\n" +
                 "/trade — случайный обмен\n" +
                 "/market — биржа карточек\n" +
                 "/language — сменить язык\n" +
@@ -27,27 +29,32 @@ object Messages {
                 "/start — register and choose language\n" +
                 "/collection — list your cards and duplicates\n" +
                 "/pack — open a pack (3 cards)\n" +
+                "/buy — buy packs with Telegram Stars\n" +
                 "/trade — random trade duplicates\n" +
                 "/market — list and trade cards\n" +
-                "/language — change language" to
+                "/language — change language\n" +
+                "/paysupport — payment support" to
             "*Команды Purrrfolio*\n\n" +
                 "/start — регистрация и выбор языка\n" +
                 "/collection — список карточек и дубликатов\n" +
                 "/pack — открыть набор (3 карточки)\n" +
+                "/buy — купить наборы за Telegram Stars\n" +
                 "/trade — случайный обмен дубликатами\n" +
                 "/market — выставить и обменять карточки\n" +
-                "/language — сменить язык"
+                "/language — сменить язык\n" +
+                "/paysupport — поддержка платежей"
             ),
         "menu.collection" to ("🗂 Collection" to "🗂 Коллекция"),
         "menu.pack" to ("🎁 Pack" to "🎁 Набор"),
         "menu.trade" to ("🎲 Random Trade" to "🎲 Случайный обмен"),
         "menu.market" to ("🏪 Market" to "🏪 Биржа"),
         "menu.language" to ("🌐 Language" to "🌐 Язык"),
+        "menu.buy" to ("⭐ Buy packs" to "⭐ Купить наборы"),
         "language.title" to ("🌐 Choose your language:" to "🌐 Выбери язык:"),
         "language.changed" to ("Language set to English." to "Язык изменён на русский."),
         "pack.noPacks" to (
-            "No packs available. Get free packs every 23 hours or buy with Telegram Stars." to
-                "Нет доступных наборов. Бесплатные наборы каждые 23 часа или покупка за Telegram Stars."
+            "No packs available. A free pack arrives every 23 hours, or get more with /buy using Telegram Stars." to
+                "Нет доступных наборов. Бесплатный набор приходит каждые 23 часа, или возьми ещё через /buy за Telegram Stars."
             ),
         "pack.opening" to (
             "Opening a pack..." to
@@ -67,32 +74,67 @@ object Messages {
             "Next free pack in %s hours." to
                 "Следующий бесплатный набор через %s часов."
             ),
+        "buy.title" to (
+            "⭐ *Get more packs*\n\n1 pack — 5 Stars\n3 packs — 12 Stars\n5 packs — 16 Stars\n10 packs — 25 Stars\n\nPaid packs are added to your stash and do not open automatically. Use /pack to open them." to
+                "⭐ *Купить наборы*\n\n1 набор — 5 Stars\n3 набора — 12 Stars\n5 наборов — 16 Stars\n10 наборов — 25 Stars\n\nКупленные наборы добавляются в запас и не открываются сами. Открой их через /pack."
+            ),
+        "buy.option1" to ("1 pack — 5 ⭐" to "1 набор — 5 ⭐"),
+        "buy.option3" to ("3 packs — 12 ⭐" to "3 набора — 12 ⭐"),
+        "buy.option5" to ("5 packs — 16 ⭐" to "5 наборов — 16 ⭐"),
+        "buy.option10" to ("10 packs — 25 ⭐" to "10 наборов — 25 ⭐"),
+        "buy.invoiceTitle" to ("Purrrfolio packs (%s pcs)" to "Наборы Purrrfolio (%s шт.)"),
+        "buy.invoiceDesc" to ("Fluffy card packs. They are added to your stash and open with /pack." to "Пушистые наборы с карточками. Добавляются в запас и открываются через /pack."),
+        "buy.success" to (
+            "⭐ Payment received! %s packs added. Use /pack to open them." to
+                "⭐ Оплата получена! Добавлено наборов: %s. Открой их через /pack."
+            ),
+        "paysupport.text" to (
+            "💳 *Payment support*\n\nIf Stars were charged but packs did not arrive, tell us the date, amount of Stars and your Telegram @username. We check the payment log and credit missing packs or issue a Stars refund." to
+                "💳 *Поддержка платежей*\n\nЕсли Stars списались, а наборы не пришли, напиши дату, сумму Stars и свой @username в Telegram. Мы проверим журнал оплат и доначислим наборы или вернём Stars."
+            ),
         "collection.empty" to (
             "Your collection is empty. Open your first /pack!" to
                 "Твоя коллекция пока пуста. Открой свой первый /pack!"
             ),
         "collection.title" to ("🗂 *Your collection* (%s / %s)" to "🗂 *Твоя коллекция* (%s / %s)"),
         "collection.more" to ("...and %s more cards." to "...и еще %s карт."),
+        "collection.page" to ("🗂 *Collections* (page %s)\n\n%s" to "🗂 *Коллекции* (страница %s)\n\n%s"),
+        "collection.next" to ("Next ➡️" to "Далее ➡️"),
+        "collection.prev" to ("⬅️ Back" to "⬅️ Назад"),
+        "collection.openFirst" to ("Open the first card ➡️" to "Открыть первую карточку ➡️"),
         "profile.title" to ("👤 *%s*" to "👤 *%s*"),
         "profile.player" to ("Player" to "Игрок"),
         "profile.unique" to ("🃏 Unique cards: %s / %s" to "🃏 Уникальных карточек: %s / %s"),
-        "profile.packs" to ("� Available packs: %s" to "� Доступных наборов: %s"),
+        "profile.packs" to ("🎁 Available packs: %s" to "🎁 Доступных наборов: %s"),
+        "themeStatus.claimed" to ("claimed" to "получен"),
+        "themeStatus.completed" to ("completed!" to "собрана!"),
+        "themeStatus.inProgress" to ("in progress" to "в процессе"),
+        "themes.title" to ("📚 *Themes*" to "📚 *Темы*"),
         "trade.hint" to (
-            "Random Trade: offer a duplicate to the pool and get a random different card in return.\nYou need at least 2 copies of a card." to
-                "Случайный обмен: предложи дубликат в пул и получи случайную другую карточку взамен.\nНужен минимум 2 копии одной карточки."
+            "🎲 *Random Trade*\n\nAdd duplicate cards to the pool and automatically exchange them with other players' duplicates." to
+                "🎲 *Случайный обмен*\n\nДобавляй дубликаты в пул и автоматически обменивай их на дубликаты других игроков."
+            ),
+        "trade.added" to (
+            "Card added to random trade pool!" to
+                "Карточка добавлена в пул случайного обмена!"
             ),
         "trade.addedToPool" to (
             "Card added to trade pool. Waiting for a match..." to
                 "Карточка добавлена в пул обмена. Ожидание пары..."
             ),
         "trade.matched" to (
-            "🎉 Trade matched! You received a new card." to
-                "🎉 Обмен совершен! Ты получил новую карточку."
+            "Trade matched! You received: %s" to
+                "Обмен совершён! Ты получил: %s"
             ),
         "trade.noDuplicates" to (
-            "No duplicates available for trade." to
-                "Нет дубликатов для обмена."
+            "You have no duplicate cards to trade." to
+                "У тебя нет дубликатов для обмена."
             ),
+        "trade.pickCard" to (
+            "Pick a duplicate to trade:" to
+                "Выбери дубликат для обмена:"
+            ),
+        "trade.offerButton" to ("🎲 Trade %s" to "🎲 Обменять %s"),
         "market.hint" to (
             "Market: list your duplicates and offer them for other players' cards.\nList a card to start trading." to
                 "Биржа: выставь свои дубликаты и предложи их за карточки других игроков.\nВыставь карточку, чтобы начать торговлю."
@@ -100,6 +142,10 @@ object Messages {
         "market.listed" to (
             "Card listed on market." to
                 "Карточка выставлена на биржу."
+            ),
+        "market.returned" to (
+            "Card returned to your collection." to
+                "Карточка возвращена в коллекцию."
             ),
         "market.noListings" to (
             "No active listings on market." to
@@ -125,6 +171,14 @@ object Messages {
             "Active market listings:\n\n%s\n\n%s" to
                 "Активные лоты на бирже:\n\n%s\n\n%s"
             ),
+        "market.browseHint" to (
+            "Pick someone's card, then choose one of your listed cards to offer in return." to
+                "Выбери чужую карточку, затем предложи одну из своих выставленных карточек взамен."
+            ),
+        "market.chooseOffer" to (
+            "Choose your listed card to offer for %s:" to
+                "Выбери свою выставленную карточку для обмена на %s:"
+            ),
         "market.offerMade" to (
             "Trade offer sent! Waiting for response..." to
                 "Предложение отправлено! Ожидаю ответ..."
@@ -145,25 +199,14 @@ object Messages {
             "Failed to complete trade. Please contact support." to
                 "Не удалось завершить обмен. Свяжись с поддержкой."
             ),
+        "market.listButton" to ("🏪 List %s" to "🏪 Выставить %s"),
+        "market.returnButton" to ("↩️ Return %s" to "↩️ Вернуть %s"),
+        "market.offerButton" to ("🔄 Offer for %s" to "🔄 Предложить за %s"),
+        "market.accept" to ("✅ Accept" to "✅ Принять"),
+        "market.reject" to ("❌ Reject" to "❌ Отклонить"),
         "error.general" to (
             "An error occurred. Please try again." to
                 "Произошла ошибка. Пожалуйста, попробуй ещё раз."
-            ),
-        "trade.hint" to (
-            "🎲 *Random Trade*\n\nAdd duplicate cards to the pool and automatically exchange them with other players' duplicates." to
-                "🎲 *Случайный обмен*\n\nДобавляй дубликаты в пул и автоматически обменивай их на дубликаты других игроков."
-            ),
-        "trade.added" to (
-            "Card added to random trade pool!" to
-                "Карточка добавлена в пул случайного обмена!"
-            ),
-        "trade.matched" to (
-            "Trade matched! You received: %s" to
-                "Обмен совершён! Ты получил: %s"
-            ),
-        "trade.noDuplicates" to (
-            "You have no duplicate cards to trade." to
-                "У тебя нет дубликатов для обмена."
             ),
         "unknownCommand" to ("Unknown command. Send /help." to "Неизвестная команда. Напиши /help."),
         "unknownText" to ("Use /help to see available commands." to "Используй /help, чтобы увидеть доступные команды."),
@@ -173,13 +216,17 @@ object Messages {
         "gallery.owned" to ("In collection: ×%s" to "В коллекции: ×%s"),
         "gallery.missing" to ("Not collected yet" to "Ещё не собрана"),
         "gallery.counter" to ("%s / %s" to "%s / %s"),
+        "gallery.trade" to ("🎲 Random Trade" to "🎲 Случайный обмен"),
+        "gallery.listMarket" to ("🏪 List for Trade" to "🏪 Выставить на биржу"),
         "cmd.start" to ("Open the menu" to "Открыть меню"),
         "cmd.pack" to ("Open a pack" to "Открыть набор"),
         "cmd.collection" to ("View cat collection" to "Посмотреть коллекцию котиков"),
+        "cmd.buy" to ("Buy packs with Stars" to "Купить наборы за Stars"),
         "cmd.trade" to ("Random trade" to "Случайный обмен"),
         "cmd.market" to ("Card market" to "Биржа карточек"),
         "cmd.language" to ("Switch language" to "Сменить язык"),
         "cmd.help" to ("Help" to "Помощь"),
+        "cmd.paysupport" to ("Payment support" to "Поддержка платежей"),
     )
 
     fun t(key: String, locale: GameLocale, vararg args: Any?): String {

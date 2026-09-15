@@ -33,14 +33,13 @@ class TelegramCommandRegistrar(private val telegramClient: TelegramClient) {
 
     private fun commandsFor(locale: GameLocale) = listOf(
         TelegramBotCommand("start", Messages.t("cmd.start", locale)),
-        TelegramBotCommand("pack", Messages.t("cmd.pack", locale)),
         TelegramBotCommand("collection", Messages.t("cmd.collection", locale)),
-        TelegramBotCommand("themes", Messages.t("cmd.themes", locale)),
+        TelegramBotCommand("pack", Messages.t("cmd.pack", locale)),
+        TelegramBotCommand("buy", Messages.t("cmd.buy", locale)),
         TelegramBotCommand("trade", Messages.t("cmd.trade", locale)),
         TelegramBotCommand("market", Messages.t("cmd.market", locale)),
-        TelegramBotCommand("daily", Messages.t("cmd.daily", locale)),
-        TelegramBotCommand("profile", Messages.t("cmd.profile", locale)),
         TelegramBotCommand("language", Messages.t("cmd.language", locale)),
         TelegramBotCommand("help", Messages.t("cmd.help", locale)),
+        TelegramBotCommand("paysupport", Messages.t("cmd.paysupport", locale)),
     )
 }

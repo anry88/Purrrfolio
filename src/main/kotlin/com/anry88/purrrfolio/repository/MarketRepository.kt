@@ -18,7 +18,7 @@ class MarketRepository(private val jdbcTemplate: JdbcTemplate) {
         MarketListing(
             id = UUID.fromString(rs.getString("id")),
             sellerId = rs.getLong("seller_id"),
-            cardId = rs.getLong("card_id"),
+            cardId = rs.getString("card_id"),
             status = MarketListingStatus.valueOf(rs.getString("status")),
             createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
             updatedAt = rs.getObject("updated_at", OffsetDateTime::class.java),
@@ -36,7 +36,7 @@ class MarketRepository(private val jdbcTemplate: JdbcTemplate) {
         )
     }
 
-    fun createListing(sellerId: Long, cardId: Long): MarketListing {
+    fun createListing(sellerId: Long, cardId: String): MarketListing {
         val sql = """
             INSERT INTO market_listings (seller_id, card_id, status)
             VALUES (?, ?, 'ACTIVE')
@@ -55,13 +55,23 @@ class MarketRepository(private val jdbcTemplate: JdbcTemplate) {
         return jdbcTemplate.query(sql, marketListingRowMapper, sellerId)
     }
 
-    fun findActiveListingsByCard(cardId: Long): List<MarketListing> {
+    fun findActiveListingsByCard(cardId: String): List<MarketListing> {
         val sql = """
             SELECT * FROM market_listings 
             WHERE card_id = ? AND status = 'ACTIVE' 
             ORDER BY created_at DESC
         """.trimIndent()
         return jdbcTemplate.query(sql, marketListingRowMapper, cardId)
+    }
+
+    fun findListingById(listingId: UUID): MarketListing? {
+        val sql = "SELECT * FROM market_listings WHERE id = ?"
+        return jdbcTemplate.query(sql, marketListingRowMapper, listingId).firstOrNull()
+    }
+
+    fun findOfferById(offerId: UUID): TradeOffer? {
+        val sql = "SELECT * FROM trade_offers WHERE id = ?"
+        return jdbcTemplate.query(sql, tradeOfferRowMapper, offerId).firstOrNull()
     }
 
     fun findAllActiveListings(): List<MarketListing> {

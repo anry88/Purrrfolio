@@ -15,7 +15,7 @@ data class User(
 data class UserCard(
     val id: Long,
     val userId: Long,
-    val cardId: Long,
+    val cardId: String,
     val quantity: Int,
     val firstObtained: OffsetDateTime,
     val updatedAt: OffsetDateTime,

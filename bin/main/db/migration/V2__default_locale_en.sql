@@ -1,1 +1,0 @@
-ALTER TABLE players ALTER COLUMN locale SET DEFAULT 'en';

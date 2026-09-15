@@ -1,6 +1,6 @@
 # Purrrfolio
 
-Purrrfolio (КотоКоллекция) is a Telegram-first collectible card game about cozy kawaii cats. Players open fluffy packs, complete themed sets, and trade duplicates — all through bot commands, without a Mini App.
+Purrrfolio (КотоКоллекция) is a Telegram-first collectible card game about cozy kawaii cats. Players open fluffy packs, complete themed sets, and trade duplicates — all through bot commands, without a Mini App or in-game currency. Extra packs are bought with Telegram Stars.
 
 The repository currently contains the project scaffold: Kotlin/Spring Boot backend, PostgreSQL schema, JSON card catalog, extracted starter card art, and implementation documentation derived from the concept images in `docs/source/`.
 
@@ -11,15 +11,14 @@ The repository currently contains the project scaffold: Kotlin/Spring Boot backe
 Open `@purrrfolio_bot` and use:
 
 - `/start` — register and open the main menu
-- `/collection` — inspect owned cards and duplicates
-- `/pack` — open a fluffy pack for fish tokens
-- `/themes` — track themed collection progress and claim set bonuses
-- `/trade` — offer a duplicate to another player
-- `/market` — list or buy duplicate cards on the in-game market
-- `/daily` — claim daily fish tokens
-- `/profile` — balance and collection stats
+- `/collection` — inspect owned cards and duplicates (10 collections per page)
+- `/pack` — open a fluffy pack (3 cards)
+- `/buy` — buy packs with Telegram Stars (1/3/5/10 packs for 5/12/16/25 Stars)
+- `/trade` — random trade of a duplicate from the shared pool
+- `/market` — list duplicates, browse others, offer card-for-card trades
 - `/language` — switch between English and Russian
 - `/help` — command help
+- `/paysupport` — Stars payment support
 
 The bot is English by default; players whose Telegram language is Russian see Russian copy automatically. Use `/language` at any time to switch.
 
@@ -27,8 +26,9 @@ The bot is English by default; players whose Telegram language is Russian see Ru
 
 - A normal session should fit into 1–3 minutes of Telegram chat.
 - Depth comes from rarity, themed sets, duplicates, and social trading — not from a separate client UI.
+- There is no in-game currency: 3 starter packs, then 1 free pack every 23 hours, extra packs via Telegram Stars.
 - Card definitions, themes, pack prices, and rarity weights are data-driven JSON.
-- The backend is the authority for inventory, economy, trades, and marketplace settlement.
+- The backend is the authority for inventory, packs, trades, and marketplace settlement.
 
 ## Stack
 
