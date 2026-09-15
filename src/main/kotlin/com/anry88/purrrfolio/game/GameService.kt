@@ -95,6 +95,13 @@ class GameService(
 
         fun packsFromPayload(payload: String?): Int? =
             payload?.removePrefix("purrrfolio:packs:")?.toIntOrNull()?.takeIf { starsForPacks(it) != null }
+
+        /** Hours until the next free pack; 0 means a free pack is due now. */
+        fun hoursUntilFreePack(lastFree: OffsetDateTime?, now: OffsetDateTime, intervalHours: Int): Int {
+            if (lastFree == null) return 0
+            val elapsed = ChronoUnit.HOURS.between(lastFree, now).toInt()
+            return maxOf(intervalHours - elapsed, 0)
+        }
     }
 
     fun handle(update: TelegramUpdate) {
@@ -168,19 +175,18 @@ class GameService(
         var availablePacks = packLedgerRepository.getTotalAvailablePacks(user.id)
 
         if (availablePacks <= 0) {
-            // Check if free pack is available (23h from last free opening, paid packs don't reset the timer).
+            // Free pack every 23h from the last free opening; the timer starts
+            // at registration so exactly 3 starter packs come first.
             val now = OffsetDateTime.now()
-            val lastFree = user.lastFreePackOpenedAt
-            val hoursSinceLastFree = if (lastFree != null) ChronoUnit.HOURS.between(lastFree, now).toInt() else Int.MAX_VALUE
+            val hoursLeft = hoursUntilFreePack(user.lastFreePackOpenedAt, now, properties.economy.freePackIntervalHours)
 
-            if (hoursSinceLastFree >= properties.economy.freePackIntervalHours) {
+            if (hoursLeft == 0) {
                 // Grant free pack and immediately update timer
                 packLedgerRepository.addPacks(user.id, "free", 1)
                 userRepository.updateLastFreePackOpenedAt(user.id, now)
                 telegramClient.sendMessage(chatId, Messages.t("pack.freeAvailable", locale), mainMenuKeyboard(locale))
                 availablePacks = 1
             } else {
-                val hoursLeft = properties.economy.freePackIntervalHours - hoursSinceLastFree
                 telegramClient.sendMessage(
                     chatId,
                     Messages.t("pack.noPacks", locale) + "\n" + Messages.t("pack.nextFreeIn", locale, hoursLeft),
@@ -738,6 +744,9 @@ class GameService(
 
     private fun grantStarterPacks(userId: Long) {
         packLedgerRepository.addPacks(userId, "starter", properties.economy.starterPacks)
+        // The 23h free-pack timer starts at registration: exactly 3 starter
+        // packs are free, the next free pack arrives 23h later.
+        userRepository.updateLastFreePackOpenedAt(userId, OffsetDateTime.now())
     }
 
     private fun sendThemesAlias(chatId: Long, user: User) = sendThemesView(chatId, user)

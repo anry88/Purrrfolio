@@ -60,11 +60,7 @@ cp src/main/resources/application-local.example.yml src/main/resources/applicati
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
-Regenerate card PNGs from the sprite sheet:
-
-```bash
-python3 scripts/extract-cards.py
-```
+Card art (`assets/cards/`, mirrored to `src/main/resources/static/assets/cards/`) is generated with an image model from the prompts in `docs/source/card-art-prompts.md` — one standalone 1024×1536 PNG per card, no sprite sheets or script rendering.
 
 ## Repository Layout
 

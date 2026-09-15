@@ -1,11 +1,8 @@
 # Card assets
 
-Individual card PNGs extracted from `docs/source/card-sprite-sheet.png`.
+One standalone 1024×1536 PNG per card, drawn with an image model — no sprite
+sheets, no script rendering. Prompts and seeds: `docs/source/card-art-prompts.md`.
 
-Regenerate:
-
-```bash
-python3 scripts/extract-cards.py
-```
-
-The same files are copied to `src/main/resources/static/assets/cards/` for Spring static serving and Telegram photo delivery.
+The same files are mirrored to `src/main/resources/static/assets/cards/` for
+Spring static serving and Telegram photo delivery. Keep both trees in sync
+whenever art changes.

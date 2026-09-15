@@ -3,6 +3,7 @@ package com.anry88.purrrfolio.game
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import java.time.OffsetDateTime
 
 class StarsPricingTest {
 
@@ -30,5 +31,17 @@ class StarsPricingTest {
         assertNull(GameService.packsFromPayload(GameService.starsPayload(2)))
         assertNull(GameService.packsFromPayload("garbage"))
         assertNull(GameService.packsFromPayload(null))
+    }
+
+    @Test
+    fun `free pack timer starts at registration`() {
+        val now = OffsetDateTime.now()
+        // Just registered: 3 starter packs first, next free in 23h.
+        assertEquals(23, GameService.hoursUntilFreePack(now, now, 23))
+        // 22h later: 1h left.
+        assertEquals(1, GameService.hoursUntilFreePack(now, now.plusHours(22), 23))
+        // 23h later: due.
+        assertEquals(0, GameService.hoursUntilFreePack(now, now.plusHours(23), 23))
+        assertEquals(0, GameService.hoursUntilFreePack(now, now.plusHours(50), 23))
     }
 }
