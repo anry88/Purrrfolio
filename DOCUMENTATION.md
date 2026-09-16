@@ -120,6 +120,15 @@ Local overrides: copy `application-local.example.yml` to `application-local.yml`
 - `GET /health` — liveness-style check on app port
 - `GET /` — service metadata
 - Spring Actuator on port `9090` — health probes and Prometheus metrics
+- `observability/GameMetrics` — Micrometer counters (`purrrfolio.bot.command`,
+  `purrrfolio.bot.callback`, `purrrfolio.registration`, `purrrfolio.stars.purchase`,
+  `purrrfolio.pack.opened`, `purrrfolio.card.claimed`, `purrrfolio.craft.*`,
+  `purrrfolio.trade.matched`, `purrrfolio.market.offer`) plus per-minute
+  database gauges (players, registrations by source, packs by ledger source,
+  Stars payments, craft bank, pool depth, market listings)
+- Grafana board source: `docs/grafana/dashboard.json` (+ scrape snippet in
+  `docs/grafana/README.md`); registration attribution comes from deep links
+  (`t.me/<bot>?start=<source>`) stored in `users.registration_source`
 
 ## Next Engineering Steps
 

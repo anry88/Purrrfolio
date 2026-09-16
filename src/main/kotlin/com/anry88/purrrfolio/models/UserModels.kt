@@ -9,6 +9,7 @@ data class User(
     val lastFreePackOpenedAt: OffsetDateTime?,
     val lastFreeCardAt: OffsetDateTime?,
     val craftPoints: Int,
+    val registrationSource: String,
     val availablePacks: Int,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,

@@ -112,7 +112,7 @@ Reply-клавиатура: Коллекция, Набор, Обмен, Бирж
 
 ### Регистрация
 
-1. `/start` → выбор языка (inline-кнопки EN/RU)
+1. `/start` → выбор языка (inline-кнопки EN/RU); payload deep-ссылки (`?start=источник`) сохраняется в `users.registration_source`
 2. Создать `users` row по `telegram_id` с выбранным языком
 3. Добавить 3 стартовых пака в `pack_ledger` (source=starter)
 4. Показать welcome + reply-меню + кнопку «Открыть набор»

@@ -13,6 +13,7 @@ import com.anry88.purrrfolio.i18n.nameFor
 import com.anry88.purrrfolio.models.MarketListing
 import com.anry88.purrrfolio.models.User
 import com.anry88.purrrfolio.models.UserCard
+import com.anry88.purrrfolio.observability.GameMetrics
 import com.anry88.purrrfolio.pack.PackOpeningService
 import com.anry88.purrrfolio.repository.MarketRepository
 import com.anry88.purrrfolio.repository.PackLedgerRepository
@@ -51,6 +52,7 @@ class GameService(
     private val randomTradeRepository: RandomTradeRepository,
     private val paymentRepository: PaymentRepository,
     private val processedUpdateRepository: ProcessedUpdateRepository,
+    private val gameMetrics: GameMetrics,
     private val telegramClient: TelegramClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -69,6 +71,8 @@ class GameService(
 
     private val chatGalleries = ConcurrentHashMap<Long, ChatGallery>()
     private val knownFileIds = ConcurrentHashMap<String, String>()
+    /** telegramId -> normalized /start payload, consumed when the language is chosen. */
+    private val pendingSources = ConcurrentHashMap<Long, String>()
     /** chatId -> target market listing the user is picking an offer for (keeps callbacks <= 64 bytes). */
     private val pendingMarketOffers = ConcurrentHashMap<Long, UUID>()
 
@@ -118,6 +122,7 @@ class GameService(
             return
         }
         update.callbackQuery?.let {
+            it.data?.let { data -> gameMetrics.callback(data) }
             handleCallback(it)
             return
         }
@@ -137,6 +142,10 @@ class GameService(
         val telegramId = message.from?.id ?: return
 
         val user = userRepository.findByTelegramUserId(telegramId) ?: run {
+            // First touch: remember the /start payload for attribution, if any.
+            val text = message.text?.trim().orEmpty()
+            val payload = if (text.startsWith("/start")) text.substringAfter(' ', "").trim() else ""
+            pendingSources[telegramId] = GameMetrics.normalizeRegistrationSource(payload.ifEmpty { null })
             // First time user - show language selection
             handleLanguageSelection(chatId, telegramId)
             return
@@ -144,6 +153,7 @@ class GameService(
 
         val text = message.text?.trim().orEmpty()
         val action = resolveAction(text, gameLocale(user))
+        gameMetrics.command(action.name.lowercase(), if (text.startsWith("/")) "command" else "keyboard")
 
         when (action) {
             Action.START -> telegramClient.sendMessage(chatId, Messages.t("welcome", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
@@ -189,6 +199,7 @@ class GameService(
 
         // Open pack
         packLedgerRepository.addPacks(user.id, "opened", -1)
+        gameMetrics.packOpened()
         telegramClient.sendMessage(chatId, Messages.t("pack.opening", locale))
 
         // Roll cards
@@ -268,6 +279,7 @@ class GameService(
             return
         }
         userCardRepository.addCards(fresh.id, listOf(card.id))
+        gameMetrics.freeCardClaimed()
         val isNew = !owned.contains(card.id)
         val caption = packOpeningService.formatReveal(card, isNew, locale)
         val resource = ClassPathResource("static/assets/cards/${card.id}.png")
@@ -328,13 +340,16 @@ class GameService(
             return
         }
         userCardRepository.removeCard(fresh.id, cardId, 1)
-        val result = CraftPolicy.addPoints(fresh.craftPoints, CraftPolicy.pointsFor(card.rarity))
+        val gained = CraftPolicy.pointsFor(card.rarity)
+        val result = CraftPolicy.addPoints(fresh.craftPoints, gained)
+        gameMetrics.craftMelted(card.rarity.name, gained)
         userRepository.updateCraftPoints(fresh.id, result.leftover)
         val lines = mutableListOf(
             Messages.t("craft.added", locale, card.nameFor(locale), CraftPolicy.pointsFor(card.rarity), result.leftover, CraftPolicy.POINTS_PER_PACK),
         )
         if (result.packs > 0) {
             packLedgerRepository.addPacks(fresh.id, "craft", result.packs)
+            gameMetrics.craftPackBuilt(result.packs)
             lines.add(Messages.t("craft.crafted", locale, result.packs))
         }
         telegramClient.sendMessage(chatId, lines.joinToString("\n\n"), openPackKeyboard(locale))
@@ -363,6 +378,7 @@ class GameService(
                 currency = STARS_CURRENCY,
                 prices = listOf(TelegramLabeledPrice(Messages.t("buy.invoiceTitle", locale, packs), stars)),
             )
+            gameMetrics.stars("invoice_sent", packs.toString())
         }.onFailure {
             logger.warn("Failed to send Stars invoice to chat {}", chatId, it)
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
@@ -375,9 +391,11 @@ class GameService(
         val expectedStars = packs?.let { starsForPacks(it) }
         if (packs == null || expectedStars == null || totalAmount != expectedStars) {
             telegramClient.answerPreCheckoutQuery(queryId, ok = false, errorMessage = "Invalid order")
+            gameMetrics.stars("precheckout_failed")
             return
         }
         telegramClient.answerPreCheckoutQuery(queryId, ok = true)
+        gameMetrics.stars("precheckout_ok", packs.toString())
     }
 
     private fun handleSuccessfulPayment(message: TelegramMessage) {
@@ -402,9 +420,11 @@ class GameService(
             paymentRepository.createPayment(user.id, chargeId, payment.totalAmount ?: 0, packs)
             packLedgerRepository.addPacks(user.id, "stars", packs, payment.totalAmount, chargeId)
             paymentRepository.markPaymentCompleted(paymentRepository.findByTelegramPaymentId(chargeId)!!.id)
+            gameMetrics.stars("paid", packs.toString())
             telegramClient.sendMessage(chatId, Messages.t("buy.success", locale, packs), openPackKeyboard(locale))
         } catch (e: Exception) {
             logger.error("Failed to credit Stars purchase {}", chargeId, e)
+            gameMetrics.stars("failed", packs.toString())
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
         }
     }
@@ -472,6 +492,7 @@ class GameService(
         val match = attemptRandomTradeMatching(user.id, cardId)
         if (match != null) {
             val matchedName = runCatching { cardCatalog.card(match.receivedCardId).nameFor(locale) }.getOrElse { match.receivedCardId }
+            gameMetrics.tradeMatched()
             telegramClient.sendMessage(chatId, Messages.t("trade.matched", locale, matchedName), mainMenuKeyboard(locale))
             // The waiting side has no other way to learn about the swap.
             runCatching {
@@ -678,6 +699,7 @@ class GameService(
         }
         try {
             val offer = marketRepository.createTradeOffer(targetId, offeredId)
+            gameMetrics.marketOffer("created")
             telegramClient.sendMessage(chatId, Messages.t("market.offerMade", locale), mainMenuKeyboard(locale))
             // Notify the owner with accept/reject buttons.
             val targetName = runCatching { cardCatalog.card(target.cardId).nameFor(gameLocale(user)) }.getOrElse { target.cardId }
@@ -725,6 +747,7 @@ class GameService(
                 }
                 data.startsWith("m:rej:") -> {
                     marketRepository.rejectTradeOffer(UUID.fromString(data.removePrefix("m:rej:")))
+                    gameMetrics.marketOffer("rejected")
                     telegramClient.sendMessage(chatId, Messages.t("market.offerRejected", locale), mainMenuKeyboard(locale))
                 }
                 // Backward-compatible long prefixes from earlier builds.
@@ -738,6 +761,7 @@ class GameService(
                 }
                 data.startsWith("market:reject:") -> {
                     marketRepository.rejectTradeOffer(UUID.fromString(data.removePrefix("market:reject:")))
+                    gameMetrics.marketOffer("rejected")
                     telegramClient.sendMessage(chatId, Messages.t("market.offerRejected", locale), mainMenuKeyboard(locale))
                 }
                 else -> telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", locale), mainMenuKeyboard(locale))
@@ -770,6 +794,7 @@ class GameService(
             marketRepository.markListingSold(offer.targetListingId)
             marketRepository.markListingSold(offer.offeredListingId)
             marketRepository.acceptTradeOffer(offer.id)
+            gameMetrics.marketOffer("accepted")
             true
         } catch (e: Exception) {
             logger.error("Failed to settle marketplace offer", e)
@@ -866,13 +891,17 @@ class GameService(
             callback.id?.let { telegramClient.answerCallbackQuery(it) }
             when (callback.data) {
                 "lang:en" -> {
-                    val newUser = userRepository.create(telegramId, GameLocale.EN.code)
+                    val source = pendingSources.remove(telegramId) ?: "direct"
+                    val newUser = userRepository.create(telegramId, GameLocale.EN.code, source)
+                    gameMetrics.registration(source)
                     grantStarterPacks(newUser.id)
                     telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.EN), mainMenuKeyboard(GameLocale.EN))
                     telegramClient.sendMessage(chatId, Messages.t("pack.starter", GameLocale.EN, properties.economy.starterPacks), openPackKeyboard(GameLocale.EN))
                 }
                 "lang:ru" -> {
-                    val newUser = userRepository.create(telegramId, GameLocale.RU.code)
+                    val source = pendingSources.remove(telegramId) ?: "direct"
+                    val newUser = userRepository.create(telegramId, GameLocale.RU.code, source)
+                    gameMetrics.registration(source)
                     grantStarterPacks(newUser.id)
                     telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.RU), mainMenuKeyboard(GameLocale.RU))
                     telegramClient.sendMessage(chatId, Messages.t("pack.starter", GameLocale.RU, properties.economy.starterPacks), openPackKeyboard(GameLocale.RU))

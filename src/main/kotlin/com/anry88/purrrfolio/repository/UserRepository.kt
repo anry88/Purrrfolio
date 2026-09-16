@@ -18,6 +18,7 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
             lastFreePackOpenedAt = rs.getObject("last_free_pack_opened_at", OffsetDateTime::class.java),
             lastFreeCardAt = rs.getObject("last_free_card_at", OffsetDateTime::class.java),
             craftPoints = runCatching { rs.getInt("craft_points") }.getOrDefault(0),
+            registrationSource = runCatching { rs.getString("registration_source") }.getOrDefault("direct") ?: "direct",
             availablePacks = rs.getInt("available_packs"),
             createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
             updatedAt = rs.getObject("updated_at", OffsetDateTime::class.java),
@@ -36,13 +37,13 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
         return results.firstOrNull()
     }
 
-    fun create(telegramUserId: Long, language: String): User {
+    fun create(telegramUserId: Long, language: String, registrationSource: String = "direct"): User {
         val sql = """
-            INSERT INTO users (telegram_user_id, language, available_packs)
-            VALUES (?, ?, 0)
+            INSERT INTO users (telegram_user_id, language, registration_source, available_packs)
+            VALUES (?, ?, ?, 0)
             RETURNING *
         """.trimIndent()
-        val results = jdbcTemplate.query(sql, userRowMapper, telegramUserId, language)
+        val results = jdbcTemplate.query(sql, userRowMapper, telegramUserId, language, registrationSource)
         return results.first()
     }
 
