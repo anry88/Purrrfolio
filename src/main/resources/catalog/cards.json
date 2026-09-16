@@ -65,7 +65,71 @@
       "nameEn": "Sleepy",
       "themeId": "cozy-home",
       "rarity": "COMMON",
-      "imagePath": "/assets/cards/sleepy.png"
+      "imagePath": "/assets/cards/sleepy.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "sock-thief",
+      "nameRu": "Похититель носков",
+      "nameEn": "Sock Thief",
+      "themeId": "cozy-home",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/sock-thief.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "blanket-burrito",
+      "nameRu": "Буритто в пледе",
+      "nameEn": "Blanket Burrito",
+      "themeId": "cozy-home",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/blanket-burrito.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "window-kitty",
+      "nameRu": "Котик на окне",
+      "nameEn": "Window Kitty",
+      "themeId": "cozy-home",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/window-kitty.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "yarn-keeper",
+      "nameRu": "Хранитель пряжи",
+      "nameEn": "Yarn Keeper",
+      "themeId": "cozy-home",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/yarn-keeper.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "fireplace-friend",
+      "nameRu": "Друг у камина",
+      "nameEn": "Fireplace Friend",
+      "themeId": "cozy-home",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/fireplace-friend.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "pillow-fort",
+      "nameRu": "Крепость из подушек",
+      "nameEn": "Pillow Fort",
+      "themeId": "cozy-home",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/pillow-fort.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "tiny-gardener",
+      "nameRu": "Маленький садовник",
+      "nameEn": "Tiny Gardener",
+      "themeId": "cozy-home",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/tiny-gardener.png",
+      "sortOrder": 7
     },
     {
       "id": "boxie",
@@ -73,31 +137,44 @@
       "nameEn": "Boxie",
       "themeId": "cozy-home",
       "rarity": "LEGENDARY",
-      "imagePath": "/assets/cards/boxie.png"
+      "imagePath": "/assets/cards/boxie.png",
+      "sortOrder": 8
     },
     {
-      "id": "librarian",
-      "nameRu": "Библиотекарь",
-      "nameEn": "Librarian",
-      "themeId": "professions",
-      "rarity": "LEGENDARY",
-      "imagePath": "/assets/cards/librarian.png"
+      "id": "dreamweaver",
+      "nameRu": "Ткач снов",
+      "nameEn": "Dreamweaver",
+      "themeId": "cozy-home",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/dreamweaver.png",
+      "sortOrder": 9
     },
     {
-      "id": "baker",
-      "nameRu": "Пекарь",
-      "nameEn": "Baker",
-      "themeId": "professions",
-      "rarity": "LEGENDARY",
-      "imagePath": "/assets/cards/baker.png"
-    },
-    {
-      "id": "rainy",
-      "nameRu": "Дождик",
-      "nameEn": "Rainy",
+      "id": "sunny",
+      "nameRu": "Солнышко",
+      "nameEn": "Sunny",
       "themeId": "weather",
-      "rarity": "RARE",
-      "imagePath": "/assets/cards/rainy.png"
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/sunny.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "windy",
+      "nameRu": "Ветреный",
+      "nameEn": "Windy",
+      "themeId": "weather",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/windy.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "snowy",
+      "nameRu": "Снежок",
+      "nameEn": "Snowy",
+      "themeId": "weather",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/snowy.png",
+      "sortOrder": 2
     },
     {
       "id": "blossom",
@@ -105,7 +182,98 @@
       "nameEn": "Blossom",
       "themeId": "weather",
       "rarity": "UNCOMMON",
-      "imagePath": "/assets/cards/blossom.png"
+      "imagePath": "/assets/cards/blossom.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "cloudy",
+      "nameRu": "Облачко",
+      "nameEn": "Cloudy",
+      "themeId": "weather",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/cloudy.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "rainy",
+      "nameRu": "Дождик",
+      "nameEn": "Rainy",
+      "themeId": "weather",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/rainy.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "first-snow",
+      "nameRu": "Первый снег",
+      "nameEn": "First Snow",
+      "themeId": "weather",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/first-snow.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "thunder",
+      "nameRu": "Гроза",
+      "nameEn": "Thunder",
+      "themeId": "weather",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/thunder.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "rainbow-chaser",
+      "nameRu": "Ловец радуги",
+      "nameEn": "Rainbow Chaser",
+      "themeId": "weather",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/rainbow-chaser.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "storm-keeper",
+      "nameRu": "Хранитель бури",
+      "nameEn": "Storm Keeper",
+      "themeId": "weather",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/storm-keeper.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "aurora",
+      "nameRu": "Северное сияние",
+      "nameEn": "Aurora",
+      "themeId": "weather",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/aurora.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "reader",
+      "nameRu": "Книголюб",
+      "nameEn": "Reader",
+      "themeId": "hobbies",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/reader.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "napper",
+      "nameRu": "Дрёма",
+      "nameEn": "Napper",
+      "themeId": "hobbies",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/napper.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "gamer",
+      "nameRu": "Геймер",
+      "nameEn": "Gamer",
+      "themeId": "hobbies",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/gamer.png",
+      "sortOrder": 2
     },
     {
       "id": "fisher",
@@ -113,7 +281,287 @@
       "nameEn": "Fisher",
       "themeId": "hobbies",
       "rarity": "UNCOMMON",
-      "imagePath": "/assets/cards/fisher.png"
+      "imagePath": "/assets/cards/fisher.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "painter",
+      "nameRu": "Художник",
+      "nameEn": "Painter",
+      "themeId": "hobbies",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/painter.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "knitter",
+      "nameRu": "Вязальщик",
+      "nameEn": "Knitter",
+      "themeId": "hobbies",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/knitter.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "photographer",
+      "nameRu": "Фотограф",
+      "nameEn": "Photographer",
+      "themeId": "hobbies",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/photographer.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "skater",
+      "nameRu": "Скейтер",
+      "nameEn": "Skater",
+      "themeId": "hobbies",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/skater.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "pianist",
+      "nameRu": "Пианист",
+      "nameEn": "Pianist",
+      "themeId": "hobbies",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/pianist.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "treasure-hunter",
+      "nameRu": "Охотник за сокровищами",
+      "nameEn": "Treasure Hunter",
+      "themeId": "hobbies",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/treasure-hunter.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "master-collector",
+      "nameRu": "Мастер-коллекционер",
+      "nameEn": "Master Collector",
+      "themeId": "hobbies",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/master-collector.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "dream-painter",
+      "nameRu": "Художник снов",
+      "nameEn": "Dream Painter",
+      "themeId": "hobbies",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/dream-painter.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "barista",
+      "nameRu": "Бариста",
+      "nameEn": "Barista",
+      "themeId": "professions",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/barista.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "postcat",
+      "nameRu": "Кот-почтальон",
+      "nameEn": "Postcat",
+      "themeId": "professions",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/postcat.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "florist",
+      "nameRu": "Флорист",
+      "nameEn": "Florist",
+      "themeId": "professions",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/florist.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "gardener",
+      "nameRu": "Садовник",
+      "nameEn": "Gardener",
+      "themeId": "professions",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/gardener.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "mechanic",
+      "nameRu": "Механик",
+      "nameEn": "Mechanic",
+      "themeId": "professions",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/mechanic.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "chef",
+      "nameRu": "Шеф-повар",
+      "nameEn": "Chef",
+      "themeId": "professions",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/chef.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "doctor",
+      "nameRu": "Доктор",
+      "nameEn": "Doctor",
+      "themeId": "professions",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/doctor.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "detective",
+      "nameRu": "Детектив",
+      "nameEn": "Detective",
+      "themeId": "professions",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/detective.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "firefighter",
+      "nameRu": "Пожарный",
+      "nameEn": "Firefighter",
+      "themeId": "professions",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/firefighter.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "lighthouse-keeper",
+      "nameRu": "Смотритель маяка",
+      "nameEn": "Lighthouse Keeper",
+      "themeId": "professions",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/lighthouse-keeper.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "baker",
+      "nameRu": "Пекарь",
+      "nameEn": "Baker",
+      "themeId": "professions",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/baker.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "librarian",
+      "nameRu": "Библиотекарь",
+      "nameEn": "Librarian",
+      "themeId": "professions",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/librarian.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "clockmaker",
+      "nameRu": "Часовщик",
+      "nameEn": "Clockmaker",
+      "themeId": "professions",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/clockmaker.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "backpacker",
+      "nameRu": "Бэкпекер",
+      "nameEn": "Backpacker",
+      "themeId": "travel",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/backpacker.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "camper",
+      "nameRu": "Кемпер",
+      "nameEn": "Camper",
+      "themeId": "travel",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/camper.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "tourist",
+      "nameRu": "Турист",
+      "nameEn": "Tourist",
+      "themeId": "travel",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/tourist.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "hitchhiker",
+      "nameRu": "Автостопщик",
+      "nameEn": "Hitchhiker",
+      "themeId": "travel",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/hitchhiker.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "sailor",
+      "nameRu": "Моряк",
+      "nameEn": "Sailor",
+      "themeId": "travel",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/sailor.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "train-rider",
+      "nameRu": "Пассажир",
+      "nameEn": "Train Rider",
+      "themeId": "travel",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/train-rider.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "mountain-climber",
+      "nameRu": "Альпинист",
+      "nameEn": "Mountain Climber",
+      "themeId": "travel",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/mountain-climber.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "desert-traveler",
+      "nameRu": "Путник пустыни",
+      "nameEn": "Desert Traveler",
+      "themeId": "travel",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/desert-traveler.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "balloonist",
+      "nameRu": "Воздухоплаватель",
+      "nameEn": "Balloonist",
+      "themeId": "travel",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/balloonist.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "polar-explorer",
+      "nameRu": "Полярник",
+      "nameEn": "Polar Explorer",
+      "themeId": "travel",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/polar-explorer.png",
+      "sortOrder": 9
     },
     {
       "id": "wanderer",
@@ -121,7 +569,80 @@
       "nameEn": "Wanderer",
       "themeId": "travel",
       "rarity": "LEGENDARY",
-      "imagePath": "/assets/cards/wanderer.png"
+      "imagePath": "/assets/cards/wanderer.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "worldwalker",
+      "nameRu": "Покоритель мира",
+      "nameEn": "Worldwalker",
+      "themeId": "travel",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/worldwalker.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "stargazer",
+      "nameRu": "Звездочёт",
+      "nameEn": "Stargazer",
+      "themeId": "space",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/stargazer.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "moon-dreamer",
+      "nameRu": "Лунный мечтатель",
+      "nameEn": "Moon Dreamer",
+      "themeId": "space",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/moon-dreamer.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "telescope-kitty",
+      "nameRu": "Котик-астроном",
+      "nameEn": "Telescope Kitty",
+      "themeId": "space",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/telescope-kitty.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "rocket-cadet",
+      "nameRu": "Ракетный кадет",
+      "nameEn": "Rocket Cadet",
+      "themeId": "space",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/rocket-cadet.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "moonwalker",
+      "nameRu": "Луноход",
+      "nameEn": "Moonwalker",
+      "themeId": "space",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/moonwalker.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "satellite-cat",
+      "nameRu": "Кот-спутник",
+      "nameEn": "Satellite Cat",
+      "themeId": "space",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/satellite-cat.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "comet-chaser",
+      "nameRu": "Ловец комет",
+      "nameEn": "Comet Chaser",
+      "themeId": "space",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/comet-chaser.png",
+      "sortOrder": 6
     },
     {
       "id": "astronaut",
@@ -129,7 +650,80 @@
       "nameEn": "Astronaut",
       "themeId": "space",
       "rarity": "EPIC",
-      "imagePath": "/assets/cards/astronaut.png"
+      "imagePath": "/assets/cards/astronaut.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "mars-explorer",
+      "nameRu": "Исследователь Марса",
+      "nameEn": "Mars Explorer",
+      "themeId": "space",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/mars-explorer.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "star-captain",
+      "nameRu": "Звёздный капитан",
+      "nameEn": "Star Captain",
+      "themeId": "space",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/star-captain.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "cosmic-guardian",
+      "nameRu": "Космический страж",
+      "nameEn": "Cosmic Guardian",
+      "themeId": "space",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/cosmic-guardian.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "late-walker",
+      "nameRu": "Полуночник",
+      "nameEn": "Late Walker",
+      "themeId": "night-city",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/late-walker.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "window-light",
+      "nameRu": "Свет в окне",
+      "nameEn": "Window Light",
+      "themeId": "night-city",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/window-light.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "alley-cat",
+      "nameRu": "Дворовый кот",
+      "nameEn": "Alley Cat",
+      "themeId": "night-city",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/alley-cat.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "lamplighter",
+      "nameRu": "Фонарщик",
+      "nameEn": "Lamplighter",
+      "themeId": "night-city",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/lamplighter.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "rooftop-kitty",
+      "nameRu": "Котик на крыше",
+      "nameEn": "Rooftop Kitty",
+      "themeId": "night-city",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/rooftop-kitty.png",
+      "sortOrder": 4
     },
     {
       "id": "night-watcher",
@@ -137,7 +731,179 @@
       "nameEn": "Night Watcher",
       "themeId": "night-city",
       "rarity": "RARE",
-      "imagePath": "/assets/cards/night-watcher.png"
+      "imagePath": "/assets/cards/night-watcher.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "midnight-cafe",
+      "nameRu": "Полуночное кафе",
+      "nameEn": "Midnight Café",
+      "themeId": "night-city",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/midnight-cafe.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "neon-rider",
+      "nameRu": "Неоновый гонщик",
+      "nameEn": "Neon Rider",
+      "themeId": "night-city",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/neon-rider.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "moonlight-musician",
+      "nameRu": "Лунный музыкант",
+      "nameEn": "Moonlight Musician",
+      "themeId": "night-city",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/moonlight-musician.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "keeper-of-lights",
+      "nameRu": "Хранитель огней",
+      "nameEn": "Keeper of Lights",
+      "themeId": "night-city",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/keeper-of-lights.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "midnight-king",
+      "nameRu": "Полуночный король",
+      "nameEn": "Midnight King",
+      "themeId": "night-city",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/midnight-king.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "cookie",
+      "nameRu": "Печенька",
+      "nameEn": "Cookie",
+      "themeId": "food",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/cookie.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "milk-lover",
+      "nameRu": "Любитель молока",
+      "nameEn": "Milk Lover",
+      "themeId": "food",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/milk-lover.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "pancake",
+      "nameRu": "Блинчик",
+      "nameEn": "Pancake",
+      "themeId": "food",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/pancake.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "donut",
+      "nameRu": "Пончик",
+      "nameEn": "Donut",
+      "themeId": "food",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/donut.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "hot-cocoa",
+      "nameRu": "Какао",
+      "nameEn": "Hot Cocoa",
+      "themeId": "food",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/hot-cocoa.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "ramen",
+      "nameRu": "Рамен",
+      "nameEn": "Ramen",
+      "themeId": "food",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/ramen.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "strawberry",
+      "nameRu": "Клубничка",
+      "nameEn": "Strawberry",
+      "themeId": "food",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/strawberry.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "sushi",
+      "nameRu": "Суши",
+      "nameEn": "Sushi",
+      "themeId": "food",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/sushi.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "bubble-tea",
+      "nameRu": "Бабл-ти",
+      "nameEn": "Bubble Tea",
+      "themeId": "food",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/bubble-tea.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "afternoon-tea",
+      "nameRu": "Чаепитие",
+      "nameEn": "Afternoon Tea",
+      "themeId": "food",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/afternoon-tea.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "candy-maker",
+      "nameRu": "Кондитер",
+      "nameEn": "Candy Maker",
+      "themeId": "food",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/candy-maker.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "midnight-ramen",
+      "nameRu": "Полуночный рамен",
+      "nameEn": "Midnight Ramen",
+      "themeId": "food",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/midnight-ramen.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "royal-feast",
+      "nameRu": "Королевский пир",
+      "nameEn": "Royal Feast",
+      "themeId": "food",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/royal-feast.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "ambrosia",
+      "nameRu": "Амброзия",
+      "nameEn": "Ambrosia",
+      "themeId": "food",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/ambrosia.png",
+      "sortOrder": 13
     }
   ]
 }

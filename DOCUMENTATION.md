@@ -95,7 +95,8 @@ Main tables:
 Card definitions live in `src/main/resources/catalog/cards.json`. Card art is
 model-generated: one standalone 1024×1536 PNG per card in `assets/cards/`,
 mirrored to `src/main/resources/static/assets/cards/`. Prompts and seeds are
-recorded in `docs/source/card-art-prompts.md`; keep both PNG trees in sync
+recorded in `docs/source/card-art-prompts.md`; the full card/collection roster
+with RU/EN names lives in `docs/collections.md`. Keep both PNG trees in sync
 after art changes.
 
 ## Configuration
