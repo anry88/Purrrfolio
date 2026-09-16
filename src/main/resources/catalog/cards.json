@@ -80,7 +80,7 @@
       "nameRu": "Библиотекарь",
       "nameEn": "Librarian",
       "themeId": "professions",
-      "rarity": "EPIC",
+      "rarity": "LEGENDARY",
       "imagePath": "/assets/cards/librarian.png"
     },
     {
@@ -104,7 +104,7 @@
       "nameRu": "Цветочек",
       "nameEn": "Blossom",
       "themeId": "weather",
-      "rarity": "RARE",
+      "rarity": "UNCOMMON",
       "imagePath": "/assets/cards/blossom.png"
     },
     {
@@ -112,7 +112,7 @@
       "nameRu": "Рыбак",
       "nameEn": "Fisher",
       "themeId": "hobbies",
-      "rarity": "RARE",
+      "rarity": "UNCOMMON",
       "imagePath": "/assets/cards/fisher.png"
     },
     {
@@ -120,7 +120,7 @@
       "nameRu": "Странник",
       "nameEn": "Wanderer",
       "themeId": "travel",
-      "rarity": "COMMON",
+      "rarity": "LEGENDARY",
       "imagePath": "/assets/cards/wanderer.png"
     },
     {
@@ -136,7 +136,7 @@
       "nameRu": "Ночной страж",
       "nameEn": "Night Watcher",
       "themeId": "night-city",
-      "rarity": "EPIC",
+      "rarity": "RARE",
       "imagePath": "/assets/cards/night-watcher.png"
     }
   ]

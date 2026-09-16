@@ -1,14 +1,13 @@
-# Starter card art prompts (model-generated)
+# Starter card art (model-generated)
 
-Engine: Pollinations `flux`, 1024×1536, `nologo=true`. One standalone PNG per
-card — no sprite sheets, no script rendering.
+One standalone 1024×1536 PNG per card — no sprite sheets, no script rendering.
+The starter set was drawn with an image model from the scene briefs below and
+provided by the project owner as final PNGs (`raw pictures/`, kept out of git).
+Rarity for each card is assigned in `src/main/resources/catalog/cards.json`.
 
-Common style anchor appended to every prompt:
-
-> cozy hand-drawn kawaii illustration, round chubby cats, soft digital
-> painting with watercolor gouache feel, warm pastel tones, thin hand-drawn
-> outlines, detailed cozy background, warm lighting, full-bleed vertical
-> illustration, no text, no words, no letters, no frame, no border
+Scene briefs (style anchor for every card: cozy hand-drawn kawaii, round
+chubby cats, watercolor gouache feel, warm pastels, thin outlines, detailed
+cozy background, warm lighting, English title on the nameplate):
 
 | card | seed | scene |
 | --- | --- | --- |
