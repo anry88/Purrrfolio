@@ -8,6 +8,7 @@ object Messages {
                 "Main commands:\n" +
                 "/collection — your collection\n" +
                 "/pack — open a pack\n" +
+                "/freecard — claim your free card\n" +
                 "/buy — get more packs with Telegram Stars\n" +
                 "/trade — random trade\n" +
                 "/market — card market\n" +
@@ -18,6 +19,7 @@ object Messages {
                 "Основные команды:\n" +
                 "/collection — твоя коллекция\n" +
                 "/pack — открыть набор\n" +
+                "/freecard — забрать бесплатную карточку\n" +
                 "/buy — купить наборы за Telegram Stars\n" +
                 "/trade — случайный обмен\n" +
                 "/market — биржа карточек\n" +
@@ -29,6 +31,7 @@ object Messages {
                 "/start — register and choose language\n" +
                 "/collection — list your cards and duplicates\n" +
                 "/pack — open a pack (3 cards)\n" +
+                "/freecard — claim a free card (every 7 hours)\n" +
                 "/buy — buy packs with Telegram Stars\n" +
                 "/trade — random trade duplicates\n" +
                 "/market — list and trade cards\n" +
@@ -38,6 +41,7 @@ object Messages {
                 "/start — регистрация и выбор языка\n" +
                 "/collection — список карточек и дубликатов\n" +
                 "/pack — открыть набор (3 карточки)\n" +
+                "/freecard — забрать бесплатную карточку (каждые 7 часов)\n" +
                 "/buy — купить наборы за Telegram Stars\n" +
                 "/trade — случайный обмен дубликатами\n" +
                 "/market — выставить и обменять карточки\n" +
@@ -50,11 +54,12 @@ object Messages {
         "menu.market" to ("🏪 Market" to "🏪 Биржа"),
         "menu.language" to ("🌐 Language" to "🌐 Язык"),
         "menu.buy" to ("⭐ Buy packs" to "⭐ Купить наборы"),
+        "menu.freecard" to ("🎁 Free card" to "🎁 Карточка"),
         "language.title" to ("🌐 Choose your language:" to "🌐 Выбери язык:"),
         "language.changed" to ("Language set to English." to "Язык изменён на русский."),
         "pack.noPacks" to (
-            "No packs left. Grab more with /buy using Telegram Stars — or claim your free card below." to
-                "Наборы закончились. Возьми ещё через /buy за Telegram Stars — или забери бесплатную карточку ниже."
+            "No packs left. Grab more with /buy using Telegram Stars. Free single cards live separately: /freecard." to
+                "Наборы закончились. Возьми ещё через /buy за Telegram Stars. Бесплатные карточки отдельно: /freecard."
             ),
         "pack.opening" to (
             "Opening a pack..." to
@@ -229,6 +234,7 @@ object Messages {
         "gallery.listMarket" to ("🏪 List for Trade" to "🏪 Выставить на биржу"),
         "cmd.start" to ("Open the menu" to "Открыть меню"),
         "cmd.pack" to ("Open a pack" to "Открыть набор"),
+        "cmd.freecard" to ("Claim a free card" to "Забрать бесплатную карточку"),
         "cmd.collection" to ("View cat collection" to "Посмотреть коллекцию котиков"),
         "cmd.buy" to ("Buy packs with Stars" to "Купить наборы за Stars"),
         "cmd.trade" to ("Random trade" to "Случайный обмен"),

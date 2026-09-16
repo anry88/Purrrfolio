@@ -150,6 +150,7 @@ class GameService(
             Action.LANGUAGE -> handleLanguage(chatId, user)
             Action.COLLECTION -> sendCollectionView(chatId, user, page = 0)
             Action.PACK -> handlePackOpening(chatId, user)
+            Action.FREECARD -> handleFreeCard(chatId, user)
             Action.BUY -> handleBuy(chatId, user)
             Action.PAYSUPPORT -> telegramClient.sendMessage(chatId, Messages.t("paysupport.text", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
             Action.TRADE -> handleTrade(chatId, user)
@@ -172,12 +173,10 @@ class GameService(
 
     private fun handlePackOpening(chatId: Long, user: User) {
         val locale = gameLocale(user)
-        // Free single card row first (available immediately at start, then every 7h).
-        sendFreeCardStatus(chatId, user)
-
         val availablePacks = packLedgerRepository.getTotalAvailablePacks(user.id)
         if (availablePacks <= 0) {
-            // No free packs anymore: packs come from the 3 starter grants and Stars purchases.
+            // Packs come only from the 3 starter grants and Stars purchases.
+            // Free single cards live separately: /freecard.
             telegramClient.sendMessage(
                 chatId,
                 Messages.t("pack.noPacks", locale),
@@ -217,6 +216,10 @@ class GameService(
     }
 
     // ---- Free single card (one card every 7h, first one immediately) ----
+
+    private fun handleFreeCard(chatId: Long, user: User) {
+        sendFreeCardStatus(chatId, user)
+    }
 
     private fun sendFreeCardStatus(chatId: Long, user: User) {
         val locale = gameLocale(user)
@@ -733,7 +736,7 @@ class GameService(
     // ---- Routing ----
 
     private enum class Action {
-        START, HELP, LANGUAGE, COLLECTION, PACK, BUY, PAYSUPPORT, TRADE, MARKET, UNKNOWN_COMMAND, UNKNOWN_TEXT
+        START, HELP, LANGUAGE, COLLECTION, PACK, FREECARD, BUY, PAYSUPPORT, TRADE, MARKET, UNKNOWN_COMMAND, UNKNOWN_TEXT
     }
 
     private fun resolveAction(text: String, locale: GameLocale): Action {
@@ -747,6 +750,7 @@ class GameService(
                 "/collection" -> Action.COLLECTION
                 "/themes" -> Action.COLLECTION // legacy alias
                 "/pack" -> Action.PACK
+                "/freecard" -> Action.FREECARD
                 "/buy" -> Action.BUY
                 "/paysupport" -> Action.PAYSUPPORT
                 "/trade" -> Action.TRADE
@@ -765,6 +769,7 @@ class GameService(
         return when {
             matches("menu.collection") -> Action.COLLECTION
             matches("menu.pack") -> Action.PACK
+            matches("menu.freecard") -> Action.FREECARD
             matches("menu.buy") -> Action.BUY
             matches("menu.trade") -> Action.TRADE
             matches("menu.market") -> Action.MARKET
@@ -817,6 +822,7 @@ class GameService(
             }
             "menu:collection" -> sendCollectionView(chatId, user, page = 0)
             "menu:pack", "menu:open-pack" -> handlePackOpening(chatId, user)
+            "menu:freecard" -> handleFreeCard(chatId, user)
             "menu:buy" -> handleBuy(chatId, user)
             "free:card" -> handleFreeCardClaim(chatId, user)
             "buy:1" -> handleBuyCallback(chatId, user, 1)
@@ -918,6 +924,9 @@ class GameService(
                 ),
                 listOf(
                     TelegramKeyboardButton(Messages.t("menu.buy", locale)),
+                    TelegramKeyboardButton(Messages.t("menu.freecard", locale)),
+                ),
+                listOf(
                     TelegramKeyboardButton(Messages.t("menu.language", locale)),
                 ),
             ),
