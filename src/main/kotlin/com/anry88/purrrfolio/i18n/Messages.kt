@@ -134,6 +134,14 @@ object Messages {
             "Pick a duplicate to trade:" to
                 "Выбери дубликат для обмена:"
             ),
+        "trade.waiting" to (
+            "⏳ Waiting in the pool (swaps automatically when another player's different card arrives):" to
+                "⏳ Ждут в пуле (обменяются сами, когда придёт другая карточка другого игрока):"
+            ),
+        "market.browse" to (
+            "🔍 Browse others' cards" to
+                "🔍 Смотреть чужие карточки"
+            ),
         "trade.offerButton" to ("🎲 Trade %s" to "🎲 Обменять %s"),
         "market.hint" to (
             "Market: list your duplicates and offer them for other players' cards.\nList a card to start trading." to

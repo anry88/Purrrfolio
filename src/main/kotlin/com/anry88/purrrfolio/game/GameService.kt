@@ -316,13 +316,28 @@ class GameService(
             runCatching { cardCatalog.card(uc.cardId) }.getOrNull()?.let { card ->
                 listOf(TelegramInlineButton(Messages.t("trade.offerButton", locale, card.nameFor(locale)), "trade:add:${card.id}"))
             }
+        }.toMutableList()
+        // Show the user's own waiting pool entries so a quiet pool is visible.
+        val waiting = runCatching { randomTradeRepository.findWaitingTradesForUser(user.id) }.getOrDefault(emptyList())
+        val waitingLine = if (waiting.isEmpty()) {
+            ""
+        } else {
+            "\n\n" + Messages.t("trade.waiting", locale) + "\n" + waiting.take(5).joinToString("\n") { trade ->
+                val name = runCatching { cardCatalog.card(trade.cardId).nameFor(locale) }.getOrElse { trade.cardId }
+                "• 🎴 $name"
+            }
         }
         telegramClient.sendMessage(
             chatId,
-            Messages.t("trade.hint", locale) + "\n\n" + Messages.t("trade.pickCard", locale),
+            Messages.t("trade.hint", locale) + "\n\n" + Messages.t("trade.pickCard", locale) + waitingLine,
             TelegramReplyMarkup(inlineKeyboard = buttons),
         )
     }
+
+    private data class RandomTradeResult(
+        val receivedCardId: String,
+        val peerUserId: Long,
+    )
 
     private fun handleTradeAdd(chatId: Long, user: User, cardId: String) {
         val locale = gameLocale(user)
@@ -334,10 +349,21 @@ class GameService(
         val cardName = runCatching { cardCatalog.card(cardId).nameFor(locale) }.getOrElse { cardId }
         // The extra copy leaves the collection and enters the shared pool.
         userCardRepository.removeCard(user.id, cardId, 1)
-        val matchedCardId = attemptRandomTradeMatching(user.id, cardId)
-        if (matchedCardId != null) {
-            val matchedName = runCatching { cardCatalog.card(matchedCardId).nameFor(locale) }.getOrElse { matchedCardId }
+        val match = attemptRandomTradeMatching(user.id, cardId)
+        if (match != null) {
+            val matchedName = runCatching { cardCatalog.card(match.receivedCardId).nameFor(locale) }.getOrElse { match.receivedCardId }
             telegramClient.sendMessage(chatId, Messages.t("trade.matched", locale, matchedName), mainMenuKeyboard(locale))
+            // The waiting side has no other way to learn about the swap.
+            runCatching {
+                userRepository.findById(match.peerUserId)?.let { peer ->
+                    val peerName = runCatching { cardCatalog.card(cardId).nameFor(gameLocale(peer)) }.getOrElse { cardId }
+                    telegramClient.sendMessage(
+                        peer.telegramUserId,
+                        Messages.t("trade.matched", gameLocale(peer), peerName),
+                        mainMenuKeyboard(gameLocale(peer)),
+                    )
+                }
+            }.onFailure { logger.warn("Failed to notify random-trade peer {}", match.peerUserId, it) }
         } else {
             telegramClient.sendMessage(
                 chatId,
@@ -349,27 +375,36 @@ class GameService(
 
     /**
      * Enqueues [cardId] (already removed from inventory by the caller) and returns
-     * the matched card id when another player's different card was waiting.
+     * the match when another player's different card was waiting.
+     * Never leaves ghost pool rows: a failed enqueue is cancelled and refunded.
      */
-    private fun attemptRandomTradeMatching(userId: Long, cardId: String): String? {
+    private fun attemptRandomTradeMatching(userId: Long, cardId: String): RandomTradeResult? {
+        val userTrade = try {
+            randomTradeRepository.addToPool(userId, cardId)
+        } catch (e: Exception) {
+            logger.error("Failed to enqueue random trade for user {} card {}", userId, cardId, e)
+            runCatching { userCardRepository.addCards(userId, listOf(cardId)) }
+            return null
+        }
         return try {
             val waitingTrades = randomTradeRepository.findAllWaiting()
-            val match = waitingTrades.firstOrNull { it.userId != userId && it.cardId != cardId }
-            val userTrade = randomTradeRepository.addToPool(userId, cardId)
+            val match = waitingTrades
+                .filter { it.id != userTrade.id }
+                .firstOrNull { it.userId != userId && it.cardId != cardId }
             if (match != null) {
                 // Both cards were removed from inventories when enqueued; simply deal them out.
                 userCardRepository.addCards(userId, listOf(match.cardId))
                 userCardRepository.addCards(match.userId, listOf(cardId))
                 randomTradeRepository.matchTrades(userTrade.id, match.id)
                 logger.info("Random trade matched: user {} card {} with user {} card {}", userId, cardId, match.userId, match.cardId)
-                match.cardId
+                RandomTradeResult(match.cardId, match.userId)
             } else {
                 logger.debug("No random-trade match for user {} card {}; waiting", userId, cardId)
                 null
             }
         } catch (e: Exception) {
-            logger.error("Failed to process random trade matching", e)
-            // Best effort: give the card back so it is not lost.
+            logger.error("Failed to match random trade {} for user {} card {}", userTrade.id, userId, cardId, e)
+            runCatching { randomTradeRepository.cancelTrade(userTrade.id) }
             runCatching { userCardRepository.addCards(userId, listOf(cardId)) }
             null
         }
@@ -393,7 +428,7 @@ class GameService(
             val name = runCatching { cardCatalog.card(uc.cardId).nameFor(locale) }.getOrElse { uc.cardId }
             buttons.add(listOf(TelegramInlineButton(Messages.t("market.listButton", locale, name), "m:list:${uc.cardId}")))
         }
-        buttons.add(listOf(TelegramInlineButton(Messages.t("market.browsingListings", locale, "", "").take(40), "m:brw:0")))
+        buttons.add(listOf(TelegramInlineButton(Messages.t("market.browse", locale), "m:brw:0")))
 
         val header = if (myListings.isEmpty()) {
             Messages.t("market.hint", locale)

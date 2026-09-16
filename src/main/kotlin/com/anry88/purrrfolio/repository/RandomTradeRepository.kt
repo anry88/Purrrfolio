@@ -13,12 +13,15 @@ import java.util.UUID
 class RandomTradeRepository(private val jdbcTemplate: JdbcTemplate) {
 
     private val randomTradeRowMapper = RowMapper { rs: ResultSet, _: Int ->
+        // NB: pgjdbc does not support getObject(col, Long::class.java) for
+        // int8, so nullable BIGINTs go through getLong + wasNull().
+        val matchedTradeId = rs.getLong("matched_trade_id").takeIf { !rs.wasNull() }
         RandomTradePool(
             id = rs.getLong("id"),
             userId = rs.getLong("user_id"),
             cardId = rs.getString("card_id"),
             status = RandomTradeStatus.valueOf(rs.getString("status")),
-            matchedTradeId = rs.getObject("matched_trade_id", Long::class.java),
+            matchedTradeId = matchedTradeId,
             createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
             matchedAt = rs.getObject("matched_at", OffsetDateTime::class.java),
         )
