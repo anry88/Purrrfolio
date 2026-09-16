@@ -7,6 +7,7 @@ data class User(
     val telegramUserId: Long,
     val language: String,
     val lastFreePackOpenedAt: OffsetDateTime?,
+    val lastFreeCardAt: OffsetDateTime?,
     val availablePacks: Int,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,

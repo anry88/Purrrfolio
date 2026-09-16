@@ -36,8 +36,8 @@ Core business logic is split into small packages:
 
 ### Pack opening (planned)
 
-1. `/pack` checks `pack_ledger` sum > 0, else grants a free pack if 23h passed since `last_free_pack_opened_at`.
-2. Transaction inserts a negative `pack_ledger` row, rolls cards via `PackOpeningService`.
+1. `/pack` first shows the free single-card status: claim button when due (first card immediately, then every 7h via `users.last_free_card_at`), countdown otherwise.
+2. If `pack_ledger` sum > 0, a pack opens: negative `pack_ledger` row, roll via `PackOpeningService`.
 3. Inventory upsert into `user_cards` (TEXT card ids matching `catalog/cards.json`).
 4. Bot sends card PNGs from `/static/assets/cards/{id}.png`.
 

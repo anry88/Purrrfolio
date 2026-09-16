@@ -16,7 +16,7 @@
 - Каждая карточка — отдельный 1024×1536 PNG (не вырезка из сетки)
 - 6 уровней редкости: Common → Uncommon → Rare → Epic → Mythic → Legendary
 - Special — отдельный тег/статус (может сочетаться с любой редкостью)
-- 3 стартовых бесплатных пака + 1 бесплатный каждые 23 часа
+- 3 стартовых пака по 3 карточки + 1 бесплатная карточка каждые 7 часов (первая — сразу)
 - Random Trade механика через общий пул
 - Биржа с предложениями своих выставленных карточек
 - Telegram Stars для покупки паков (1 пак = 5 Stars, 3 пака = 12 Stars, 5 паков = 16 Stars, 10 паков = 25 Stars)
@@ -37,8 +37,8 @@
 ## Стартовая механика
 
 1. Новый игрок выбирает язык (RU/EN)
-2. Получает 3 стартовых бесплатных пака
-3. После их открытия — 1 бесплатный пак каждые 23 часа от последнего бесплатного открытия
+2. Получает 3 стартовых пака по 3 карточки
+3. Первая бесплатная карточка доступна сразу, следующие — по одной каждые 7 часов от последнего клейма (`users.last_free_card_at`)
 4. Бесплатные паки не накапливаются при наличии неоткрытых паков другого происхождения
 
 ## Telegram Stars pricing
@@ -72,7 +72,7 @@
 ```
 /start          — регистрация, выбор языка, 3 стартовых пака
 /collection     — список коллекций, пагинация по 10, галерея карточек
-/pack           — открыть доступный пакет (бесплатный или купленный)
+/pack           — открыть доступный пакет (стартовый или купленный) + статус бесплатной карточки
 /trade          — Random Trade (дубли в пул, обмен)
 /market         — биржа (свои листинги, просмотр чужих, предложения)
 /language       — сменить язык интерфейса (inline-кнопки EN/RU)
@@ -94,12 +94,12 @@ Reply-клавиатура: Коллекция, Набор, Обмен, Бирж
 
 ### Таблицы PostgreSQL
 
-- `users` — telegram_user_id, language, last_free_pack_opened_at, available_packs
+- `users` — telegram_user_id, language, last_free_card_at, available_packs
 - `collections` — id, code, localized_name, sort_order, active
 - `cards` — id, collection_id, english_title, rarity_id, image_ref, sort_order, active, special/limited/event metadata
 - `rarities` — id, code, probability/weight, frame_theme, sort_order
 - `user_cards` — user_id, card_id, quantity
-- `pack_ledger` — starter/free/stars начисления и списания
+- `pack_ledger` — starter/stars начисления и opened-списания
 - `random_trade_pool` — user_id, card_id, status, matched_trade_id
 - `market_listings` — seller_id, card_id, status
 - `trade_offers` — target_listing_id, offered_listing_id, status
@@ -123,13 +123,14 @@ Reply-клавиатура: Коллекция, Набор, Обмен, Бирж
 4. Upsert `user_cards.quantity`
 5. Отправить 3 сообщения с PNG и подписью редкости
 6. Если карточка новая — пометка ✨ NEW
-7. Если это был последний бесплатный — запланировать следующий через 23 часа
 
-### Бесплатный пак
+### Бесплатная карточка
 
-1. Проверить `last_free_pack_opened_at`
-2. Если прошло ≥ 23 часов — добавить 1 бесплатный пак в `pack_ledger`
-3. Обновить `last_free_pack_opened_at`
+1. Первая доступна сразу после регистрации (`last_free_card_at IS NULL`)
+2. Клейм через inline-кнопку «🎁 Забрать карточку» в ответе `/pack`
+3. Ролл 1 карточки по весам редкости, upsert `user_cards.quantity`
+4. Обновить `last_free_card_at`; следующая — через 7 часов
+5. Повторный тап перепроверяет таймер и карту не дублирует
 
 ### Покупка паков за Stars
 

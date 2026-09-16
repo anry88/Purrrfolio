@@ -16,6 +16,7 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
             telegramUserId = rs.getLong("telegram_user_id"),
             language = rs.getString("language"),
             lastFreePackOpenedAt = rs.getObject("last_free_pack_opened_at", OffsetDateTime::class.java),
+            lastFreeCardAt = rs.getObject("last_free_card_at", OffsetDateTime::class.java),
             availablePacks = rs.getInt("available_packs"),
             createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
             updatedAt = rs.getObject("updated_at", OffsetDateTime::class.java),
@@ -60,6 +61,11 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
 
     fun updateLastFreePackOpenedAt(userId: Long, timestamp: OffsetDateTime) {
         val sql = "UPDATE users SET last_free_pack_opened_at = ?, updated_at = NOW() WHERE id = ?"
+        jdbcTemplate.update(sql, timestamp, userId)
+    }
+
+    fun updateLastFreeCardAt(userId: Long, timestamp: OffsetDateTime) {
+        val sql = "UPDATE users SET last_free_card_at = ?, updated_at = NOW() WHERE id = ?"
         jdbcTemplate.update(sql, timestamp, userId)
     }
 }

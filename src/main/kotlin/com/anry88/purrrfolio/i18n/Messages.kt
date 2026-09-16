@@ -53,8 +53,8 @@ object Messages {
         "language.title" to ("🌐 Choose your language:" to "🌐 Выбери язык:"),
         "language.changed" to ("Language set to English." to "Язык изменён на русский."),
         "pack.noPacks" to (
-            "No packs available. A free pack arrives every 23 hours, or get more with /buy using Telegram Stars." to
-                "Нет доступных наборов. Бесплатный набор приходит каждые 23 часа, или возьми ещё через /buy за Telegram Stars."
+            "No packs left. Grab more with /buy using Telegram Stars — or claim your free card below." to
+                "Наборы закончились. Возьми ещё через /buy за Telegram Stars — или забери бесплатную карточку ниже."
             ),
         "pack.opening" to (
             "Opening a pack..." to
@@ -66,13 +66,14 @@ object Messages {
             "🎁 You received %s starter packs! Open them to begin your collection." to
                 "🎁 Ты получил %s стартовых наборов! Открой их, чтобы начать коллекцию."
             ),
-        "pack.freeAvailable" to (
-            "🎁 Your free pack is ready! Use /pack to open it." to
-                "🎁 Твой бесплатный набор готов! Используй /pack, чтобы открыть его."
+        "card.freeAvailable" to (
+            "🎁 Your free card is ready! Tap the button to claim it." to
+                "🎁 Бесплатная карточка готова! Нажми кнопку, чтобы забрать её."
             ),
-        "pack.nextFreeIn" to (
-            "Next free pack in %s hours." to
-                "Следующий бесплатный набор через %s часов."
+        "card.claim" to ("🎁 Claim free card" to "🎁 Забрать карточку"),
+        "card.nextFreeIn" to (
+            "Next free card in %s hours." to
+                "Следующая бесплатная карточка через %s часов."
             ),
         "buy.title" to (
             "⭐ *Get more packs*\n\n1 pack — 5 Stars\n3 packs — 12 Stars\n5 packs — 16 Stars\n10 packs — 25 Stars\n\nPaid packs are added to your stash and do not open automatically. Use /pack to open them." to

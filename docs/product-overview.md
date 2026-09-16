@@ -9,7 +9,7 @@ The repository is intentionally scoped as a command-only MVP before any richer c
 The target MVP includes:
 
 - Telegram bot registration and persistent player profiles
-- No in-game currency: 3 starter packs, 1 free pack every 23 hours, extra packs via Telegram Stars
+- No in-game currency: 3 starter packs of 3 cards, 1 free single card every 7 hours, extra packs via Telegram Stars
 - Five-tier card rarity with weighted pack rolls
 - Themed collections with progress tracking
 - Duplicate trading between players via a shared random-trade pool
@@ -24,14 +24,14 @@ The concept art in `docs/source/game-concept.png` also shows a decorated home, M
 2. Player opens a fluffy pack with `/pack` and receives three cards.
 3. New cards expand themed collection progress shown in `/collection`.
 4. Duplicate cards become tradable through `/trade` or `/market`.
-5. `/buy` adds more packs with Telegram Stars; a free pack arrives every 23 hours.
+5. `/buy` adds more packs with Telegram Stars; a free single card drops every 7 hours.
 
 ## Engagement Systems
 
 - **Rarity chase** — legendary and special cards are intentionally scarce.
 - **Set completion** — themes create medium-term goals beyond random pack openings.
 - **Duplicate economy** — trading and marketplace turn bad luck into social interaction.
-- **Free-pack loop** — a pack every 23 hours plus Stars bundles bring the player back.
+- **Free-card loop** — a single card every 7 hours plus Stars bundles bring the player back.
 - **Seasonal specials (planned)** — limited-time cards injected through events.
 
 ## Monetization

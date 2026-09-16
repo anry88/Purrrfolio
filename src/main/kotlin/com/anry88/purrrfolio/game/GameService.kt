@@ -96,7 +96,7 @@ class GameService(
         fun packsFromPayload(payload: String?): Int? =
             payload?.removePrefix("purrrfolio:packs:")?.toIntOrNull()?.takeIf { starsForPacks(it) != null }
 
-        /** Hours until the next free pack; 0 means a free pack is due now. */
+        /** Hours until the next free grant (pack or single card); 0 means it is due now. */
         fun hoursUntilFreePack(lastFree: OffsetDateTime?, now: OffsetDateTime, intervalHours: Int): Int {
             if (lastFree == null) return 0
             val elapsed = ChronoUnit.HOURS.between(lastFree, now).toInt()
@@ -172,28 +172,18 @@ class GameService(
 
     private fun handlePackOpening(chatId: Long, user: User) {
         val locale = gameLocale(user)
-        var availablePacks = packLedgerRepository.getTotalAvailablePacks(user.id)
+        // Free single card row first (available immediately at start, then every 7h).
+        sendFreeCardStatus(chatId, user)
 
+        val availablePacks = packLedgerRepository.getTotalAvailablePacks(user.id)
         if (availablePacks <= 0) {
-            // Free pack every 23h from the last free opening; the timer starts
-            // at registration so exactly 3 starter packs come first.
-            val now = OffsetDateTime.now()
-            val hoursLeft = hoursUntilFreePack(user.lastFreePackOpenedAt, now, properties.economy.freePackIntervalHours)
-
-            if (hoursLeft == 0) {
-                // Grant free pack and immediately update timer
-                packLedgerRepository.addPacks(user.id, "free", 1)
-                userRepository.updateLastFreePackOpenedAt(user.id, now)
-                telegramClient.sendMessage(chatId, Messages.t("pack.freeAvailable", locale), mainMenuKeyboard(locale))
-                availablePacks = 1
-            } else {
-                telegramClient.sendMessage(
-                    chatId,
-                    Messages.t("pack.noPacks", locale) + "\n" + Messages.t("pack.nextFreeIn", locale, hoursLeft),
-                    buyPromptKeyboard(locale),
-                )
-                return
-            }
+            // No free packs anymore: packs come from the 3 starter grants and Stars purchases.
+            telegramClient.sendMessage(
+                chatId,
+                Messages.t("pack.noPacks", locale),
+                buyPromptKeyboard(locale),
+            )
+            return
         }
 
         // Open pack
@@ -224,6 +214,73 @@ class GameService(
             }
         }
         telegramClient.sendMessage(chatId, Messages.t("pack.opened", locale), mainMenuKeyboard(locale))
+    }
+
+    // ---- Free single card (one card every 7h, first one immediately) ----
+
+    private fun sendFreeCardStatus(chatId: Long, user: User) {
+        val locale = gameLocale(user)
+        val fresh = userRepository.findByTelegramUserId(user.telegramUserId) ?: user
+        val hoursLeft = hoursUntilFreePack(fresh.lastFreeCardAt, OffsetDateTime.now(), properties.economy.freeCardIntervalHours)
+        if (hoursLeft == 0) {
+            telegramClient.sendMessage(
+                chatId,
+                Messages.t("card.freeAvailable", locale),
+                TelegramReplyMarkup(
+                    inlineKeyboard = listOf(
+                        listOf(TelegramInlineButton(Messages.t("card.claim", locale), "free:card")),
+                    ),
+                ),
+            )
+        } else {
+            telegramClient.sendMessage(
+                chatId,
+                Messages.t("card.nextFreeIn", locale, hoursLeft),
+                mainMenuKeyboard(locale),
+            )
+        }
+    }
+
+    private fun handleFreeCardClaim(chatId: Long, user: User) {
+        // Re-read for double-tap safety: only the first tap grants the card.
+        val fresh = userRepository.findByTelegramUserId(user.telegramUserId) ?: user
+        val locale = gameLocale(fresh)
+        val now = OffsetDateTime.now()
+        val hoursLeft = hoursUntilFreePack(fresh.lastFreeCardAt, now, properties.economy.freeCardIntervalHours)
+        if (hoursLeft > 0) {
+            telegramClient.sendMessage(
+                chatId,
+                Messages.t("card.nextFreeIn", locale, hoursLeft),
+                mainMenuKeyboard(locale),
+            )
+            return
+        }
+        userRepository.updateLastFreeCardAt(fresh.id, now)
+        val owned = userCardRepository.findByUserId(fresh.id).map { it.cardId }.toSet()
+        val card = packOpeningService.rollCards(1, owned).firstOrNull()
+        if (card == null) {
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            return
+        }
+        userCardRepository.addCards(fresh.id, listOf(card.id))
+        val isNew = !owned.contains(card.id)
+        val caption = packOpeningService.formatReveal(card, isNew, locale)
+        val resource = ClassPathResource("static/assets/cards/${card.id}.png")
+        try {
+            if (resource.exists()) {
+                telegramClient.sendPhoto(chatId, resource, caption, openPackKeyboard(locale))
+            } else {
+                telegramClient.sendMessage(chatId, caption, openPackKeyboard(locale))
+            }
+        } catch (e: Throwable) {
+            logger.warn("Failed to send free card photo for {}", card.id, e)
+            runCatching { telegramClient.sendMessage(chatId, caption, openPackKeyboard(locale)) }
+        }
+        telegramClient.sendMessage(
+            chatId,
+            Messages.t("card.nextFreeIn", locale, properties.economy.freeCardIntervalHours),
+            mainMenuKeyboard(locale),
+        )
     }
 
     // ---- Stars shop ----
@@ -761,6 +818,7 @@ class GameService(
             "menu:collection" -> sendCollectionView(chatId, user, page = 0)
             "menu:pack", "menu:open-pack" -> handlePackOpening(chatId, user)
             "menu:buy" -> handleBuy(chatId, user)
+            "free:card" -> handleFreeCardClaim(chatId, user)
             "buy:1" -> handleBuyCallback(chatId, user, 1)
             "buy:3" -> handleBuyCallback(chatId, user, 3)
             "buy:5" -> handleBuyCallback(chatId, user, 5)
@@ -778,10 +836,9 @@ class GameService(
     }
 
     private fun grantStarterPacks(userId: Long) {
+        // Exactly 3 starter packs; the first free single card is due immediately
+        // (last_free_card_at stays NULL until the first claim), then every 7h.
         packLedgerRepository.addPacks(userId, "starter", properties.economy.starterPacks)
-        // The 23h free-pack timer starts at registration: exactly 3 starter
-        // packs are free, the next free pack arrives 23h later.
-        userRepository.updateLastFreePackOpenedAt(userId, OffsetDateTime.now())
     }
 
     private fun sendThemesAlias(chatId: Long, user: User) = sendThemesView(chatId, user)

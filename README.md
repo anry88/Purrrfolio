@@ -26,7 +26,7 @@ The bot is English by default; players whose Telegram language is Russian see Ru
 
 - A normal session should fit into 1–3 minutes of Telegram chat.
 - Depth comes from rarity, themed sets, duplicates, and social trading — not from a separate client UI.
-- There is no in-game currency: 3 starter packs, then 1 free pack every 23 hours, extra packs via Telegram Stars.
+- There is no in-game currency: 3 starter packs of 3 cards, then 1 free single card every 7 hours, extra packs via Telegram Stars.
 - Card definitions, themes, pack prices, and rarity weights are data-driven JSON.
 - The backend is the authority for inventory, packs, trades, and marketplace settlement.
 
