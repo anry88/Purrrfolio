@@ -17,6 +17,7 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
             language = rs.getString("language"),
             lastFreePackOpenedAt = rs.getObject("last_free_pack_opened_at", OffsetDateTime::class.java),
             lastFreeCardAt = rs.getObject("last_free_card_at", OffsetDateTime::class.java),
+            craftPoints = runCatching { rs.getInt("craft_points") }.getOrDefault(0),
             availablePacks = rs.getInt("available_packs"),
             createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
             updatedAt = rs.getObject("updated_at", OffsetDateTime::class.java),
@@ -67,5 +68,10 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
     fun updateLastFreeCardAt(userId: Long, timestamp: OffsetDateTime) {
         val sql = "UPDATE users SET last_free_card_at = ?, updated_at = NOW() WHERE id = ?"
         jdbcTemplate.update(sql, timestamp, userId)
+    }
+
+    fun updateCraftPoints(userId: Long, points: Int) {
+        val sql = "UPDATE users SET craft_points = ?, updated_at = NOW() WHERE id = ? AND ? >= 0"
+        jdbcTemplate.update(sql, points, userId, points)
     }
 }

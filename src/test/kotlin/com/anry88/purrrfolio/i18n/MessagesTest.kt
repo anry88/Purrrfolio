@@ -61,10 +61,11 @@ class MessagesTest {
     fun `all locale keys are present for both locales`() {
         val knownKeys = listOf(
             "welcome", "help",
-            "menu.collection", "menu.pack", "menu.buy", "menu.freecard", "menu.trade", "menu.market", "menu.language",
+            "menu.collection", "menu.pack", "menu.buy", "menu.freecard", "menu.craft", "menu.trade", "menu.market", "menu.language",
             "language.title", "language.changed",
             "pack.noPacks", "pack.opening", "pack.opened", "pack.newCard", "pack.starter",
             "card.freeAvailable", "card.claim", "card.nextFreeIn",
+            "craft.title", "craft.pickCard", "craft.addButton", "craft.added", "craft.crafted", "craft.noDuplicates",
             "buy.title", "buy.option1", "buy.option3", "buy.option5", "buy.option10",
             "buy.invoiceTitle", "buy.invoiceDesc", "buy.success",
             "paysupport.text",
@@ -84,7 +85,7 @@ class MessagesTest {
             "unknownCommand", "unknownText", "callback.underDevelopment",
             "gallery.back", "gallery.viewCards", "gallery.owned", "gallery.missing", "gallery.counter",
             "gallery.trade", "gallery.listMarket",
-            "cmd.start", "cmd.pack", "cmd.collection", "cmd.buy", "cmd.freecard", "cmd.trade", "cmd.market",
+            "cmd.start", "cmd.pack", "cmd.collection", "cmd.buy", "cmd.freecard", "cmd.craft", "cmd.trade", "cmd.market",
             "cmd.language", "cmd.help", "cmd.paysupport",
         )
         for (key in knownKeys) {

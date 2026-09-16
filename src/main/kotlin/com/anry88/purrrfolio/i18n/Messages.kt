@@ -9,6 +9,7 @@ object Messages {
                 "/collection — your collection\n" +
                 "/pack — open a pack\n" +
                 "/freecard — claim your free card\n" +
+                "/craft — craft packs from duplicates\n" +
                 "/buy — get more packs with Telegram Stars\n" +
                 "/trade — random trade\n" +
                 "/market — card market\n" +
@@ -20,6 +21,7 @@ object Messages {
                 "/collection — твоя коллекция\n" +
                 "/pack — открыть набор\n" +
                 "/freecard — забрать бесплатную карточку\n" +
+                "/craft — скрафтить наборы из дубликатов\n" +
                 "/buy — купить наборы за Telegram Stars\n" +
                 "/trade — случайный обмен\n" +
                 "/market — биржа карточек\n" +
@@ -32,6 +34,7 @@ object Messages {
                 "/collection — list your cards and duplicates\n" +
                 "/pack — open a pack (3 cards)\n" +
                 "/freecard — claim a free card (every 7 hours)\n" +
+                "/craft — melt duplicates into packs (15 pts = 1 pack)\n" +
                 "/buy — buy packs with Telegram Stars\n" +
                 "/trade — random trade duplicates\n" +
                 "/market — list and trade cards\n" +
@@ -42,6 +45,7 @@ object Messages {
                 "/collection — список карточек и дубликатов\n" +
                 "/pack — открыть набор (3 карточки)\n" +
                 "/freecard — забрать бесплатную карточку (каждые 7 часов)\n" +
+                "/craft — плавить дубликаты в наборы (15 очков = 1 набор)\n" +
                 "/buy — купить наборы за Telegram Stars\n" +
                 "/trade — случайный обмен дубликатами\n" +
                 "/market — выставить и обменять карточки\n" +
@@ -55,6 +59,7 @@ object Messages {
         "menu.language" to ("🌐 Language" to "🌐 Язык"),
         "menu.buy" to ("⭐ Buy packs" to "⭐ Купить наборы"),
         "menu.freecard" to ("🎁 Free card" to "🎁 Карточка"),
+        "menu.craft" to ("🛠 Craft" to "🛠 Крафт"),
         "language.title" to ("🌐 Choose your language:" to "🌐 Выбери язык:"),
         "language.changed" to ("Language set to English." to "Язык изменён на русский."),
         "pack.noPacks" to (
@@ -79,6 +84,27 @@ object Messages {
         "card.nextFreeIn" to (
             "Next free card in %s hours." to
                 "Следующая бесплатная карточка через %s часов."
+            ),
+        "craft.title" to (
+            "🛠 *Pack crafter*\n\nBalance: %s / %s pts\nCommon = 1, Uncommon = 2, Rare = 3, Epic = 4, Legendary/Mythic = 5.\n15 pts build 1 pack, leftovers carry over." to
+                "🛠 *Крафтер наборов*\n\nБаланс: %s / %s очков\nОбычная = 1, необычная = 2, редкая = 3, эпическая = 4, легендарная/мифическая = 5.\n15 очков = 1 набор, остаток переносится."
+            ),
+        "craft.pickCard" to (
+            "Pick a duplicate to melt into points (one copy stays in your collection):" to
+                "Выбери дубликат для переплавки в очки (одна копия остаётся в коллекции):"
+            ),
+        "craft.addButton" to ("+%s %s" to "+%s %s"),
+        "craft.added" to (
+            "Melted %s (+%s pts). Balance: %s / %s pts." to
+                "Переплавлено: %s (+%s очков). Баланс: %s / %s очков."
+            ),
+        "craft.crafted" to (
+            "🎁 Crafted %s pack! Open it with /pack." to
+                "🎁 Скрафчено наборов: %s! Открой через /pack."
+            ),
+        "craft.noDuplicates" to (
+            "No duplicates available for crafting." to
+                "Нет дубликатов для крафта."
             ),
         "buy.title" to (
             "⭐ *Get more packs*\n\n1 pack — 5 Stars\n3 packs — 12 Stars\n5 packs — 16 Stars\n10 packs — 25 Stars\n\nPaid packs are added to your stash and do not open automatically. Use /pack to open them." to
@@ -143,6 +169,11 @@ object Messages {
         "trade.waiting" to (
             "⏳ Waiting in the pool (swaps automatically when another player's different card arrives):" to
                 "⏳ Ждут в пуле (обменяются сами, когда придёт другая карточка другого игрока):"
+            ),
+        "trade.returnButton" to ("↩️ Return %s" to "↩️ Вернуть %s"),
+        "trade.returned" to (
+            "Card returned to your collection: %s" to
+                "Карточка возвращена в коллекцию: %s"
             ),
         "market.browse" to (
             "🔍 Browse others' cards" to
@@ -235,6 +266,7 @@ object Messages {
         "cmd.start" to ("Open the menu" to "Открыть меню"),
         "cmd.pack" to ("Open a pack" to "Открыть набор"),
         "cmd.freecard" to ("Claim a free card" to "Забрать бесплатную карточку"),
+        "cmd.craft" to ("Craft packs from duplicates" to "Скрафтить наборы из дубликатов"),
         "cmd.collection" to ("View cat collection" to "Посмотреть коллекцию котиков"),
         "cmd.buy" to ("Buy packs with Stars" to "Купить наборы за Stars"),
         "cmd.trade" to ("Random trade" to "Случайный обмен"),

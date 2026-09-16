@@ -54,11 +54,18 @@ Core business logic is split into small packages:
 1. `/collection` reads owned unique cards per theme from `user_cards` (10 collections per page).
 2. Gallery navigation shows only opened cards; duplicates expose trade/market buttons.
 
+### Pack crafter
+
+1. `/craft` shows `craft_points` balance and duplicates priced by rarity (1/2/3/4/5).
+2. Each tap burns one duplicate copy and adds points via `CraftPolicy.addPoints`.
+3. Every 15 points → 1 pack into `pack_ledger` (source=craft), overflow carries over.
+
 ### Trading (planned)
 
 1. Seller must own at least two copies (`TradePolicy.MIN_DUPLICATES_TO_TRADE`).
 2. Card copy leaves inventory into `random_trade_pool` with WAITING status.
 3. First waiting card of another player with a different card id matches → both cards dealt out, MATCHED.
+4. Waiting entries return via «↩️ Return» (CANCELLED + inventory credit).
 
 ### Marketplace (planned)
 

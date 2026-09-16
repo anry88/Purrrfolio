@@ -14,6 +14,7 @@ Open `@purrrfolio_bot` and use:
 - `/collection` — inspect owned cards and duplicates (10 collections per page)
 - `/pack` — open a fluffy pack (3 cards)
 - `/freecard` — claim a free single card (first immediately, then every 7 hours)
+- `/craft` — melt duplicates into points (15 pts = 1 pack)
 - `/buy` — buy packs with Telegram Stars (1/3/5/10 packs for 5/12/16/25 Stars)
 - `/trade` — random trade of a duplicate from the shared pool
 - `/market` — list duplicates, browse others, offer card-for-card trades

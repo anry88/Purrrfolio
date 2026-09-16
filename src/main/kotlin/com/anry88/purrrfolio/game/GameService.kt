@@ -6,6 +6,7 @@ import com.anry88.purrrfolio.catalog.ThemeDefinition
 import com.anry88.purrrfolio.collection.CollectionService
 import com.anry88.purrrfolio.collection.ThemeProgress
 import com.anry88.purrrfolio.config.PurrrfolioProperties
+import com.anry88.purrrfolio.craft.CraftPolicy
 import com.anry88.purrrfolio.i18n.GameLocale
 import com.anry88.purrrfolio.i18n.Messages
 import com.anry88.purrrfolio.i18n.nameFor
@@ -151,6 +152,7 @@ class GameService(
             Action.COLLECTION -> sendCollectionView(chatId, user, page = 0)
             Action.PACK -> handlePackOpening(chatId, user)
             Action.FREECARD -> handleFreeCard(chatId, user)
+            Action.CRAFT -> handleCraft(chatId, user)
             Action.BUY -> handleBuy(chatId, user)
             Action.PAYSUPPORT -> telegramClient.sendMessage(chatId, Messages.t("paysupport.text", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
             Action.TRADE -> handleTrade(chatId, user)
@@ -286,6 +288,58 @@ class GameService(
         )
     }
 
+    // ---- Pack crafter (duplicates -> points, 15 pts = 1 pack) ----
+
+    private fun handleCraft(chatId: Long, user: User) {
+        val locale = gameLocale(user)
+        val fresh = userRepository.findByTelegramUserId(user.telegramUserId) ?: user
+        val duplicates = userCardRepository.findByUserId(fresh.id)
+            .filter { TradePolicy.canOfferDuplicate(it.quantity) }
+        val header = Messages.t("craft.title", locale, fresh.craftPoints, CraftPolicy.POINTS_PER_PACK)
+        if (duplicates.isEmpty()) {
+            telegramClient.sendMessage(
+                chatId,
+                header + "\n\n" + Messages.t("craft.noDuplicates", locale),
+                mainMenuKeyboard(locale),
+            )
+            return
+        }
+        val buttons = duplicates.take(10).mapNotNull { uc ->
+            runCatching { cardCatalog.card(uc.cardId) }.getOrNull()?.let { card ->
+                val pts = CraftPolicy.pointsFor(card.rarity)
+                listOf(TelegramInlineButton(Messages.t("craft.addButton", locale, pts, card.nameFor(locale)), "craft:add:${card.id}"))
+            }
+        }
+        telegramClient.sendMessage(
+            chatId,
+            header + "\n\n" + Messages.t("craft.pickCard", locale),
+            TelegramReplyMarkup(inlineKeyboard = buttons),
+        )
+    }
+
+    private fun handleCraftAdd(chatId: Long, user: User, cardId: String) {
+        // Re-read for double-tap safety.
+        val fresh = userRepository.findByTelegramUserId(user.telegramUserId) ?: user
+        val locale = gameLocale(fresh)
+        val owned = userCardRepository.findByUserIdAndCardId(fresh.id, cardId)
+        val card = runCatching { cardCatalog.card(cardId) }.getOrNull()
+        if (owned == null || card == null || !TradePolicy.canOfferDuplicate(owned.quantity)) {
+            telegramClient.sendMessage(chatId, Messages.t("craft.noDuplicates", locale), mainMenuKeyboard(locale))
+            return
+        }
+        userCardRepository.removeCard(fresh.id, cardId, 1)
+        val result = CraftPolicy.addPoints(fresh.craftPoints, CraftPolicy.pointsFor(card.rarity))
+        userRepository.updateCraftPoints(fresh.id, result.leftover)
+        val lines = mutableListOf(
+            Messages.t("craft.added", locale, card.nameFor(locale), CraftPolicy.pointsFor(card.rarity), result.leftover, CraftPolicy.POINTS_PER_PACK),
+        )
+        if (result.packs > 0) {
+            packLedgerRepository.addPacks(fresh.id, "craft", result.packs)
+            lines.add(Messages.t("craft.crafted", locale, result.packs))
+        }
+        telegramClient.sendMessage(chatId, lines.joinToString("\n\n"), openPackKeyboard(locale))
+    }
+
     // ---- Stars shop ----
 
     private fun handleBuy(chatId: Long, user: User) {
@@ -377,8 +431,14 @@ class GameService(
                 listOf(TelegramInlineButton(Messages.t("trade.offerButton", locale, card.nameFor(locale)), "trade:add:${card.id}"))
             }
         }.toMutableList()
-        // Show the user's own waiting pool entries so a quiet pool is visible.
+        // Show the user's own waiting pool entries with return buttons.
         val waiting = runCatching { randomTradeRepository.findWaitingTradesForUser(user.id) }.getOrDefault(emptyList())
+        if (waiting.isNotEmpty()) {
+            waiting.take(5).forEach { trade ->
+                val name = runCatching { cardCatalog.card(trade.cardId).nameFor(locale) }.getOrElse { trade.cardId }
+                buttons.add(listOf(TelegramInlineButton(Messages.t("trade.returnButton", locale, name), "trade:ret:${trade.id}")))
+            }
+        }
         val waitingLine = if (waiting.isEmpty()) {
             ""
         } else {
@@ -431,6 +491,24 @@ class GameService(
                 mainMenuKeyboard(locale),
             )
         }
+    }
+
+    private fun handleTradeReturn(chatId: Long, user: User, tradeId: Long?) {
+        val locale = gameLocale(user)
+        if (tradeId == null) {
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            return
+        }
+        val trade = runCatching { randomTradeRepository.findWaitingTradesForUser(user.id) }.getOrDefault(emptyList())
+            .firstOrNull { it.id == tradeId }
+        if (trade == null) {
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            return
+        }
+        randomTradeRepository.cancelTrade(tradeId)
+        userCardRepository.addCards(user.id, listOf(trade.cardId))
+        val name = runCatching { cardCatalog.card(trade.cardId).nameFor(locale) }.getOrElse { trade.cardId }
+        telegramClient.sendMessage(chatId, Messages.t("trade.returned", locale, name), mainMenuKeyboard(locale))
     }
 
     /**
@@ -736,7 +814,7 @@ class GameService(
     // ---- Routing ----
 
     private enum class Action {
-        START, HELP, LANGUAGE, COLLECTION, PACK, FREECARD, BUY, PAYSUPPORT, TRADE, MARKET, UNKNOWN_COMMAND, UNKNOWN_TEXT
+        START, HELP, LANGUAGE, COLLECTION, PACK, FREECARD, CRAFT, BUY, PAYSUPPORT, TRADE, MARKET, UNKNOWN_COMMAND, UNKNOWN_TEXT
     }
 
     private fun resolveAction(text: String, locale: GameLocale): Action {
@@ -751,6 +829,7 @@ class GameService(
                 "/themes" -> Action.COLLECTION // legacy alias
                 "/pack" -> Action.PACK
                 "/freecard" -> Action.FREECARD
+                "/craft" -> Action.CRAFT
                 "/buy" -> Action.BUY
                 "/paysupport" -> Action.PAYSUPPORT
                 "/trade" -> Action.TRADE
@@ -770,6 +849,7 @@ class GameService(
             matches("menu.collection") -> Action.COLLECTION
             matches("menu.pack") -> Action.PACK
             matches("menu.freecard") -> Action.FREECARD
+            matches("menu.craft") -> Action.CRAFT
             matches("menu.buy") -> Action.BUY
             matches("menu.trade") -> Action.TRADE
             matches("menu.market") -> Action.MARKET
@@ -823,6 +903,7 @@ class GameService(
             "menu:collection" -> sendCollectionView(chatId, user, page = 0)
             "menu:pack", "menu:open-pack" -> handlePackOpening(chatId, user)
             "menu:freecard" -> handleFreeCard(chatId, user)
+            "menu:craft" -> handleCraft(chatId, user)
             "menu:buy" -> handleBuy(chatId, user)
             "free:card" -> handleFreeCardClaim(chatId, user)
             "buy:1" -> handleBuyCallback(chatId, user, 1)
@@ -833,6 +914,8 @@ class GameService(
                 if (data == null) return
                 when {
                     data.startsWith("trade:add:") -> handleTradeAdd(chatId, user, data.removePrefix("trade:add:"))
+                    data.startsWith("trade:ret:") -> handleTradeReturn(chatId, user, data.removePrefix("trade:ret:").toLongOrNull())
+                    data.startsWith("craft:add:") -> handleCraftAdd(chatId, user, data.removePrefix("craft:add:"))
                     data.startsWith("col:page:") -> sendCollectionView(chatId, user, data.removePrefix("col:page:").toIntOrNull() ?: 0)
                     data.startsWith("m:") || data.startsWith("market:") -> handleMarketCallback(chatId, user, data)
                     else -> telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
@@ -927,6 +1010,7 @@ class GameService(
                     TelegramKeyboardButton(Messages.t("menu.freecard", locale)),
                 ),
                 listOf(
+                    TelegramKeyboardButton(Messages.t("menu.craft", locale)),
                     TelegramKeyboardButton(Messages.t("menu.language", locale)),
                 ),
             ),
