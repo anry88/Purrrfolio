@@ -71,6 +71,16 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
         jdbcTemplate.update(sql, timestamp, userId)
     }
 
+    fun claimFreeCardIfDue(userId: Long, timestamp: OffsetDateTime, intervalHours: Int): Boolean {
+        val dueBefore = timestamp.minusHours(intervalHours.toLong())
+        val sql = """
+            UPDATE users
+            SET last_free_card_at = ?, updated_at = NOW()
+            WHERE id = ? AND (last_free_card_at IS NULL OR last_free_card_at <= ?)
+        """.trimIndent()
+        return jdbcTemplate.update(sql, timestamp, userId, dueBefore) == 1
+    }
+
     fun updateCraftPoints(userId: Long, points: Int) {
         val sql = "UPDATE users SET craft_points = ?, updated_at = NOW() WHERE id = ? AND ? >= 0"
         jdbcTemplate.update(sql, points, userId, points)

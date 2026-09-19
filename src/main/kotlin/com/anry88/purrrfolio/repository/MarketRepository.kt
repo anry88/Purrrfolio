@@ -69,8 +69,23 @@ class MarketRepository(private val jdbcTemplate: JdbcTemplate) {
         return jdbcTemplate.query(sql, marketListingRowMapper, listingId).firstOrNull()
     }
 
+    fun findListingsByIdsForUpdate(firstId: UUID, secondId: UUID): List<MarketListing> {
+        val sql = """
+            SELECT * FROM market_listings
+            WHERE id IN (?, ?)
+            ORDER BY id
+            FOR UPDATE
+        """.trimIndent()
+        return jdbcTemplate.query(sql, marketListingRowMapper, firstId, secondId)
+    }
+
     fun findOfferById(offerId: UUID): TradeOffer? {
         val sql = "SELECT * FROM trade_offers WHERE id = ?"
+        return jdbcTemplate.query(sql, tradeOfferRowMapper, offerId).firstOrNull()
+    }
+
+    fun findOfferByIdForUpdate(offerId: UUID): TradeOffer? {
+        val sql = "SELECT * FROM trade_offers WHERE id = ? FOR UPDATE"
         return jdbcTemplate.query(sql, tradeOfferRowMapper, offerId).firstOrNull()
     }
 
@@ -92,8 +107,13 @@ class MarketRepository(private val jdbcTemplate: JdbcTemplate) {
         jdbcTemplate.update(sql, status.name, listingId)
     }
 
-    fun cancelListing(listingId: UUID) {
-        updateListingStatus(listingId, MarketListingStatus.CANCELLED)
+    fun cancelActiveListing(listingId: UUID): Boolean {
+        val sql = """
+            UPDATE market_listings
+            SET status = 'CANCELLED', updated_at = NOW()
+            WHERE id = ? AND status = 'ACTIVE'
+        """.trimIndent()
+        return jdbcTemplate.update(sql, listingId) == 1
     }
 
     fun markListingSold(listingId: UUID) {

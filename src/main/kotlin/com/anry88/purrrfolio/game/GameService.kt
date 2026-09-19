@@ -34,8 +34,11 @@ import com.anry88.purrrfolio.trade.TradePolicy
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.support.TransactionTemplate
+import java.time.Duration
 import java.time.OffsetDateTime
-import java.time.temporal.ChronoUnit
+import java.time.ZoneId
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
@@ -54,8 +57,10 @@ class GameService(
     private val processedUpdateRepository: ProcessedUpdateRepository,
     private val gameMetrics: GameMetrics,
     private val telegramClient: TelegramClient,
+    transactionManager: PlatformTransactionManager,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val transactionTemplate = TransactionTemplate(transactionManager)
 
     private sealed interface GalleryKey {
         data object Collection : GalleryKey
@@ -101,11 +106,12 @@ class GameService(
         fun packsFromPayload(payload: String?): Int? =
             payload?.removePrefix("purrrfolio:packs:")?.toIntOrNull()?.takeIf { starsForPacks(it) != null }
 
-        /** Hours until the next free grant (pack or single card); 0 means it is due now. */
-        fun hoursUntilFreePack(lastFree: OffsetDateTime?, now: OffsetDateTime, intervalHours: Int): Int {
+        /** Whole minutes until the next free card; 0 means it is due now. */
+        fun minutesUntilFreeCard(lastFree: OffsetDateTime?, now: OffsetDateTime, intervalHours: Int): Long {
             if (lastFree == null) return 0
-            val elapsed = ChronoUnit.HOURS.between(lastFree, now).toInt()
-            return maxOf(intervalHours - elapsed, 0)
+            val nextClaim = lastFree.plusHours(intervalHours.toLong())
+            if (!nextClaim.isAfter(now)) return 0
+            return (Duration.between(now, nextClaim).seconds + 59) / 60
         }
     }
 
@@ -204,7 +210,11 @@ class GameService(
 
         // Roll cards
         val currentInventory = userCardRepository.findByUserId(user.id).map { it.cardId }.toSet()
-        val rolledCards = packOpeningService.rollCards(properties.economy.cardsPerPack, currentInventory)
+        val rolledCards = packOpeningService.rollCards(
+            properties.economy.cardsPerPack,
+            currentInventory,
+            currentGameMonth(),
+        )
 
         // Save cards
         userCardRepository.addCards(user.id, rolledCards.map { it.id })
@@ -228,52 +238,30 @@ class GameService(
         telegramClient.sendMessage(chatId, Messages.t("pack.opened", locale), mainMenuKeyboard(locale))
     }
 
-    // ---- Free single card (one card every 7h, first one immediately) ----
+    // ---- Free single card (one card every 3h, first one immediately) ----
 
     private fun handleFreeCard(chatId: Long, user: User) {
-        sendFreeCardStatus(chatId, user)
-    }
-
-    private fun sendFreeCardStatus(chatId: Long, user: User) {
-        val locale = gameLocale(user)
-        val fresh = userRepository.findByTelegramUserId(user.telegramUserId) ?: user
-        val hoursLeft = hoursUntilFreePack(fresh.lastFreeCardAt, OffsetDateTime.now(), properties.economy.freeCardIntervalHours)
-        if (hoursLeft == 0) {
-            telegramClient.sendMessage(
-                chatId,
-                Messages.t("card.freeAvailable", locale),
-                TelegramReplyMarkup(
-                    inlineKeyboard = listOf(
-                        listOf(TelegramInlineButton(Messages.t("card.claim", locale), "free:card")),
-                    ),
-                ),
-            )
-        } else {
-            telegramClient.sendMessage(
-                chatId,
-                Messages.t("card.nextFreeIn", locale, hoursLeft),
-                mainMenuKeyboard(locale),
-            )
-        }
+        handleFreeCardClaim(chatId, user)
     }
 
     private fun handleFreeCardClaim(chatId: Long, user: User) {
-        // Re-read for double-tap safety: only the first tap grants the card.
+        // Re-read and atomically claim for double-tap and concurrent-update safety.
         val fresh = userRepository.findByTelegramUserId(user.telegramUserId) ?: user
         val locale = gameLocale(fresh)
-        val now = OffsetDateTime.now()
-        val hoursLeft = hoursUntilFreePack(fresh.lastFreeCardAt, now, properties.economy.freeCardIntervalHours)
-        if (hoursLeft > 0) {
-            telegramClient.sendMessage(
-                chatId,
-                Messages.t("card.nextFreeIn", locale, hoursLeft),
-                mainMenuKeyboard(locale),
-            )
+        val now = OffsetDateTime.now(ZoneId.of(properties.gameTimezone))
+        val minutesLeft = minutesUntilFreeCard(fresh.lastFreeCardAt, now, properties.economy.freeCardIntervalHours)
+        if (minutesLeft > 0) {
+            sendFreeCardWait(chatId, locale, minutesLeft)
             return
         }
-        userRepository.updateLastFreeCardAt(fresh.id, now)
+        if (!userRepository.claimFreeCardIfDue(fresh.id, now, properties.economy.freeCardIntervalHours)) {
+            val latest = userRepository.findByTelegramUserId(fresh.telegramUserId) ?: fresh
+            val latestMinutes = minutesUntilFreeCard(latest.lastFreeCardAt, now, properties.economy.freeCardIntervalHours)
+            sendFreeCardWait(chatId, locale, latestMinutes)
+            return
+        }
         val owned = userCardRepository.findByUserId(fresh.id).map { it.cardId }.toSet()
-        val card = packOpeningService.rollCards(1, owned).firstOrNull()
+        val card = packOpeningService.rollCards(1, owned, currentGameMonth()).firstOrNull()
         if (card == null) {
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
             return
@@ -283,22 +271,36 @@ class GameService(
         val isNew = !owned.contains(card.id)
         val caption = packOpeningService.formatReveal(card, isNew, locale)
         val resource = ClassPathResource("static/assets/cards/${card.id}.png")
+        val revealKeyboard = if (packLedgerRepository.getTotalAvailablePacks(fresh.id) > 0) {
+            openPackKeyboard(locale)
+        } else {
+            null
+        }
         try {
             if (resource.exists()) {
-                telegramClient.sendPhoto(chatId, resource, caption, openPackKeyboard(locale))
+                telegramClient.sendPhoto(chatId, resource, caption, revealKeyboard)
             } else {
-                telegramClient.sendMessage(chatId, caption, openPackKeyboard(locale))
+                telegramClient.sendMessage(chatId, caption, revealKeyboard)
             }
         } catch (e: Throwable) {
             logger.warn("Failed to send free card photo for {}", card.id, e)
-            runCatching { telegramClient.sendMessage(chatId, caption, openPackKeyboard(locale)) }
+            runCatching { telegramClient.sendMessage(chatId, caption, revealKeyboard) }
         }
+        sendFreeCardWait(chatId, locale, properties.economy.freeCardIntervalHours * 60L)
+    }
+
+    private fun sendFreeCardWait(chatId: Long, locale: GameLocale, minutesLeft: Long) {
+        val hours = minutesLeft / 60
+        val minutes = minutesLeft % 60
         telegramClient.sendMessage(
             chatId,
-            Messages.t("card.nextFreeIn", locale, properties.economy.freeCardIntervalHours),
+            Messages.t("card.nextFreeIn", locale, hours, minutes),
             mainMenuKeyboard(locale),
         )
     }
+
+    private fun currentGameMonth(): Int =
+        OffsetDateTime.now(ZoneId.of(properties.gameTimezone)).monthValue
 
     // ---- Pack crafter (duplicates -> points, 15 pts = 1 pack) ----
 
@@ -479,6 +481,18 @@ class GameService(
         val peerUserId: Long,
     )
 
+    private data class MarketplaceSettlementResult(
+        val targetOwner: User,
+        val offerOwner: User,
+        val targetCardId: String,
+        val offeredCardId: String,
+    )
+
+    private data class MarketplaceRejectionResult(
+        val targetOwner: User,
+        val offerOwner: User,
+    )
+
     private fun handleTradeAdd(chatId: Long, user: User, cardId: String) {
         val locale = gameLocale(user)
         val owned = userCardRepository.findByUserIdAndCardId(user.id, cardId)
@@ -493,7 +507,13 @@ class GameService(
         if (match != null) {
             val matchedName = runCatching { cardCatalog.card(match.receivedCardId).nameFor(locale) }.getOrElse { match.receivedCardId }
             gameMetrics.tradeMatched()
-            telegramClient.sendMessage(chatId, Messages.t("trade.matched", locale, matchedName), mainMenuKeyboard(locale))
+            runCatching {
+                telegramClient.sendMessage(
+                    user.telegramUserId,
+                    Messages.t("trade.matched", locale, matchedName),
+                    mainMenuKeyboard(locale),
+                )
+            }.onFailure { logger.warn("Failed to notify random-trade owner {}", user.id, it) }
             // The waiting side has no other way to learn about the swap.
             runCatching {
                 userRepository.findById(match.peerUserId)?.let { peer ->
@@ -526,8 +546,15 @@ class GameService(
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
             return
         }
-        randomTradeRepository.cancelTrade(tradeId)
-        userCardRepository.addCards(user.id, listOf(trade.cardId))
+        val returned = transactionTemplate.execute {
+            if (!randomTradeRepository.cancelTrade(tradeId)) return@execute false
+            userCardRepository.addCards(user.id, listOf(trade.cardId))
+            true
+        } == true
+        if (!returned) {
+            telegramClient.sendMessage(chatId, Messages.t("callback.expired", locale), mainMenuKeyboard(locale))
+            return
+        }
         val name = runCatching { cardCatalog.card(trade.cardId).nameFor(locale) }.getOrElse { trade.cardId }
         telegramClient.sendMessage(chatId, Messages.t("trade.returned", locale, name), mainMenuKeyboard(locale))
     }
@@ -538,32 +565,25 @@ class GameService(
      * Never leaves ghost pool rows: a failed enqueue is cancelled and refunded.
      */
     private fun attemptRandomTradeMatching(userId: Long, cardId: String): RandomTradeResult? {
-        val userTrade = try {
-            randomTradeRepository.addToPool(userId, cardId)
-        } catch (e: Exception) {
-            logger.error("Failed to enqueue random trade for user {} card {}", userId, cardId, e)
-            runCatching { userCardRepository.addCards(userId, listOf(cardId)) }
-            return null
-        }
         return try {
-            val waitingTrades = randomTradeRepository.findAllWaiting()
-            val match = waitingTrades
-                .filter { it.id != userTrade.id }
-                .firstOrNull { it.userId != userId && it.cardId != cardId }
-            if (match != null) {
+            transactionTemplate.execute {
+                val userTrade = randomTradeRepository.addToPool(userId, cardId)
+                val match = randomTradeRepository.findFirstMatchForUpdate(userTrade.id, userId, cardId)
+                if (match == null) {
+                    logger.debug("No random-trade match for user {} card {}; waiting", userId, cardId)
+                    return@execute null
+                }
+                check(randomTradeRepository.matchTrades(userTrade.id, match.id)) {
+                    "Random-trade pair changed while locked"
+                }
                 // Both cards were removed from inventories when enqueued; simply deal them out.
                 userCardRepository.addCards(userId, listOf(match.cardId))
                 userCardRepository.addCards(match.userId, listOf(cardId))
-                randomTradeRepository.matchTrades(userTrade.id, match.id)
                 logger.info("Random trade matched: user {} card {} with user {} card {}", userId, cardId, match.userId, match.cardId)
                 RandomTradeResult(match.cardId, match.userId)
-            } else {
-                logger.debug("No random-trade match for user {} card {}; waiting", userId, cardId)
-                null
             }
         } catch (e: Exception) {
-            logger.error("Failed to match random trade {} for user {} card {}", userTrade.id, userId, cardId, e)
-            runCatching { randomTradeRepository.cancelTrade(userTrade.id) }
+            logger.error("Failed to enqueue or match random trade for user {} card {}", userId, cardId, e)
             runCatching { userCardRepository.addCards(userId, listOf(cardId)) }
             null
         }
@@ -626,8 +646,15 @@ class GameService(
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
             return
         }
-        marketRepository.cancelListing(listingId)
-        userCardRepository.addCards(user.id, listOf(listing.cardId))
+        val returned = transactionTemplate.execute {
+            if (!marketRepository.cancelActiveListing(listingId)) return@execute false
+            userCardRepository.addCards(user.id, listOf(listing.cardId))
+            true
+        } == true
+        if (!returned) {
+            telegramClient.sendMessage(chatId, Messages.t("callback.expired", locale), mainMenuKeyboard(locale))
+            return
+        }
         telegramClient.sendMessage(chatId, Messages.t("market.returned", locale), mainMenuKeyboard(locale))
     }
 
@@ -644,8 +671,8 @@ class GameService(
             return
         }
         val text = pageItems.map { listing ->
-            val name = runCatching { cardCatalog.card(listing.cardId).nameFor(locale) }.getOrElse { listing.cardId }
-            "🎴 $name"
+            runCatching { marketCardDetails(cardCatalog.card(listing.cardId), locale) }
+                .getOrElse { "🎴 ${listing.cardId}" }
         }.joinToString("\n")
         val buttons = pageItems.map { listing ->
             val name = runCatching { cardCatalog.card(listing.cardId).nameFor(locale) }.getOrElse { listing.cardId }
@@ -693,7 +720,11 @@ class GameService(
         }
         val target = marketRepository.findListingById(targetId)
         val offered = marketRepository.findListingById(offeredId)
-        if (target == null || offered == null || offered.sellerId != user.id || target.sellerId == user.id) {
+        if (
+            target == null || offered == null ||
+            target.status.name != "ACTIVE" || offered.status.name != "ACTIVE" ||
+            offered.sellerId != user.id || target.sellerId == user.id
+        ) {
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
             return
         }
@@ -702,25 +733,26 @@ class GameService(
             gameMetrics.marketOffer("created")
             telegramClient.sendMessage(chatId, Messages.t("market.offerMade", locale), mainMenuKeyboard(locale))
             // Notify the owner with accept/reject buttons.
-            val targetName = runCatching { cardCatalog.card(target.cardId).nameFor(gameLocale(user)) }.getOrElse { target.cardId }
-            val offeredName = runCatching { cardCatalog.card(offered.cardId).nameFor(gameLocale(user)) }.getOrElse { offered.cardId }
             val owner = userRepository.findById(target.sellerId)
             // Best effort: we can only notify if we knew the owner's chat id (= telegram id for 1:1 chats).
             if (owner != null) {
+                val ownerLocale = gameLocale(owner)
+                val targetName = runCatching { cardCatalog.card(target.cardId).nameFor(ownerLocale) }.getOrElse { target.cardId }
+                val offeredName = runCatching { cardCatalog.card(offered.cardId).nameFor(ownerLocale) }.getOrElse { offered.cardId }
                 runCatching {
                     telegramClient.sendMessage(
                         owner.telegramUserId,
-                        Messages.t("market.offerReceived", gameLocale(owner), targetName, offeredName),
+                        Messages.t("market.offerReceived", ownerLocale, targetName, offeredName),
                         TelegramReplyMarkup(
                             inlineKeyboard = listOf(
                                 listOf(
-                                    TelegramInlineButton(Messages.t("market.accept", gameLocale(owner)), "m:acc:${offer.id}"),
-                                    TelegramInlineButton(Messages.t("market.reject", gameLocale(owner)), "m:rej:${offer.id}"),
+                                    TelegramInlineButton(Messages.t("market.accept", ownerLocale), "m:acc:${offer.id}"),
+                                    TelegramInlineButton(Messages.t("market.reject", ownerLocale), "m:rej:${offer.id}"),
                                 ),
                             ),
                         ),
                     )
-                }
+                }.onFailure { logger.warn("Failed to notify market listing owner {}", owner.id, it) }
             }
         } catch (e: Exception) {
             logger.error("Failed to create trade offer", e)
@@ -737,34 +769,12 @@ class GameService(
                 data.startsWith("m:brw:") -> handleMarketBrowse(chatId, user, data.removePrefix("m:brw:").toIntOrNull() ?: 0)
                 data.startsWith("m:pick:") -> handleMarketPick(chatId, user, UUID.fromString(data.removePrefix("m:pick:")))
                 data.startsWith("m:off:") -> handleMarketOffer(chatId, user, UUID.fromString(data.removePrefix("m:off:")))
-                data.startsWith("m:acc:") -> {
-                    val settled = settleMarketplaceOffer(UUID.fromString(data.removePrefix("m:acc:")), user.id)
-                    telegramClient.sendMessage(
-                        chatId,
-                        Messages.t(if (settled) "market.offerAccepted" else "market.settlementFailed", locale),
-                        mainMenuKeyboard(locale),
-                    )
-                }
-                data.startsWith("m:rej:") -> {
-                    marketRepository.rejectTradeOffer(UUID.fromString(data.removePrefix("m:rej:")))
-                    gameMetrics.marketOffer("rejected")
-                    telegramClient.sendMessage(chatId, Messages.t("market.offerRejected", locale), mainMenuKeyboard(locale))
-                }
+                data.startsWith("m:acc:") -> handleMarketAccept(chatId, user, UUID.fromString(data.removePrefix("m:acc:")))
+                data.startsWith("m:rej:") -> handleMarketReject(chatId, user, UUID.fromString(data.removePrefix("m:rej:")))
                 // Backward-compatible long prefixes from earlier builds.
-                data.startsWith("market:accept:") -> {
-                    val settled = settleMarketplaceOffer(UUID.fromString(data.removePrefix("market:accept:")), user.id)
-                    telegramClient.sendMessage(
-                        chatId,
-                        Messages.t(if (settled) "market.offerAccepted" else "market.settlementFailed", locale),
-                        mainMenuKeyboard(locale),
-                    )
-                }
-                data.startsWith("market:reject:") -> {
-                    marketRepository.rejectTradeOffer(UUID.fromString(data.removePrefix("market:reject:")))
-                    gameMetrics.marketOffer("rejected")
-                    telegramClient.sendMessage(chatId, Messages.t("market.offerRejected", locale), mainMenuKeyboard(locale))
-                }
-                else -> telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", locale), mainMenuKeyboard(locale))
+                data.startsWith("market:accept:") -> handleMarketAccept(chatId, user, UUID.fromString(data.removePrefix("market:accept:")))
+                data.startsWith("market:reject:") -> handleMarketReject(chatId, user, UUID.fromString(data.removePrefix("market:reject:")))
+                else -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", locale), mainMenuKeyboard(locale))
             }
         }.onFailure {
             logger.error("Failed to handle market callback {}", data, it)
@@ -772,34 +782,139 @@ class GameService(
         }
     }
 
-    private fun settleMarketplaceOffer(offerId: UUID, actingUserId: Long): Boolean {
+    private fun handleMarketAccept(chatId: Long, user: User, offerId: UUID) {
+        val locale = gameLocale(user)
+        val settled = settleMarketplaceOffer(offerId, user.id)
+        if (settled == null) {
+            telegramClient.sendMessage(chatId, Messages.t("market.settlementFailed", locale), mainMenuKeyboard(locale))
+            return
+        }
+        val receivedName = runCatching { cardCatalog.card(settled.offeredCardId).nameFor(locale) }
+            .getOrElse { settled.offeredCardId }
+        runCatching {
+            telegramClient.sendMessage(
+                settled.targetOwner.telegramUserId,
+                Messages.t("market.offerAccepted", locale, receivedName),
+                mainMenuKeyboard(locale),
+            )
+        }.onFailure { logger.warn("Failed to notify accepted market target owner {}", settled.targetOwner.id, it) }
+        val peerLocale = gameLocale(settled.offerOwner)
+        val peerReceivedName = runCatching { cardCatalog.card(settled.targetCardId).nameFor(peerLocale) }
+            .getOrElse { settled.targetCardId }
+        runCatching {
+            telegramClient.sendMessage(
+                settled.offerOwner.telegramUserId,
+                Messages.t("market.offerAccepted", peerLocale, peerReceivedName),
+                mainMenuKeyboard(peerLocale),
+            )
+        }.onFailure { logger.warn("Failed to notify accepted market offer owner {}", settled.offerOwner.id, it) }
+    }
+
+    private fun handleMarketReject(chatId: Long, user: User, offerId: UUID) {
+        val locale = gameLocale(user)
+        val rejected = rejectMarketplaceOffer(offerId, user.id)
+        if (rejected == null) {
+            telegramClient.sendMessage(chatId, Messages.t("market.settlementFailed", locale), mainMenuKeyboard(locale))
+            return
+        }
+        runCatching {
+            telegramClient.sendMessage(
+                rejected.targetOwner.telegramUserId,
+                Messages.t("market.offerRejectedByYou", locale),
+                mainMenuKeyboard(locale),
+            )
+        }.onFailure { logger.warn("Failed to notify rejecting market target owner {}", rejected.targetOwner.id, it) }
+        val peerLocale = gameLocale(rejected.offerOwner)
+        runCatching {
+            telegramClient.sendMessage(
+                rejected.offerOwner.telegramUserId,
+                Messages.t("market.offerRejectedNotice", peerLocale),
+                mainMenuKeyboard(peerLocale),
+            )
+        }.onFailure { logger.warn("Failed to notify rejected market offer owner {}", rejected.offerOwner.id, it) }
+    }
+
+    private fun settleMarketplaceOffer(offerId: UUID, actingUserId: Long): MarketplaceSettlementResult? {
         return try {
-            val offer = marketRepository.findOfferById(offerId) ?: return false
-            if (offer.status.name != "PENDING") return false
+            transactionTemplate.execute {
+                val offer = marketRepository.findOfferByIdForUpdate(offerId) ?: return@execute null
+                if (offer.status.name != "PENDING") return@execute null
 
-            val targetListing = marketRepository.findListingById(offer.targetListingId) ?: return false
-            val offeredListing = marketRepository.findListingById(offer.offeredListingId) ?: return false
-            if (targetListing.status.name != "ACTIVE" || offeredListing.status.name != "ACTIVE") return false
-            // Only the owner of the target listing can accept.
-            if (targetListing.sellerId != actingUserId) return false
+                // Lock both escrowed cards in a stable order. An ACTIVE listing is the proof that
+                // the corresponding owner still has that card reserved for this exchange.
+                val lockedListings = marketRepository.findListingsByIdsForUpdate(
+                    offer.targetListingId,
+                    offer.offeredListingId,
+                ).associateBy { it.id }
+                val targetListing = lockedListings[offer.targetListingId] ?: return@execute null
+                val offeredListing = lockedListings[offer.offeredListingId] ?: return@execute null
+                if (targetListing.status.name != "ACTIVE" || offeredListing.status.name != "ACTIVE") return@execute null
+                if (targetListing.sellerId != actingUserId || targetListing.sellerId == offeredListing.sellerId) {
+                    return@execute null
+                }
 
-            val targetOwner = userRepository.findById(targetListing.sellerId) ?: return false
-            val offerOwner = userRepository.findById(offeredListing.sellerId) ?: return false
+                val targetOwner = userRepository.findById(targetListing.sellerId) ?: return@execute null
+                val offerOwner = userRepository.findById(offeredListing.sellerId) ?: return@execute null
 
-            // Atomic card exchange: target owner gets the offered card and vice versa.
-            // Cards were already removed from inventories when listed, so we only deal them out.
-            userCardRepository.addCards(targetOwner.id, listOf(offeredListing.cardId))
-            userCardRepository.addCards(offerOwner.id, listOf(targetListing.cardId))
-
-            marketRepository.markListingSold(offer.targetListingId)
-            marketRepository.markListingSold(offer.offeredListingId)
-            marketRepository.acceptTradeOffer(offer.id)
-            gameMetrics.marketOffer("accepted")
-            true
+                // Both cards leave escrow and reach their new owners in the same transaction.
+                userCardRepository.addCards(targetOwner.id, listOf(offeredListing.cardId))
+                userCardRepository.addCards(offerOwner.id, listOf(targetListing.cardId))
+                marketRepository.markListingSold(offer.targetListingId)
+                marketRepository.markListingSold(offer.offeredListingId)
+                marketRepository.acceptTradeOffer(offer.id)
+                gameMetrics.marketOffer("accepted")
+                MarketplaceSettlementResult(targetOwner, offerOwner, targetListing.cardId, offeredListing.cardId)
+            }
         } catch (e: Exception) {
             logger.error("Failed to settle marketplace offer", e)
-            false
+            null
         }
+    }
+
+    private fun rejectMarketplaceOffer(offerId: UUID, actingUserId: Long): MarketplaceRejectionResult? {
+        return try {
+            transactionTemplate.execute {
+                val offer = marketRepository.findOfferByIdForUpdate(offerId) ?: return@execute null
+                if (offer.status.name != "PENDING") return@execute null
+                val listings = marketRepository.findListingsByIdsForUpdate(
+                    offer.targetListingId,
+                    offer.offeredListingId,
+                ).associateBy { it.id }
+                val targetListing = listings[offer.targetListingId] ?: return@execute null
+                val offeredListing = listings[offer.offeredListingId] ?: return@execute null
+                if (targetListing.sellerId != actingUserId) return@execute null
+                val targetOwner = userRepository.findById(targetListing.sellerId) ?: return@execute null
+                val offerOwner = userRepository.findById(offeredListing.sellerId) ?: return@execute null
+                marketRepository.rejectTradeOffer(offer.id)
+                gameMetrics.marketOffer("rejected")
+                MarketplaceRejectionResult(targetOwner, offerOwner)
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to reject marketplace offer", e)
+            null
+        }
+    }
+
+    private fun marketCardDetails(card: CardDefinition, locale: GameLocale): String {
+        val rarity = when (locale) {
+            GameLocale.RU -> card.rarity.labelRu
+            GameLocale.EN -> card.rarity.labelEn
+        }
+        val collection = cardCatalog.collection(card.themeId)
+        val collectionName = when (locale) {
+            GameLocale.RU -> collection.nameRu
+            GameLocale.EN -> collection.nameEn
+        }
+        val special = if (card.special) Messages.t("market.specialCollection", locale) else ""
+        return Messages.t(
+            "market.cardListing",
+            locale,
+            card.nameFor(locale),
+            card.rarity.emoji,
+            rarity,
+            collectionName,
+            special,
+        )
     }
 
     // ---- Collections ----
@@ -906,7 +1021,7 @@ class GameService(
                     telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.RU), mainMenuKeyboard(GameLocale.RU))
                     telegramClient.sendMessage(chatId, Messages.t("pack.starter", GameLocale.RU, properties.economy.starterPacks), openPackKeyboard(GameLocale.RU))
                 }
-                else -> telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", GameLocale.EN), mainMenuKeyboard(GameLocale.EN))
+                else -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", GameLocale.EN), mainMenuKeyboard(GameLocale.EN))
             }
             return
         }
@@ -947,7 +1062,7 @@ class GameService(
                     data.startsWith("craft:add:") -> handleCraftAdd(chatId, user, data.removePrefix("craft:add:"))
                     data.startsWith("col:page:") -> sendCollectionView(chatId, user, data.removePrefix("col:page:").toIntOrNull() ?: 0)
                     data.startsWith("m:") || data.startsWith("market:") -> handleMarketCallback(chatId, user, data)
-                    else -> telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+                    else -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
                 }
             }
         }
@@ -955,7 +1070,7 @@ class GameService(
 
     private fun grantStarterPacks(userId: Long) {
         // Exactly 3 starter packs; the first free single card is due immediately
-        // (last_free_card_at stays NULL until the first claim), then every 7h.
+        // (last_free_card_at stays NULL until the first claim), then every 3h.
         packLedgerRepository.addPacks(userId, "starter", properties.economy.starterPacks)
     }
 
@@ -1137,7 +1252,7 @@ class GameService(
                 when (key) {
                     GalleryKey.Collection -> sendCollectionView(chatId, user, page = 0)
                     is GalleryKey.Theme -> sendCollectionView(chatId, user, page = 0)
-                    null -> telegramClient.sendMessage(chatId, Messages.t("callback.underDevelopment", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+                    null -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
                 }
             }
         }
@@ -1196,35 +1311,6 @@ class GameService(
             runCatching { telegramClient.sendMessage(chatId, caption, keyboard) }
             chatGalleries.remove(chatId)
         }
-    }
-
-    private fun galleryCaption(
-        card: CardDefinition,
-        theme: ThemeDefinition?,
-        ownedCount: Int,
-        locale: GameLocale,
-        index: Int,
-        total: Int,
-    ): String {
-        val rarityLabel = card.rarity.emoji
-        val name = card.nameFor(locale)
-        val themeName = theme?.let { when (locale) {
-            GameLocale.RU -> it.nameRu
-            GameLocale.EN -> it.nameEn
-        } } ?: ""
-        val countText = if (ownedCount > 0) {
-            Messages.t("gallery.owned", locale, ownedCount)
-        } else {
-            Messages.t("gallery.missing", locale)
-        }
-        val counter = Messages.t("gallery.counter", locale, index, total)
-
-        return """
-            $rarityLabel $name
-            $themeName
-            $countText
-            $counter
-        """.trimIndent()
     }
 
     private fun galleryKeyboard(

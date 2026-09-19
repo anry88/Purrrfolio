@@ -11,6 +11,7 @@ data class CardDefinition(
     val limited: Boolean = false,
     val event: String? = null,
     val source: String? = null,
+    val availableMonths: List<Int> = emptyList(),
     val sortOrder: Int = 0,
 )
 

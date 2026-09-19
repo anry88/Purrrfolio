@@ -11,11 +11,29 @@ class CardCatalogTest {
 
     @Test
     fun loadsStarterCardsAndCollections() {
-        assertEquals(94, catalog.cards.size)
+        assertEquals(126, catalog.cards.size)
         assertTrue(catalog.collections.isNotEmpty())
         assertEquals("Соня", catalog.card("sleepy").nameRu)
         assertEquals(CardRarity.LEGENDARY, catalog.card("baker").rarity)
         assertEquals(CardRarity.MYTHIC, catalog.card("dreamweaver").rarity)
         assertEquals(CardRarity.UNCOMMON, catalog.card("blossom").rarity)
+        assertEquals("Спорт", catalog.collection("sports").nameRu)
+        assertEquals(16, catalog.cardsByCollection("sports").size)
+        assertEquals(
+            5,
+            catalog.cardsByCollection("sports").count {
+                it.id in setOf("table-tennis-duo", "rowing-crew", "soccer-squad", "basketball-buddies", "hockey-team")
+            },
+        )
+        val calendarCards = catalog.cardsByCollection("calendar-cycle")
+        assertEquals(16, calendarCards.size)
+        assertTrue(calendarCards.all { it.special })
+        assertTrue(calendarCards.none { it.limited })
+        assertTrue(calendarCards.all { it.event == "calendar-cycle" })
+        assertEquals(listOf(1), catalog.card("january").availableMonths)
+        assertEquals(listOf(12, 1, 2), catalog.card("season-winter").availableMonths)
+        assertEquals(listOf(3, 4, 5), catalog.card("season-spring").availableMonths)
+        assertEquals(listOf(6, 7, 8), catalog.card("season-summer").availableMonths)
+        assertEquals(listOf(9, 10, 11), catalog.card("season-autumn").availableMonths)
     }
 }

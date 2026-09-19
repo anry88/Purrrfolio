@@ -33,7 +33,7 @@ object Messages {
                 "/start — register and choose language\n" +
                 "/collection — list your cards and duplicates\n" +
                 "/pack — open a pack (3 cards)\n" +
-                "/freecard — claim a free card (every 7 hours)\n" +
+                "/freecard — claim a free card (every 3 hours)\n" +
                 "/craft — melt duplicates into packs (15 pts = 1 pack)\n" +
                 "/buy — buy packs with Telegram Stars\n" +
                 "/trade — random trade duplicates\n" +
@@ -44,7 +44,7 @@ object Messages {
                 "/start — регистрация и выбор языка\n" +
                 "/collection — список карточек и дубликатов\n" +
                 "/pack — открыть набор (3 карточки)\n" +
-                "/freecard — забрать бесплатную карточку (каждые 7 часов)\n" +
+                "/freecard — забрать бесплатную карточку (каждые 3 часа)\n" +
                 "/craft — плавить дубликаты в наборы (15 очков = 1 набор)\n" +
                 "/buy — купить наборы за Telegram Stars\n" +
                 "/trade — случайный обмен дубликатами\n" +
@@ -76,14 +76,10 @@ object Messages {
             "🎁 You received %s starter packs! Open them to begin your collection." to
                 "🎁 Ты получил %s стартовых наборов! Открой их, чтобы начать коллекцию."
             ),
-        "card.freeAvailable" to (
-            "🎁 Your free card is ready! Tap the button to claim it." to
-                "🎁 Бесплатная карточка готова! Нажми кнопку, чтобы забрать её."
-            ),
-        "card.claim" to ("🎁 Claim free card" to "🎁 Забрать карточку"),
+        "card.special" to ("✨ *SPECIAL CARD*" to "✨ *СПЕШЛ-КАРТОЧКА*"),
         "card.nextFreeIn" to (
-            "Next free card in %s hours." to
-                "Следующая бесплатная карточка через %s часов."
+            "Next free card in %s h %s min." to
+                "Следующая бесплатная карточка через %s ч %s мин."
             ),
         "craft.title" to (
             "🛠 *Pack crafter*\n\nBalance: %s / %s pts\nCommon = 1, Uncommon = 2, Rare = 3, Epic = 4, Legendary/Mythic = 5.\n15 pts build 1 pack, leftovers carry over." to
@@ -143,8 +139,8 @@ object Messages {
         "themeStatus.inProgress" to ("in progress" to "в процессе"),
         "themes.title" to ("📚 *Themes*" to "📚 *Темы*"),
         "trade.hint" to (
-            "🎲 *Random Trade*\n\nAdd duplicate cards to the pool and automatically exchange them with other players' duplicates." to
-                "🎲 *Случайный обмен*\n\nДобавляй дубликаты в пул и автоматически обменивай их на дубликаты других игроков."
+            "🎲 *Random Trade*\n\nChoose a duplicate. It stays in the pool until another player adds a different card; then the exchange happens automatically and both players are notified." to
+                "🎲 *Случайный обмен*\n\nВыбери дубликат. Он останется в пуле, пока другой игрок не добавит другую карточку; затем обмен произойдёт автоматически и оба игрока получат уведомление."
             ),
         "trade.added" to (
             "Card added to random trade pool!" to
@@ -181,8 +177,8 @@ object Messages {
             ),
         "trade.offerButton" to ("🎲 Trade %s" to "🎲 Обменять %s"),
         "market.hint" to (
-            "Market: list your duplicates and offer them for other players' cards.\nList a card to start trading." to
-                "Биржа: выставь свои дубликаты и предложи их за карточки других игроков.\nВыставь карточку, чтобы начать торговлю."
+            "🏪 *Market*\n\n1. List a duplicate.\n2. Browse another player's card.\n3. Choose one of your listings to offer.\nThe owner accepts or rejects the exchange." to
+                "🏪 *Биржа*\n\n1. Выставь дубликат.\n2. Выбери карточку другого игрока.\n3. Предложи за неё один из своих лотов.\nВладелец примет или отклонит обмен."
             ),
         "market.listed" to (
             "Card listed on market." to
@@ -209,9 +205,10 @@ object Messages {
                 "Выбери дубликат для выставления:"
             ),
         "market.cardListing" to (
-            "🎴 %s (%s)\n🔄 Offered %s times" to
-                "🎴 %s (%s)\n🔄 Предложено %s раз"
+            "🎴 *%s*\n%s %s\n📚 Collection: %s%s" to
+                "🎴 *%s*\n%s %s\n📚 Коллекция: %s%s"
             ),
+        "market.specialCollection" to ("\n✨ Special collection" to "\n✨ Спешл-коллекция"),
         "market.browsingListings" to (
             "Active market listings:\n\n%s\n\n%s" to
                 "Активные лоты на бирже:\n\n%s\n\n%s"
@@ -233,16 +230,20 @@ object Messages {
                 "Новое предложение за: %s\nПредлагает: %s\n\nПринять или отклонить?"
             ),
         "market.offerAccepted" to (
-            "Trade accepted! Cards exchanged." to
-                "Обмен принят! Карточки обменены."
+            "✅ Trade complete! You received: %s" to
+                "✅ Обмен завершён! Ты получил: %s"
             ),
-        "market.offerRejected" to (
-            "Trade rejected." to
-                "Обмен отклонен."
+        "market.offerRejectedByYou" to (
+            "Trade offer rejected. The other player has been notified." to
+                "Предложение отклонено. Второй участник получил уведомление."
+            ),
+        "market.offerRejectedNotice" to (
+            "❌ Your trade offer was rejected." to
+                "❌ Твоё предложение обмена отклонено."
             ),
         "market.settlementFailed" to (
-            "Failed to complete trade. Please contact support." to
-                "Не удалось завершить обмен. Свяжись с поддержкой."
+            "This offer is no longer available. Open /market to see current listings." to
+                "Это предложение уже недоступно. Открой /market, чтобы посмотреть актуальные лоты."
             ),
         "market.listButton" to ("🏪 List %s" to "🏪 Выставить %s"),
         "market.returnButton" to ("↩️ Return %s" to "↩️ Вернуть %s"),
@@ -255,7 +256,10 @@ object Messages {
             ),
         "unknownCommand" to ("Unknown command. Send /help." to "Неизвестная команда. Напиши /help."),
         "unknownText" to ("Use /help to see available commands." to "Используй /help, чтобы увидеть доступные команды."),
-        "callback.underDevelopment" to ("This section is under development." to "Раздел в разработке."),
+        "callback.expired" to (
+            "This button is no longer active. Use the menu below to continue." to
+                "Эта кнопка больше не активна. Продолжи через меню ниже."
+            ),
         "gallery.back" to ("🔙 Back" to "🔙 Назад"),
         "gallery.viewCards" to ("🖼 View cards" to "🖼 Смотреть карточки"),
         "gallery.owned" to ("In collection: ×%s" to "В коллекции: ×%s"),

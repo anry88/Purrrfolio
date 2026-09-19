@@ -38,10 +38,12 @@ Core business logic is split into small packages:
 
 1. `/pack` opens a pack only: negative `pack_ledger` row, roll via `PackOpeningService`.
 2. Empty stash → `/buy` prompt. Free single cards are fully separate: `/freecard`
-   shows a claim button when due (first card immediately, then every 7h via
-   `users.last_free_card_at`), countdown otherwise.
+   immediately grants the card when due (first card immediately, then every 3h via
+   `users.last_free_card_at`) and shows an hours/minutes countdown otherwise.
 3. Inventory upsert into `user_cards` (TEXT card ids matching `catalog/cards.json`).
 4. Bot sends card PNGs from `/static/assets/cards/{id}.png`.
+5. Calendar special cards are filtered by the configured game-timezone month after
+   rarity is selected, so their normal rarity weights remain unchanged.
 
 ### Stars purchase
 
@@ -72,7 +74,9 @@ Core business logic is split into small packages:
 1. Seller lists duplicate → `market_listings` row, one copy removed from inventory.
 2. Seller can return the card (`CANCELLED` + inventory credit).
 3. Buyer picks a foreign listing, chooses one of their own listings as offer → `trade_offers` PENDING.
-4. Owner accepts → atomic card exchange, both listings SOLD; rejects → REJECTED.
+4. Only the target-card owner can accept or reject. Acceptance locks both active
+   listings and atomically moves both escrowed cards before marking them SOLD.
+5. Exchange results are sent only to the two listing owners, in each owner's language.
 
 ## Localization
 

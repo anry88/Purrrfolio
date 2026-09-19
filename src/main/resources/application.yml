@@ -37,7 +37,7 @@ purrrfolio:
   economy:
     starter-packs: ${STARTER_PACKS:3}
     free-pack-interval-hours: ${FREE_PACK_INTERVAL_HOURS:23}
-    free-card-interval-hours: ${FREE_CARD_INTERVAL_HOURS:7}
+    free-card-interval-hours: ${FREE_CARD_INTERVAL_HOURS:3}
     cards-per-pack: ${CARDS_PER_PACK:3}
     stars-pricing:
       one-pack: ${STARS_ONE_PACK:5}

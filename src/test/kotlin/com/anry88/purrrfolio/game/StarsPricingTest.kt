@@ -34,14 +34,11 @@ class StarsPricingTest {
     }
 
     @Test
-    fun `free pack timer starts at registration`() {
+    fun `free card timer starts immediately and rounds up to minutes`() {
         val now = OffsetDateTime.now()
-        // Legacy pack timer helper still works generically.
-        assertEquals(23, GameService.hoursUntilFreePack(now, now, 23))
-        // Free single card: due immediately at start, then every 7h.
-        assertEquals(0, GameService.hoursUntilFreePack(null, now, 7))
-        assertEquals(7, GameService.hoursUntilFreePack(now, now, 7))
-        assertEquals(1, GameService.hoursUntilFreePack(now, now.plusHours(6), 7))
-        assertEquals(0, GameService.hoursUntilFreePack(now, now.plusHours(7), 7))
+        assertEquals(0, GameService.minutesUntilFreeCard(null, now, 3))
+        assertEquals(180, GameService.minutesUntilFreeCard(now, now, 3))
+        assertEquals(1, GameService.minutesUntilFreeCard(now, now.plusHours(2).plusMinutes(59).plusSeconds(1), 3))
+        assertEquals(0, GameService.minutesUntilFreeCard(now, now.plusHours(3), 3))
     }
 }

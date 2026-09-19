@@ -21,11 +21,12 @@ data class PackOpenResult(
 class PackOpeningService(
     private val cardCatalog: CardCatalog,
 ) {
-    fun rollCards(count: Int, ownedCardIds: Set<String>): List<CardDefinition> {
+    fun rollCards(count: Int, ownedCardIds: Set<String>, month: Int): List<CardDefinition> {
+        require(month in 1..12) { "month must be between 1 and 12" }
         val random = ThreadLocalRandom.current()
         return buildList {
             repeat(count) {
-                add(drawOne(random))
+                add(drawOne(random, month))
             }
         }
     }
@@ -36,27 +37,34 @@ class PackOpeningService(
             GameLocale.RU -> card.rarity.labelRu
             GameLocale.EN -> card.rarity.labelEn
         }
-        return "${card.rarity.emoji} *${card.nameFor(locale)}* — $rarityLabel$badge"
+        val specialLabel = if (card.special) Messages.t("card.special", locale) + "\n" else ""
+        return "$specialLabel${card.rarity.emoji} *${card.nameFor(locale)}* — $rarityLabel$badge"
     }
 
-    private fun drawOne(random: ThreadLocalRandom): CardDefinition {
+    fun isAvailable(card: CardDefinition, month: Int): Boolean =
+        card.availableMonths.isEmpty() || month in card.availableMonths
+
+    fun rarityForRoll(roll: Int): CardRarity {
         val totalWeight = CardRarity.entries.sumOf { it.weight }
-        var roll = random.nextInt(max(totalWeight, 1))
-        var chosenRarity = CardRarity.COMMON
+        require(roll in 0 until totalWeight) { "roll must be between 0 and ${totalWeight - 1}" }
+        var remaining = roll
         for (rarity in CardRarity.entries) {
-            roll -= rarity.weight
-            if (roll < 0) {
-                chosenRarity = rarity
-                break
-            }
+            remaining -= rarity.weight
+            if (remaining < 0) return rarity
         }
+        error("rarity weights do not cover roll $roll")
+    }
+
+    private fun drawOne(random: ThreadLocalRandom, month: Int): CardDefinition {
+        val totalWeight = CardRarity.entries.sumOf { it.weight }
+        val chosenRarity = rarityForRoll(random.nextInt(max(totalWeight, 1)))
         
         // Find a rarity with available cards
-        var pool = cardCatalog.cardsByRarity(chosenRarity)
+        var pool = cardCatalog.cardsByRarity(chosenRarity).filter { isAvailable(it, month) }
         if (pool.isEmpty()) {
             // Fallback to any available rarity with cards
             pool = CardRarity.entries
-                .map { cardCatalog.cardsByRarity(it) }
+                .map { rarity -> cardCatalog.cardsByRarity(rarity).filter { isAvailable(it, month) } }
                 .firstOrNull { it.isNotEmpty() } ?: listOf(cardCatalog.card("sleepy"))
         }
         

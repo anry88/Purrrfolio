@@ -13,7 +13,7 @@ Open `@purrrfolio_bot` and use:
 - `/start` — register and open the main menu
 - `/collection` — inspect owned cards and duplicates (10 collections per page)
 - `/pack` — open a fluffy pack (3 cards)
-- `/freecard` — claim a free single card (first immediately, then every 7 hours)
+- `/freecard` — immediately claim a free single card when due (first immediately, then every 3 hours)
 - `/craft` — melt duplicates into points (15 pts = 1 pack)
 - `/buy` — buy packs with Telegram Stars (1/3/5/10 packs for 5/12/16/25 Stars)
 - `/trade` — random trade of a duplicate from the shared pool
@@ -28,7 +28,7 @@ The bot is English by default; players whose Telegram language is Russian see Ru
 
 - A normal session should fit into 1–3 minutes of Telegram chat.
 - Depth comes from rarity, themed sets, duplicates, and social trading — not from a separate client UI.
-- There is no in-game currency: 3 starter packs of 3 cards, then 1 free single card every 7 hours, extra packs via Telegram Stars.
+- There is no in-game currency: 3 starter packs of 3 cards, then 1 free single card every 3 hours, extra packs via Telegram Stars.
 - Card definitions, themes, pack prices, and rarity weights are data-driven JSON.
 - The backend is the authority for inventory, packs, trades, and marketplace settlement.
 

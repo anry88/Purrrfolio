@@ -15,8 +15,20 @@ class PackOpeningServiceTest {
 
     @Test
     fun rollsRequestedNumberOfCards() {
-        val cards = service.rollCards(count = 3, ownedCardIds = emptySet())
+        val cards = service.rollCards(count = 3, ownedCardIds = emptySet(), month = 9)
         assertEquals(3, cards.size)
+    }
+
+    @Test
+    fun rarityRollUsesEveryConfiguredWeightBoundary() {
+        assertEquals(100, CardRarity.entries.sumOf { it.weight })
+        var firstRoll = 0
+        for (rarity in CardRarity.entries) {
+            assertEquals(rarity, service.rarityForRoll(firstRoll))
+            assertEquals(rarity, service.rarityForRoll(firstRoll + rarity.weight - 1))
+            firstRoll += rarity.weight
+        }
+        assertEquals(100, firstRoll)
     }
 
     @Test
@@ -51,5 +63,45 @@ class PackOpeningServiceTest {
         assertTrue(result.contains("Пекарь"))
         assertTrue(result.contains("Легендарная"))
         assertTrue(!result.contains("НОВАЯ"))
+    }
+
+    @Test
+    fun specialRevealIsMarkedInBothLanguages() {
+        val card = CardDefinition(
+            id = "september",
+            nameRu = "Сентябрь",
+            nameEn = "September",
+            themeId = "calendar-cycle",
+            rarity = CardRarity.RARE,
+            imagePath = "/assets/cards/september.png",
+            special = true,
+            availableMonths = listOf(9),
+        )
+
+        assertTrue(service.formatReveal(card, false, GameLocale.EN).contains("SPECIAL CARD"))
+        assertTrue(service.formatReveal(card, false, GameLocale.RU).contains("СПЕШЛ-КАРТОЧКА"))
+    }
+
+    @Test
+    fun calendarCardsAreOnlyAvailableInTheirConfiguredMonths() {
+        val january = CardDefinition(
+            id = "january",
+            nameRu = "Январь",
+            nameEn = "January",
+            themeId = "calendar-cycle",
+            rarity = CardRarity.COMMON,
+            imagePath = "/assets/cards/january.png",
+            special = true,
+            availableMonths = listOf(1),
+        )
+        val winter = january.copy(id = "season-winter", availableMonths = listOf(12, 1, 2))
+        val regular = january.copy(id = "sleepy", special = false, availableMonths = emptyList())
+
+        assertTrue(service.isAvailable(january, 1))
+        assertTrue(!service.isAvailable(january, 2))
+        assertTrue(service.isAvailable(winter, 12))
+        assertTrue(service.isAvailable(winter, 2))
+        assertTrue(!service.isAvailable(winter, 3))
+        assertTrue(service.isAvailable(regular, 7))
     }
 }

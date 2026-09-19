@@ -52,11 +52,12 @@ fun galleryCaption(
         GameLocale.EN -> card.rarity.labelEn
     }
     val header = "${card.rarity.emoji} *${card.nameFor(locale)}* — $rarityLabel"
+    val specialLine = if (card.special) Messages.t("card.special", locale) + "\n" else ""
     val themeLine = theme?.let { "\n📚 ${it.nameFor(locale)}" }.orEmpty()
     val ownedLine = if (ownedCount > 0) Messages.t("gallery.owned", locale, ownedCount)
     else Messages.t("gallery.missing", locale)
     val counter = Messages.t("gallery.counter", locale, position, total)
-    return "$header$themeLine\n$ownedLine\n$counter"
+    return "$specialLine$header$themeLine\n$ownedLine\n$counter"
 }
 
 fun galleryKeyboard(

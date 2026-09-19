@@ -55,24 +55,35 @@ class RandomTradeRepository(private val jdbcTemplate: JdbcTemplate) {
         return jdbcTemplate.query(sql, randomTradeRowMapper, userId)
     }
 
-    fun matchTrades(tradeId1: Long, tradeId2: Long) {
+    fun findFirstMatchForUpdate(tradeId: Long, userId: Long, cardId: String): RandomTradePool? {
+        val sql = """
+            SELECT * FROM random_trade_pool
+            WHERE status = 'WAITING' AND id != ? AND user_id != ? AND card_id != ?
+            ORDER BY created_at ASC
+            FOR UPDATE SKIP LOCKED
+            LIMIT 1
+        """.trimIndent()
+        return jdbcTemplate.query(sql, randomTradeRowMapper, tradeId, userId, cardId).firstOrNull()
+    }
+
+    fun matchTrades(tradeId1: Long, tradeId2: Long): Boolean {
         val sql = """
             UPDATE random_trade_pool 
             SET status = 'MATCHED', 
                 matched_trade_id = CASE WHEN id = ? THEN ? ELSE ? END,
                 matched_at = NOW()
-            WHERE id IN (?, ?)
+            WHERE id IN (?, ?) AND status = 'WAITING'
         """.trimIndent()
-        jdbcTemplate.update(sql, tradeId1, tradeId2, tradeId1, tradeId1, tradeId2)
+        return jdbcTemplate.update(sql, tradeId1, tradeId2, tradeId1, tradeId1, tradeId2) == 2
     }
 
-    fun cancelTrade(tradeId: Long) {
+    fun cancelTrade(tradeId: Long): Boolean {
         val sql = """
             UPDATE random_trade_pool 
             SET status = 'CANCELLED' 
             WHERE id = ? AND status = 'WAITING'
         """.trimIndent()
-        jdbcTemplate.update(sql, tradeId)
+        return jdbcTemplate.update(sql, tradeId) == 1
     }
 
     fun findByUserId(userId: Long): List<RandomTradePool> {

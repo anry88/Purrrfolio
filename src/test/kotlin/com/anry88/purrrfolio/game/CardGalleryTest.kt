@@ -75,6 +75,20 @@ class CardGalleryTest {
     }
 
     @Test
+    fun `caption marks special cards`() {
+        val caption = galleryCaption(
+            sleepy.copy(special = true),
+            cozyHome,
+            ownedCount = 1,
+            locale = GameLocale.EN,
+            position = 1,
+            total = 1,
+        )
+
+        assertThat(caption).contains("SPECIAL CARD")
+    }
+
+    @Test
     fun `keyboard contains navigation and back buttons`() {
         val keyboard = galleryKeyboard(GameLocale.EN, { i -> GalleryActions.collection(i) }, index = 0, total = 3)
         val buttons = keyboard.inlineKeyboard.orEmpty().flatten()

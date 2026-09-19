@@ -47,6 +47,18 @@
       "nameRu": "Хобби",
       "nameEn": "Hobbies",
       "completionBonusFish": 150
+    },
+    {
+      "id": "sports",
+      "nameRu": "Спорт",
+      "nameEn": "Sports",
+      "completionBonusFish": 225
+    },
+    {
+      "id": "calendar-cycle",
+      "nameRu": "Месяцы и сезоны",
+      "nameEn": "Calendar Cats",
+      "completionBonusFish": 300
     }
   ],
   "packs": [
@@ -904,6 +916,358 @@
       "rarity": "MYTHIC",
       "imagePath": "/assets/cards/ambrosia.png",
       "sortOrder": 13
+    },
+    {
+      "id": "runner",
+      "nameRu": "Бегун",
+      "nameEn": "Runner",
+      "themeId": "sports",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/runner.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "tennis-kitty",
+      "nameRu": "Теннисист",
+      "nameEn": "Tennis Kitty",
+      "themeId": "sports",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/tennis-kitty.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "swimmer",
+      "nameRu": "Пловец",
+      "nameEn": "Swimmer",
+      "themeId": "sports",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/swimmer.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "yoga-kitty",
+      "nameRu": "Йога-котик",
+      "nameEn": "Yoga Kitty",
+      "themeId": "sports",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/yoga-kitty.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "skateboarder",
+      "nameRu": "Скейтер",
+      "nameEn": "Skateboarder",
+      "themeId": "sports",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/skateboarder.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "gymnast",
+      "nameRu": "Гимнаст",
+      "nameEn": "Gymnast",
+      "themeId": "sports",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/gymnast.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "cyclist",
+      "nameRu": "Велосипедист",
+      "nameEn": "Cyclist",
+      "themeId": "sports",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/cyclist.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "table-tennis-duo",
+      "nameRu": "Теннисный дуэт",
+      "nameEn": "Table Tennis Duo",
+      "themeId": "sports",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/table-tennis-duo.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "ice-skater",
+      "nameRu": "Фигурист",
+      "nameEn": "Ice Skater",
+      "themeId": "sports",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/ice-skater.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "rock-climber",
+      "nameRu": "Скалолаз",
+      "nameEn": "Rock Climber",
+      "themeId": "sports",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/rock-climber.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "rowing-crew",
+      "nameRu": "Команда гребцов",
+      "nameEn": "Rowing Crew",
+      "themeId": "sports",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/rowing-crew.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "soccer-squad",
+      "nameRu": "Футбольная команда",
+      "nameEn": "Soccer Squad",
+      "themeId": "sports",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/soccer-squad.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "basketball-buddies",
+      "nameRu": "Баскетбольные друзья",
+      "nameEn": "Basketball Buddies",
+      "themeId": "sports",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/basketball-buddies.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "hockey-team",
+      "nameRu": "Хоккейная команда",
+      "nameEn": "Hockey Team",
+      "themeId": "sports",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/hockey-team.png",
+      "sortOrder": 13
+    },
+    {
+      "id": "grand-champion",
+      "nameRu": "Большой чемпион",
+      "nameEn": "Grand Champion",
+      "themeId": "sports",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/grand-champion.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "sports-star",
+      "nameRu": "Звезда спорта",
+      "nameEn": "Sports Star",
+      "themeId": "sports",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/sports-star.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "january",
+      "nameRu": "Январь",
+      "nameEn": "January",
+      "themeId": "calendar-cycle",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/january.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [1],
+      "sortOrder": 0
+    },
+    {
+      "id": "february",
+      "nameRu": "Февраль",
+      "nameEn": "February",
+      "themeId": "calendar-cycle",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/february.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [2],
+      "sortOrder": 1
+    },
+    {
+      "id": "march",
+      "nameRu": "Март",
+      "nameEn": "March",
+      "themeId": "calendar-cycle",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/march.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [3],
+      "sortOrder": 2
+    },
+    {
+      "id": "april",
+      "nameRu": "Апрель",
+      "nameEn": "April",
+      "themeId": "calendar-cycle",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/april.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [4],
+      "sortOrder": 3
+    },
+    {
+      "id": "may",
+      "nameRu": "Май",
+      "nameEn": "May",
+      "themeId": "calendar-cycle",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/may.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [5],
+      "sortOrder": 4
+    },
+    {
+      "id": "june",
+      "nameRu": "Июнь",
+      "nameEn": "June",
+      "themeId": "calendar-cycle",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/june.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [6],
+      "sortOrder": 5
+    },
+    {
+      "id": "july",
+      "nameRu": "Июль",
+      "nameEn": "July",
+      "themeId": "calendar-cycle",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/july.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [7],
+      "sortOrder": 6
+    },
+    {
+      "id": "august",
+      "nameRu": "Август",
+      "nameEn": "August",
+      "themeId": "calendar-cycle",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/august.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [8],
+      "sortOrder": 7
+    },
+    {
+      "id": "september",
+      "nameRu": "Сентябрь",
+      "nameEn": "September",
+      "themeId": "calendar-cycle",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/september.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [9],
+      "sortOrder": 8
+    },
+    {
+      "id": "october",
+      "nameRu": "Октябрь",
+      "nameEn": "October",
+      "themeId": "calendar-cycle",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/october.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [10],
+      "sortOrder": 9
+    },
+    {
+      "id": "november",
+      "nameRu": "Ноябрь",
+      "nameEn": "November",
+      "themeId": "calendar-cycle",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/november.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [11],
+      "sortOrder": 10
+    },
+    {
+      "id": "december",
+      "nameRu": "Декабрь",
+      "nameEn": "December",
+      "themeId": "calendar-cycle",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/december.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [12],
+      "sortOrder": 11
+    },
+    {
+      "id": "season-winter",
+      "nameRu": "Зима",
+      "nameEn": "Winter",
+      "themeId": "calendar-cycle",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/season-winter.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [12, 1, 2],
+      "sortOrder": 12
+    },
+    {
+      "id": "season-spring",
+      "nameRu": "Весна",
+      "nameEn": "Spring",
+      "themeId": "calendar-cycle",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/season-spring.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [3, 4, 5],
+      "sortOrder": 13
+    },
+    {
+      "id": "season-summer",
+      "nameRu": "Лето",
+      "nameEn": "Summer",
+      "themeId": "calendar-cycle",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/season-summer.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [6, 7, 8],
+      "sortOrder": 14
+    },
+    {
+      "id": "season-autumn",
+      "nameRu": "Осень",
+      "nameEn": "Autumn",
+      "themeId": "calendar-cycle",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/season-autumn.png",
+      "special": true,
+      "event": "calendar-cycle",
+      "source": "special-calendar-collection",
+      "availableMonths": [9, 10, 11],
+      "sortOrder": 15
     }
   ]
 }
