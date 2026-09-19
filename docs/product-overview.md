@@ -10,7 +10,7 @@ The target MVP includes:
 
 - Telegram bot registration and persistent player profiles
 - No in-game currency: 3 starter packs of 3 cards, 1 free single card every 3 hours, extra packs via Telegram Stars
-- Five-tier card rarity with weighted pack rolls
+- Six-tier card rarity with weighted pack rolls
 - Themed collections with progress tracking
 - Duplicate trading between players via a shared random-trade pool
 - Simple card-for-card marketplace (list duplicates, offer listed cards, accept/reject)
@@ -33,6 +33,7 @@ The concept art in `docs/source/game-concept.png` also shows a decorated home, M
 - **Duplicate economy** — trading and marketplace turn bad luck into social interaction.
 - **Free-card loop** — a single card every 3 hours plus Stars bundles bring the player back.
 - **Seasonal specials** — calendar cards enter the normal rarity pools only during their matching month or season.
+- **Social specials** — Friends cards enter the normal rarity pools only when a pack or free card is requested from a group chat.
 
 ## Monetization
 

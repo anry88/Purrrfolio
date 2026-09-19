@@ -21,12 +21,17 @@ data class PackOpenResult(
 class PackOpeningService(
     private val cardCatalog: CardCatalog,
 ) {
-    fun rollCards(count: Int, ownedCardIds: Set<String>, month: Int): List<CardDefinition> {
+    fun rollCards(
+        count: Int,
+        ownedCardIds: Set<String>,
+        month: Int,
+        isGroupChat: Boolean = false,
+    ): List<CardDefinition> {
         require(month in 1..12) { "month must be between 1 and 12" }
         val random = ThreadLocalRandom.current()
         return buildList {
             repeat(count) {
-                add(drawOne(random, month))
+                add(drawOne(random, month, isGroupChat))
             }
         }
     }
@@ -41,8 +46,9 @@ class PackOpeningService(
         return "$specialLabel${card.rarity.emoji} *${card.nameFor(locale)}* — $rarityLabel$badge"
     }
 
-    fun isAvailable(card: CardDefinition, month: Int): Boolean =
-        card.availableMonths.isEmpty() || month in card.availableMonths
+    fun isAvailable(card: CardDefinition, month: Int, isGroupChat: Boolean = false): Boolean =
+        (card.availableMonths.isEmpty() || month in card.availableMonths) &&
+            (!card.groupChatOnly || isGroupChat)
 
     fun rarityForRoll(roll: Int): CardRarity {
         val totalWeight = CardRarity.entries.sumOf { it.weight }
@@ -55,16 +61,16 @@ class PackOpeningService(
         error("rarity weights do not cover roll $roll")
     }
 
-    private fun drawOne(random: ThreadLocalRandom, month: Int): CardDefinition {
+    private fun drawOne(random: ThreadLocalRandom, month: Int, isGroupChat: Boolean): CardDefinition {
         val totalWeight = CardRarity.entries.sumOf { it.weight }
         val chosenRarity = rarityForRoll(random.nextInt(max(totalWeight, 1)))
         
         // Find a rarity with available cards
-        var pool = cardCatalog.cardsByRarity(chosenRarity).filter { isAvailable(it, month) }
+        var pool = cardCatalog.cardsByRarity(chosenRarity).filter { isAvailable(it, month, isGroupChat) }
         if (pool.isEmpty()) {
             // Fallback to any available rarity with cards
             pool = CardRarity.entries
-                .map { rarity -> cardCatalog.cardsByRarity(rarity).filter { isAvailable(it, month) } }
+                .map { rarity -> cardCatalog.cardsByRarity(rarity).filter { isAvailable(it, month, isGroupChat) } }
                 .firstOrNull { it.isNotEmpty() } ?: listOf(cardCatalog.card("sleepy"))
         }
         

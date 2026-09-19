@@ -113,6 +113,25 @@ class GameService(
             if (!nextClaim.isAfter(now)) return 0
             return (Duration.between(now, nextClaim).seconds + 59) / 60
         }
+
+        fun textCommandAlias(text: String): String? {
+            val normalized = text
+                .trim()
+                .lowercase()
+                .trim { !it.isLetterOrDigit() }
+                .replace(Regex("\\s+"), " ")
+            return when (normalized) {
+                "pack", "card pack", "набор", "пак" -> "pack"
+                "craft", "крафт" -> "craft"
+                "market", "marketplace", "биржа" -> "market"
+                "card", "free card", "cat", "kitty", "kitten",
+                "карточка", "бесплатная карточка", "котик", "кот", "котейка",
+                "кошка", "котёнок", "котенок" -> "freecard"
+                else -> null
+            }
+        }
+
+        fun isGroupChat(type: String?): Boolean = type == "group" || type == "supergroup"
     }
 
     fun handle(update: TelegramUpdate) {
@@ -146,6 +165,7 @@ class GameService(
     private fun handleMessage(message: TelegramMessage) {
         val chatId = message.chat?.id ?: return
         val telegramId = message.from?.id ?: return
+        val fromGroupChat = isGroupChat(message.chat?.type)
 
         val user = userRepository.findByTelegramUserId(telegramId) ?: run {
             // First touch: remember the /start payload for attribution, if any.
@@ -163,11 +183,11 @@ class GameService(
 
         when (action) {
             Action.START -> telegramClient.sendMessage(chatId, Messages.t("welcome", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
-            Action.HELP -> telegramClient.sendMessage(chatId, Messages.t("help", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+            Action.HELP -> telegramClient.sendMessage(chatId, Messages.t("help", gameLocale(user)), helpKeyboard(gameLocale(user)))
             Action.LANGUAGE -> handleLanguage(chatId, user)
             Action.COLLECTION -> sendCollectionView(chatId, user, page = 0)
-            Action.PACK -> handlePackOpening(chatId, user)
-            Action.FREECARD -> handleFreeCard(chatId, user)
+            Action.PACK -> handlePackOpening(chatId, user, fromGroupChat)
+            Action.FREECARD -> handleFreeCard(chatId, user, fromGroupChat)
             Action.CRAFT -> handleCraft(chatId, user)
             Action.BUY -> handleBuy(chatId, user)
             Action.PAYSUPPORT -> telegramClient.sendMessage(chatId, Messages.t("paysupport.text", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
@@ -189,7 +209,7 @@ class GameService(
 
     // ---- Packs ----
 
-    private fun handlePackOpening(chatId: Long, user: User) {
+    private fun handlePackOpening(chatId: Long, user: User, fromGroupChat: Boolean = false) {
         val locale = gameLocale(user)
         val availablePacks = packLedgerRepository.getTotalAvailablePacks(user.id)
         if (availablePacks <= 0) {
@@ -214,6 +234,7 @@ class GameService(
             properties.economy.cardsPerPack,
             currentInventory,
             currentGameMonth(),
+            fromGroupChat,
         )
 
         // Save cards
@@ -240,11 +261,11 @@ class GameService(
 
     // ---- Free single card (one card every 3h, first one immediately) ----
 
-    private fun handleFreeCard(chatId: Long, user: User) {
-        handleFreeCardClaim(chatId, user)
+    private fun handleFreeCard(chatId: Long, user: User, fromGroupChat: Boolean = false) {
+        handleFreeCardClaim(chatId, user, fromGroupChat)
     }
 
-    private fun handleFreeCardClaim(chatId: Long, user: User) {
+    private fun handleFreeCardClaim(chatId: Long, user: User, fromGroupChat: Boolean = false) {
         // Re-read and atomically claim for double-tap and concurrent-update safety.
         val fresh = userRepository.findByTelegramUserId(user.telegramUserId) ?: user
         val locale = gameLocale(fresh)
@@ -261,7 +282,7 @@ class GameService(
             return
         }
         val owned = userCardRepository.findByUserId(fresh.id).map { it.cardId }.toSet()
-        val card = packOpeningService.rollCards(1, owned, currentGameMonth()).firstOrNull()
+        val card = packOpeningService.rollCards(1, owned, currentGameMonth(), fromGroupChat).firstOrNull()
         if (card == null) {
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
             return
@@ -968,7 +989,7 @@ class GameService(
                 "/collection" -> Action.COLLECTION
                 "/themes" -> Action.COLLECTION // legacy alias
                 "/pack" -> Action.PACK
-                "/freecard" -> Action.FREECARD
+                "/freecard", "/card", "/cat", "/kitty", "/kitten" -> Action.FREECARD
                 "/craft" -> Action.CRAFT
                 "/buy" -> Action.BUY
                 "/paysupport" -> Action.PAYSUPPORT
@@ -976,6 +997,13 @@ class GameService(
                 "/market" -> Action.MARKET
                 else -> Action.UNKNOWN_COMMAND
             }
+        }
+
+        when (textCommandAlias(trimmed)) {
+            "pack" -> return Action.PACK
+            "freecard" -> return Action.FREECARD
+            "craft" -> return Action.CRAFT
+            "market" -> return Action.MARKET
         }
 
         val normalized = trimmed.lowercase().replace(" ", "")
@@ -1001,6 +1029,7 @@ class GameService(
     private fun handleCallback(callback: TelegramCallbackQuery) {
         val chatId = callback.message?.chat?.id ?: return
         val telegramId = callback.from?.id ?: return
+        val fromGroupChat = isGroupChat(callback.message?.chat?.type)
         val user = userRepository.findByTelegramUserId(telegramId) ?: run {
             // Handle language selection for new user
             callback.id?.let { telegramClient.answerCallbackQuery(it) }
@@ -1045,11 +1074,12 @@ class GameService(
                 telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.RU), mainMenuKeyboard(GameLocale.RU))
             }
             "menu:collection" -> sendCollectionView(chatId, user, page = 0)
-            "menu:pack", "menu:open-pack" -> handlePackOpening(chatId, user)
-            "menu:freecard" -> handleFreeCard(chatId, user)
+            "menu:pack", "menu:open-pack" -> handlePackOpening(chatId, user, fromGroupChat)
+            "menu:freecard" -> handleFreeCard(chatId, user, fromGroupChat)
             "menu:craft" -> handleCraft(chatId, user)
+            "menu:market" -> handleMarket(chatId, user)
             "menu:buy" -> handleBuy(chatId, user)
-            "free:card" -> handleFreeCardClaim(chatId, user)
+            "free:card" -> handleFreeCardClaim(chatId, user, fromGroupChat)
             "buy:1" -> handleBuyCallback(chatId, user, 1)
             "buy:3" -> handleBuyCallback(chatId, user, 3)
             "buy:5" -> handleBuyCallback(chatId, user, 5)
@@ -1165,6 +1195,20 @@ class GameService(
         TelegramReplyMarkup(
             inlineKeyboard = listOf(
                 listOf(TelegramInlineButton(Messages.t("menu.buy", locale), "menu:buy")),
+            ),
+        )
+
+    private fun helpKeyboard(locale: GameLocale): TelegramReplyMarkup =
+        TelegramReplyMarkup(
+            inlineKeyboard = listOf(
+                listOf(
+                    TelegramInlineButton(Messages.t("menu.pack", locale), "menu:pack"),
+                    TelegramInlineButton(Messages.t("menu.freecard", locale), "menu:freecard"),
+                ),
+                listOf(
+                    TelegramInlineButton(Messages.t("menu.craft", locale), "menu:craft"),
+                    TelegramInlineButton(Messages.t("menu.market", locale), "menu:market"),
+                ),
             ),
         )
 

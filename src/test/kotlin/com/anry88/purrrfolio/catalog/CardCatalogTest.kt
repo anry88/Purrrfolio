@@ -11,7 +11,7 @@ class CardCatalogTest {
 
     @Test
     fun loadsStarterCardsAndCollections() {
-        assertEquals(126, catalog.cards.size)
+        assertEquals(138, catalog.cards.size)
         assertTrue(catalog.collections.isNotEmpty())
         assertEquals("Соня", catalog.card("sleepy").nameRu)
         assertEquals(CardRarity.LEGENDARY, catalog.card("baker").rarity)
@@ -35,5 +35,14 @@ class CardCatalogTest {
         assertEquals(listOf(3, 4, 5), catalog.card("season-spring").availableMonths)
         assertEquals(listOf(6, 7, 8), catalog.card("season-summer").availableMonths)
         assertEquals(listOf(9, 10, 11), catalog.card("season-autumn").availableMonths)
+
+        val friendshipCards = catalog.cardsByCollection("friendship")
+        assertEquals("Друзья", catalog.collection("friendship").nameRu)
+        assertEquals(12, friendshipCards.size)
+        assertTrue(friendshipCards.all { it.special })
+        assertTrue(friendshipCards.all { it.groupChatOnly })
+        assertTrue(friendshipCards.all { it.event == "group-friendship" })
+        assertTrue(friendshipCards.all { it.availableMonths.isEmpty() })
+        assertEquals(CardRarity.MYTHIC, catalog.card("friendship-festival").rarity)
     }
 }

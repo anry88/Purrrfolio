@@ -26,6 +26,7 @@ class CardCatalog(
         val event: String? = null,
         val source: String? = null,
         val availableMonths: List<Int> = emptyList(),
+        val groupChatOnly: Boolean = false,
         val sortOrder: Int = 0,
     )
 
@@ -46,6 +47,7 @@ class CardCatalog(
             event = it.event,
             source = it.source,
             availableMonths = it.availableMonths,
+            groupChatOnly = it.groupChatOnly,
             sortOrder = it.sortOrder,
         )
     }

@@ -44,6 +44,8 @@ Core business logic is split into small packages:
 4. Bot sends card PNGs from `/static/assets/cards/{id}.png`.
 5. Calendar special cards are filtered by the configured game-timezone month after
    rarity is selected, so their normal rarity weights remain unchanged.
+6. Friends special cards are included only when the Telegram update comes from a
+   `group` or `supergroup`; private-chat rolls exclude them after rarity selection.
 
 ### Stars purchase
 
@@ -85,6 +87,9 @@ All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strin
 - New players default to English; the stored `players.locale` is set to Russian only when their Telegram `language_code` starts with `ru`.
 - `/language` opens an inline keyboard (`lang:en` / `lang:ru` callbacks) that persists the choice via `PlayerRepository.updateLocale`.
 - Card, theme, and pack display names are localized via the `nameFor(locale)` extensions in `i18n/LocalizedNames.kt`; rarity labels via `CardRarity.labelEn`/`labelRu`.
+- Common actions can be routed from slash commands, reply/inline buttons, or exact
+  plain-word aliases in Russian and English. Free-card aliases include the common
+  cat words documented in `/help`.
 
 ## Persistence
 

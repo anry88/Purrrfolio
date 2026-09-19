@@ -96,6 +96,11 @@ class PackOpeningServiceTest {
         )
         val winter = january.copy(id = "season-winter", availableMonths = listOf(12, 1, 2))
         val regular = january.copy(id = "sleepy", special = false, availableMonths = emptyList())
+        val groupOnly = january.copy(
+            id = "tea-party-pals",
+            availableMonths = emptyList(),
+            groupChatOnly = true,
+        )
 
         assertTrue(service.isAvailable(january, 1))
         assertTrue(!service.isAvailable(january, 2))
@@ -103,5 +108,7 @@ class PackOpeningServiceTest {
         assertTrue(service.isAvailable(winter, 2))
         assertTrue(!service.isAvailable(winter, 3))
         assertTrue(service.isAvailable(regular, 7))
+        assertTrue(!service.isAvailable(groupOnly, 7, isGroupChat = false))
+        assertTrue(service.isAvailable(groupOnly, 7, isGroupChat = true))
     }
 }

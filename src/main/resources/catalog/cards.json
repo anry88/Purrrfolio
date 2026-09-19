@@ -59,6 +59,12 @@
       "nameRu": "Месяцы и сезоны",
       "nameEn": "Calendar Cats",
       "completionBonusFish": 300
+    },
+    {
+      "id": "friendship",
+      "nameRu": "Друзья",
+      "nameEn": "Friends",
+      "completionBonusFish": 250
     }
   ],
   "packs": [
@@ -1268,6 +1274,162 @@
       "source": "special-calendar-collection",
       "availableMonths": [9, 10, 11],
       "sortOrder": 15
+    },
+    {
+      "id": "tea-party-pals",
+      "nameRu": "Друзья за чаем",
+      "nameEn": "Tea Party Pals",
+      "themeId": "friendship",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/tea-party-pals.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 0
+    },
+    {
+      "id": "puzzle-partners",
+      "nameRu": "Пазл-партнёры",
+      "nameEn": "Puzzle Partners",
+      "themeId": "friendship",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/puzzle-partners.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "garden-helpers",
+      "nameRu": "Садовые помощники",
+      "nameEn": "Garden Helpers",
+      "themeId": "friendship",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/garden-helpers.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 2
+    },
+    {
+      "id": "story-circle",
+      "nameRu": "Кружок историй",
+      "nameEn": "Story Circle",
+      "themeId": "friendship",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/story-circle.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 3
+    },
+    {
+      "id": "baking-buddies",
+      "nameRu": "Друзья-пекари",
+      "nameEn": "Baking Buddies",
+      "themeId": "friendship",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/baking-buddies.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 4
+    },
+    {
+      "id": "movie-night-crew",
+      "nameRu": "Компания киновечера",
+      "nameEn": "Movie Night Crew",
+      "themeId": "friendship",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/movie-night-crew.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 5
+    },
+    {
+      "id": "picnic-pals",
+      "nameRu": "Друзья на пикнике",
+      "nameEn": "Picnic Pals",
+      "themeId": "friendship",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/picnic-pals.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 6
+    },
+    {
+      "id": "art-club",
+      "nameRu": "Арт-клуб",
+      "nameEn": "Art Club",
+      "themeId": "friendship",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/art-club.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 7
+    },
+    {
+      "id": "music-jam",
+      "nameRu": "Музыкальный джем",
+      "nameEn": "Music Jam",
+      "themeId": "friendship",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/music-jam.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 8
+    },
+    {
+      "id": "lantern-makers",
+      "nameRu": "Мастера фонариков",
+      "nameEn": "Lantern Makers",
+      "themeId": "friendship",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/lantern-makers.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 9
+    },
+    {
+      "id": "treehouse-gang",
+      "nameRu": "Друзья из домика",
+      "nameEn": "Treehouse Gang",
+      "themeId": "friendship",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/treehouse-gang.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 10
+    },
+    {
+      "id": "friendship-festival",
+      "nameRu": "Фестиваль дружбы",
+      "nameEn": "Friendship Festival",
+      "themeId": "friendship",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/friendship-festival.png",
+      "special": true,
+      "event": "group-friendship",
+      "source": "special-group-friendship-collection",
+      "groupChatOnly": true,
+      "sortOrder": 11
     }
   ]
 }

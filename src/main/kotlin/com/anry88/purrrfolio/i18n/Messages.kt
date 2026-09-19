@@ -39,7 +39,17 @@ object Messages {
                 "/trade — random trade duplicates\n" +
                 "/market — list and trade cards\n" +
                 "/language — change language\n" +
-                "/paysupport — payment support" to
+                "/paysupport — payment support\n\n" +
+                "You can also send simple words:\n" +
+                "• pack / card pack\n" +
+                "• craft\n" +
+                "• market / marketplace\n" +
+                "• card, cat, kitty, kitten — free card\n" +
+                "The buttons below do the same.\n\n" +
+                "✨ *Special collections*\n" +
+                "• Calendar Cats: a month card drops only in that month; a season card only during its season.\n" +
+                "• Friends: drops only when a pack or free card is requested from a group or supergroup chat.\n" +
+                "Special cards keep the normal odds of their rarity." to
             "*Команды Purrrfolio*\n\n" +
                 "/start — регистрация и выбор языка\n" +
                 "/collection — список карточек и дубликатов\n" +
@@ -50,7 +60,17 @@ object Messages {
                 "/trade — случайный обмен дубликатами\n" +
                 "/market — выставить и обменять карточки\n" +
                 "/language — сменить язык\n" +
-                "/paysupport — поддержка платежей"
+                "/paysupport — поддержка платежей\n\n" +
+                "Можно отправлять и простые слова:\n" +
+                "• набор / пак\n" +
+                "• крафт\n" +
+                "• биржа\n" +
+                "• карточка, котик, кот, котейка, кошка, котёнок — бесплатная карточка\n" +
+                "Кнопки ниже делают то же самое.\n\n" +
+                "✨ *Спешл-коллекции*\n" +
+                "• Месяцы и сезоны: карточка месяца выпадает только в этот месяц, карточка времени года — только в его месяцы.\n" +
+                "• Друзья: выпадает только при запросе набора или бесплатной карточки из группового чата или супергруппы.\n" +
+                "Шанс спешл-карточки остаётся обычным для её редкости."
             ),
         "menu.collection" to ("🗂 Collection" to "🗂 Коллекция"),
         "menu.pack" to ("🎁 Pack" to "🎁 Набор"),

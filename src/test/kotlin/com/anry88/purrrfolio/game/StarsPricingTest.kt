@@ -41,4 +41,22 @@ class StarsPricingTest {
         assertEquals(1, GameService.minutesUntilFreeCard(now, now.plusHours(2).plusMinutes(59).plusSeconds(1), 3))
         assertEquals(0, GameService.minutesUntilFreeCard(now, now.plusHours(3), 3))
     }
+
+    @Test
+    fun `plain words route to common game actions in both languages`() {
+        assertEquals("pack", GameService.textCommandAlias("  Набор! "))
+        assertEquals("craft", GameService.textCommandAlias("крафт"))
+        assertEquals("market", GameService.textCommandAlias("Marketplace"))
+        assertEquals("freecard", GameService.textCommandAlias("котейка 🐾"))
+        assertEquals("freecard", GameService.textCommandAlias("Kitty"))
+        assertNull(GameService.textCommandAlias("hello"))
+    }
+
+    @Test
+    fun `telegram group and supergroup types enable group drops`() {
+        assertEquals(true, GameService.isGroupChat("group"))
+        assertEquals(true, GameService.isGroupChat("supergroup"))
+        assertEquals(false, GameService.isGroupChat("private"))
+        assertEquals(false, GameService.isGroupChat(null))
+    }
 }

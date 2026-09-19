@@ -22,6 +22,16 @@ Open `@purrrfolio_bot` and use:
 - `/help` — command help
 - `/paysupport` — Stars payment support
 
+Common actions also work as plain chat words in both languages: `pack` / `набор`,
+`craft` / `крафт`, `market` / `биржа`, and `card`, `cat`, `kitty`, `kitten` /
+`карточка`, `котик`, `кот`, `котейка`, `кошка`, `котёнок` for the free card.
+`/help` also provides inline action buttons.
+
+Special collections have their own drop conditions: Calendar Cats follow the
+current month or season; Friends cards can drop only from pack or free-card
+requests made in a Telegram group or supergroup. Special status does not alter
+the configured rarity odds.
+
 The bot is English by default; players whose Telegram language is Russian see Russian copy automatically. Use `/language` at any time to switch.
 
 ## Product Principles

@@ -74,3 +74,34 @@ badge and must remain visible at thumbnail size.
 | season-spring | radiant kitten awakening an enchanted blossom garden, flowing petals, nests and fresh streams |
 | season-summer | regal sunny kitten leading a grand midsummer festival by the sea, flowers, lanterns and golden light |
 | season-autumn | mystical calico kitten conducting a spiral dance of glowing autumn leaves in an enchanted forest |
+
+## Friends special collection
+
+Generated with OpenAI `imagegen` as twelve separate template-guided edits. The
+corresponding Calendar Cats rarity card was used as the visual reference for
+each rarity. Preserve exactly the established 1024×1536 geometry: rounded outer
+frame, inner foil line, top-left gray paw badge, bottom nameplate, serif English
+title, and upper-right eight-point Special medallion. For Friends, the medallion
+contains two black paw prints with a small red heart. The bottom ornament is a
+red heart with leafy sprigs. Do not add any other badge, label, ribbon, paw, or
+border variant.
+
+Rarity colors are fixed and visibly distinct: Common cream, Uncommon green,
+Rare blue, Epic purple, Legendary gold, Mythic magenta. Only the central scene,
+English title, rarity color, and controlled friendship pictograms may change.
+Every scene contains at least two cats and deliberately avoids sports.
+
+| card | rarity | scene |
+| --- | --- | --- |
+| tea-party-pals | Common | two chubby cats sharing tea and pastries at a cozy table |
+| puzzle-partners | Common | two cats assembling a colorful jigsaw puzzle together |
+| garden-helpers | Common | two cats watering and planting flowers in a sunny garden |
+| story-circle | Common | several cats reading one storybook together by a fireplace |
+| baking-buddies | Uncommon | two cats baking and decorating cookies in a warm kitchen |
+| movie-night-crew | Uncommon | three cats watching a movie under blankets with popcorn |
+| picnic-pals | Uncommon | several cats sharing a picnic beneath a flowering tree |
+| art-club | Rare | three cats painting one cheerful mural in a cozy studio |
+| music-jam | Rare | several cats playing small instruments together in a warm room |
+| lantern-makers | Epic | cats crafting glowing paper lanterns in a magical workshop |
+| treehouse-gang | Legendary | a close group of cats in an elaborate lantern-lit treehouse |
+| friendship-festival | Mythic | many cats celebrating friendship at a radiant night festival |
