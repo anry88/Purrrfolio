@@ -527,7 +527,7 @@
     {
       "type": "bargauge",
       "title": "Packs by source",
-      "description": "Net pack_ledger totals from the database.",
+      "description": "Pack grants by source plus opened pack count from the database.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"

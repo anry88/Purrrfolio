@@ -13,7 +13,7 @@ dashboard combines two kinds of measurements:
 - event counters for commands, inline-button actions, Stars funnel stages,
   pack openings, free-card claims, craft melts, trades and market offers;
 - database-backed gauges refreshed once per minute for player activity,
-  registration attribution, pack ledger by source, Stars payments, craft
+  registration attribution, pack grants/opened counts by source, Stars payments, craft
   point bank, trade pool depth and active market listings.
 
 Database gauges stay correct after restarts. Registration views use exact

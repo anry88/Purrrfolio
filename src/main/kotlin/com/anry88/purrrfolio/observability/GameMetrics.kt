@@ -127,7 +127,7 @@ class GameMetrics(
         ) { rs, _ -> rs.getString("source") to rs.getLong("total") }.toMap()
         PACK_SOURCES.forEach { source ->
             packGauges.computeIfAbsent(source) { gauge("purrrfolio.packs", "source", source) }
-                .set(rows.getOrDefault(source, 0))
+                .set(packSourceGaugeValue(source, rows.getOrDefault(source, 0)))
         }
     }
 
@@ -177,6 +177,9 @@ class GameMetrics(
         private val PERIODS = listOf("day", "week", "month", "total")
         private val PAYMENT_STATES = listOf("PENDING", "COMPLETED", "FAILED", "REFUNDED")
         private val PACK_SOURCES = listOf("starter", "stars", "craft", "opened")
+
+        fun packSourceGaugeValue(source: String, ledgerTotal: Long): Long =
+            if (source == "opened") -ledgerTotal else ledgerTotal
 
         /** Bounds /start payloads to lowercase campaign codes; everything else is direct/other. */
         fun normalizeRegistrationSource(raw: String?): String {
