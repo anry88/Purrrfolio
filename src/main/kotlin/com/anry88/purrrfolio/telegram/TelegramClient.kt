@@ -10,6 +10,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
+import org.springframework.web.client.HttpClientErrorException
 
 @Component
 class TelegramClient(
@@ -56,7 +57,12 @@ class TelegramClient(
             .orEmpty()
     }
 
-    fun sendMessage(chatId: Long, text: String, replyMarkup: TelegramReplyMarkup? = null) {
+    fun sendMessage(
+        chatId: Long,
+        text: String,
+        replyMarkup: TelegramReplyMarkup? = null,
+        parseMode: String? = "Markdown",
+    ) {
         if (!isConfigured()) {
             logger.warn("Telegram bot token is not configured; skipping sendMessage")
             return
@@ -67,6 +73,7 @@ class TelegramClient(
                 TelegramSendMessageRequest(
                     chatId = chatId,
                     text = text,
+                    parseMode = parseMode,
                     replyMarkup = replyMarkup,
                 ),
             )
@@ -130,14 +137,20 @@ class TelegramClient(
 
     fun refundStarPayment(userId: Long, telegramChargeId: String) {
         if (!isConfigured()) {
-            logger.warn("Telegram bot token is not configured; skipping refundStarPayment")
-            return
+            error("Telegram bot token is not configured; refusing to record a refund")
         }
-        restClient.post()
-            .uri("refundStarPayment")
-            .body(mapOf("user_id" to userId, "telegram_payment_charge_id" to telegramChargeId))
-            .retrieve()
-            .toBodilessEntity()
+        try {
+            restClient.post()
+                .uri("refundStarPayment")
+                .body(mapOf("user_id" to userId, "telegram_payment_charge_id" to telegramChargeId))
+                .retrieve()
+                .toBodilessEntity()
+        } catch (e: HttpClientErrorException.BadRequest) {
+            // A retry after a network/process crash may reach Telegram after the
+            // first refund succeeded but before local state was committed.
+            if (!e.responseBodyAsString.contains("CHARGE_ALREADY_REFUNDED", ignoreCase = true)) throw e
+            logger.warn("Telegram charge {} was already refunded; continuing local finalization", telegramChargeId)
+        }
     }
 
     fun sendPhoto(chatId: Long, photoResource: Resource, caption: String? = null, replyMarkup: TelegramReplyMarkup? = null): TelegramMessage? {

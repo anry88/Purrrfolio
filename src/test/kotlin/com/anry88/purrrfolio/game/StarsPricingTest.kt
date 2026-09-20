@@ -7,6 +7,8 @@ import java.time.OffsetDateTime
 
 class StarsPricingTest {
 
+    private val signingSecret = "test-payment-payload-secret"
+
     @Test
     fun `stars map to pack bundles per spec`() {
         assertEquals(1, GameService.packsForStars(5))
@@ -27,10 +29,37 @@ class StarsPricingTest {
 
     @Test
     fun `payload round-trips valid bundles only`() {
-        assertEquals(3, GameService.packsFromPayload(GameService.starsPayload(3)))
-        assertNull(GameService.packsFromPayload(GameService.starsPayload(2)))
-        assertNull(GameService.packsFromPayload("garbage"))
-        assertNull(GameService.packsFromPayload(null))
+        val payload = GameService.starsPayload(3, 12, 12345, signingSecret)
+        assertEquals(3, GameService.packsFromPayload(payload, signingSecret))
+        assertEquals(12, GameService.parseStarsOrder(payload, signingSecret)?.stars)
+        assertEquals(12345, GameService.parseStarsOrder(payload, signingSecret)?.buyerTelegramId)
+        assertNull(GameService.packsFromPayload(GameService.starsPayload(2, 7, 12345, signingSecret), signingSecret))
+        assertNull(GameService.packsFromPayload("purrrfolio:packs:3", signingSecret))
+        assertNull(GameService.packsFromPayload("purrrfolio:packs:3:stars:12:user:not-a-number", signingSecret))
+        assertNull(GameService.packsFromPayload("garbage", signingSecret))
+        assertNull(GameService.packsFromPayload(null, signingSecret))
+        assertNull(GameService.packsFromPayload(payload, "wrong-secret"))
+        assertNull(GameService.packsFromPayload(payload.replace(":stars:12:", ":stars:1:"), signingSecret))
+    }
+
+    @Test
+    fun `Stars payment must match buyer currency and payload amount`() {
+        val order = GameService.parseStarsOrder(GameService.starsPayload(3, 12, 12345, signingSecret), signingSecret)
+        assertEquals(true, GameService.matchesStarsPayment(order, 12345, "XTR", 12))
+        assertEquals(false, GameService.matchesStarsPayment(order, 99, "XTR", 12))
+        assertEquals(false, GameService.matchesStarsPayment(order, 12345, "USD", 12))
+        assertEquals(false, GameService.matchesStarsPayment(order, 12345, "XTR", 25))
+        assertEquals(false, GameService.matchesStarsPayment(null, 12345, "XTR", 12))
+        val underpriced = GameService.parseStarsOrder(GameService.starsPayload(3, 1, 12345, signingSecret), signingSecret)
+        assertEquals(false, GameService.matchesPricedStarsPayment(underpriced, 12345, "XTR", 1, 12))
+    }
+
+    @Test
+    fun `permanent Telegram client errors are not retried forever`() {
+        assertEquals(false, GameService.isRetryableTelegramClientStatus(400))
+        assertEquals(false, GameService.isRetryableTelegramClientStatus(403))
+        assertEquals(true, GameService.isRetryableTelegramClientStatus(408))
+        assertEquals(true, GameService.isRetryableTelegramClientStatus(429))
     }
 
     @Test
@@ -58,5 +87,13 @@ class StarsPricingTest {
         assertEquals(true, GameService.isGroupChat("supergroup"))
         assertEquals(false, GameService.isGroupChat("private"))
         assertEquals(false, GameService.isGroupChat(null))
+    }
+
+    @Test
+    fun `payment admin commands require the configured private chat and sender`() {
+        assertEquals(true, GameService.isAuthorizedPaymentAdmin(42, 42, 42))
+        assertEquals(false, GameService.isAuthorizedPaymentAdmin(42, 42, 99))
+        assertEquals(false, GameService.isAuthorizedPaymentAdmin(42, -100123, 42))
+        assertEquals(false, GameService.isAuthorizedPaymentAdmin(0, 0, 0))
     }
 }

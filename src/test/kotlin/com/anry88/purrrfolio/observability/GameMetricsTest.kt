@@ -45,6 +45,7 @@ class GameMetricsTest {
     @Test
     fun `opened pack source is reported as positive count`() {
         assertEquals(11, GameMetrics.packSourceGaugeValue("opened", -11))
+        assertEquals(3, GameMetrics.packSourceGaugeValue("refund", -3))
         assertEquals(3, GameMetrics.packSourceGaugeValue("starter", 3))
         assertEquals(2, GameMetrics.packSourceGaugeValue("craft", 2))
     }

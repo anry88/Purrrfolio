@@ -51,3 +51,22 @@ data class Payment(
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
 )
+
+enum class PaymentSupportStatus {
+    PENDING,
+    INFO,
+    PROCESSING,
+    REFUNDED,
+    REJECTED,
+}
+
+data class PaymentSupportRequest(
+    val id: Long,
+    val userId: Long,
+    val paymentId: Long,
+    val reason: String,
+    val status: PaymentSupportStatus,
+    val adminMessage: String?,
+    val createdAt: OffsetDateTime,
+    val updatedAt: OffsetDateTime,
+)

@@ -40,6 +40,11 @@ class PaymentRepository(private val jdbcTemplate: JdbcTemplate) {
         return results.firstOrNull()
     }
 
+    fun findById(paymentId: Long): Payment? {
+        val sql = "SELECT * FROM payments WHERE id = ?"
+        return jdbcTemplate.query(sql, paymentRowMapper, paymentId).firstOrNull()
+    }
+
     fun updatePaymentStatus(paymentId: Long, status: PaymentStatus) {
         val sql = """
             UPDATE payments 
@@ -61,8 +66,30 @@ class PaymentRepository(private val jdbcTemplate: JdbcTemplate) {
         updatePaymentStatus(paymentId, PaymentStatus.REFUNDED)
     }
 
+    fun markPaymentRefundedIfCompleted(paymentId: Long): Boolean {
+        val sql = """
+            UPDATE payments
+            SET status = 'REFUNDED', updated_at = NOW()
+            WHERE id = ? AND status = 'COMPLETED'
+        """.trimIndent()
+        return jdbcTemplate.update(sql, paymentId) == 1
+    }
+
     fun findByUserId(userId: Long): List<Payment> {
         val sql = "SELECT * FROM payments WHERE user_id = ? ORDER BY created_at DESC"
+        return jdbcTemplate.query(sql, paymentRowMapper, userId)
+    }
+
+    fun findRefundableByUserId(userId: Long): List<Payment> {
+        val sql = """
+            SELECT p.* FROM payments p
+            WHERE p.user_id = ?
+              AND p.status = 'COMPLETED'
+              AND NOT EXISTS (
+                  SELECT 1 FROM payment_support_requests ps WHERE ps.payment_id = p.id
+              )
+            ORDER BY p.created_at DESC
+        """.trimIndent()
         return jdbcTemplate.query(sql, paymentRowMapper, userId)
     }
 }

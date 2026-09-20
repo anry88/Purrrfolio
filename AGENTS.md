@@ -44,7 +44,7 @@ AI-oriented repository guide for coding assistants and code-review tools.
 - Card content is data-driven through `cards.json`; balance changes should stay in JSON/catalog tests where possible.
 - Webhook endpoint: `POST /bot` with `X-Telegram-Bot-Api-Secret-Token`.
 - Actuator/prometheus on `${MANAGEMENT_PORT:9090}`.
-- Secrets (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, DB credentials) belong in environment or local profile files only.
+- Secrets and privileged identifiers (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `PAYMENT_PAYLOAD_SECRET`, `ADMIN_TG_ID`, DB credentials) belong in environment or local profile files only.
 
 ## First Pass For Any Agent
 

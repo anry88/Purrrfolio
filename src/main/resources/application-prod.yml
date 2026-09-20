@@ -11,4 +11,6 @@ purrrfolio:
   telegram:
     bot-token: ${TELEGRAM_BOT_TOKEN}
     webhook-secret: ${TELEGRAM_WEBHOOK_SECRET}
-    polling-enabled: true
+    polling-enabled: ${TELEGRAM_POLLING_ENABLED:false}
+    admin-tg-id: ${ADMIN_TG_ID:0}
+    payment-payload-secret: ${PAYMENT_PAYLOAD_SECRET:}

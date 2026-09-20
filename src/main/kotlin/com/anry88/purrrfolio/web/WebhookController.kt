@@ -2,6 +2,7 @@ package com.anry88.purrrfolio.web
 
 import com.anry88.purrrfolio.config.PurrrfolioProperties
 import com.anry88.purrrfolio.game.GameService
+import com.anry88.purrrfolio.game.RetryableTelegramUpdateException
 import com.anry88.purrrfolio.telegram.TelegramUpdate
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -42,9 +43,12 @@ class WebhookController(
         }
         try {
             gameService.handle(update)
+        } catch (e: RetryableTelegramUpdateException) {
+            logger.error("Retryable Telegram webhook failure for update {}", update.updateId, e)
+            throw e
         } catch (e: Throwable) {
-            // Always ACK the webhook: Telegram retries non-2xx deliveries, and re-processing
-            // the same update would double-deduct fish. Log and move on.
+            // Legacy game actions are still claim-before-effect. Preserve their existing
+            // at-most-once behavior; payment/support paths use the retryable exception above.
             logger.error("Failed to process Telegram webhook update {}", update.updateId, e)
         }
     }

@@ -11,6 +11,8 @@ import com.anry88.purrrfolio.i18n.GameLocale
 import com.anry88.purrrfolio.i18n.Messages
 import com.anry88.purrrfolio.i18n.nameFor
 import com.anry88.purrrfolio.models.MarketListing
+import com.anry88.purrrfolio.models.PaymentStatus
+import com.anry88.purrrfolio.models.PaymentSupportStatus
 import com.anry88.purrrfolio.models.User
 import com.anry88.purrrfolio.models.UserCard
 import com.anry88.purrrfolio.observability.GameMetrics
@@ -18,6 +20,7 @@ import com.anry88.purrrfolio.pack.PackOpeningService
 import com.anry88.purrrfolio.repository.MarketRepository
 import com.anry88.purrrfolio.repository.PackLedgerRepository
 import com.anry88.purrrfolio.repository.PaymentRepository
+import com.anry88.purrrfolio.repository.PaymentSupportRepository
 import com.anry88.purrrfolio.repository.ProcessedUpdateRepository
 import com.anry88.purrrfolio.repository.RandomTradeRepository
 import com.anry88.purrrfolio.repository.UserCardRepository
@@ -33,14 +36,21 @@ import com.anry88.purrrfolio.telegram.TelegramUpdate
 import com.anry88.purrrfolio.trade.TradePolicy
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
+import org.springframework.web.client.HttpClientErrorException
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.security.MessageDigest
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+
+class RetryableTelegramUpdateException(cause: Throwable) : RuntimeException(cause)
 
 @Service
 class GameService(
@@ -54,7 +64,10 @@ class GameService(
     private val marketRepository: MarketRepository,
     private val randomTradeRepository: RandomTradeRepository,
     private val paymentRepository: PaymentRepository,
+    private val paymentSupportRepository: PaymentSupportRepository,
     private val processedUpdateRepository: ProcessedUpdateRepository,
+    private val starsPurchaseService: StarsPurchaseService,
+    private val starsRefundService: StarsRefundService,
     private val gameMetrics: GameMetrics,
     private val telegramClient: TelegramClient,
     transactionManager: PlatformTransactionManager,
@@ -84,6 +97,7 @@ class GameService(
     companion object {
         const val COLLECTIONS_PAGE_SIZE = 10
         const val STARS_CURRENCY = "XTR"
+        const val SUPPORT_TEXT_LIMIT = 1_000
 
         fun packsForStars(stars: Int): Int? = when (stars) {
             5 -> 1
@@ -101,10 +115,57 @@ class GameService(
             else -> null
         }
 
-        fun starsPayload(packs: Int): String = "purrrfolio:packs:$packs"
+        data class StarsOrder(val packs: Int, val stars: Int, val buyerTelegramId: Long)
 
-        fun packsFromPayload(payload: String?): Int? =
-            payload?.removePrefix("purrrfolio:packs:")?.toIntOrNull()?.takeIf { starsForPacks(it) != null }
+        fun starsPayload(packs: Int, stars: Int, buyerTelegramId: Long, signingSecret: String): String {
+            require(signingSecret.isNotBlank()) { "Stars payload signing secret must be configured" }
+            val order = "purrrfolio:packs:$packs:stars:$stars:user:$buyerTelegramId"
+            return "$order:sig:${starsPayloadSignature(order, signingSecret)}"
+        }
+
+        fun parseStarsOrder(payload: String?, signingSecret: String): StarsOrder? {
+            if (signingSecret.isBlank()) return null
+            val parts = payload?.split(':') ?: return null
+            if (
+                parts.size != 9 || parts[0] != "purrrfolio" || parts[1] != "packs" ||
+                parts[3] != "stars" || parts[5] != "user" || parts[7] != "sig"
+            ) return null
+            val unsignedOrder = parts.take(7).joinToString(":")
+            val expectedSignature = starsPayloadSignature(unsignedOrder, signingSecret)
+            if (!MessageDigest.isEqual(expectedSignature.toByteArray(), parts[8].toByteArray())) return null
+            val packs = parts[2].toIntOrNull()?.takeIf { starsForPacks(it) != null } ?: return null
+            val stars = parts[4].toIntOrNull()?.takeIf { it > 0 } ?: return null
+            val buyerId = parts[6].toLongOrNull() ?: return null
+            return StarsOrder(packs, stars, buyerId)
+        }
+
+        fun packsFromPayload(payload: String?, signingSecret: String): Int? =
+            parseStarsOrder(payload, signingSecret)?.packs
+
+        private fun starsPayloadSignature(order: String, signingSecret: String): String {
+            val mac = Mac.getInstance("HmacSHA256")
+            mac.init(SecretKeySpec(signingSecret.toByteArray(Charsets.UTF_8), "HmacSHA256"))
+            return mac.doFinal(order.toByteArray(Charsets.UTF_8))
+                .take(16)
+                .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        }
+
+        fun matchesStarsPayment(
+            order: StarsOrder?,
+            buyerTelegramId: Long?,
+            currency: String?,
+            totalAmount: Int?,
+        ): Boolean = order != null && order.buyerTelegramId == buyerTelegramId &&
+            currency == STARS_CURRENCY && order.stars == totalAmount
+
+        fun matchesPricedStarsPayment(
+            order: StarsOrder?,
+            buyerTelegramId: Long?,
+            currency: String?,
+            totalAmount: Int?,
+            expectedStars: Int?,
+        ): Boolean = expectedStars != null && order?.stars == expectedStars &&
+            matchesStarsPayment(order, buyerTelegramId, currency, totalAmount)
 
         /** Whole minutes until the next free card; 0 means it is due now. */
         fun minutesUntilFreeCard(lastFree: OffsetDateTime?, now: OffsetDateTime, intervalHours: Int): Long {
@@ -132,9 +193,31 @@ class GameService(
         }
 
         fun isGroupChat(type: String?): Boolean = type == "group" || type == "supergroup"
+
+        fun isAuthorizedPaymentAdmin(adminTgId: Long, chatId: Long, telegramUserId: Long): Boolean =
+            adminTgId != 0L && chatId == adminTgId && telegramUserId == adminTgId
+
+        fun isRetryableTelegramClientStatus(status: Int): Boolean = status == 408 || status == 429
     }
 
     fun handle(update: TelegramUpdate) {
+        // Payment updates are independently idempotent by Telegram charge id and must
+        // remain retryable if processing fails. Do not pre-mark them as processed.
+        update.preCheckoutQuery?.let {
+            runRetryable { handlePreCheckout(it.id, it.from?.id, it.invoicePayload, it.currency, it.totalAmount) }
+            return
+        }
+        update.message?.takeIf { it.successfulPayment != null }?.let {
+            runRetryable { handleSuccessfulPayment(it) }
+            return
+        }
+        update.message?.takeIf { isPaymentSupportCommand(it.text.orEmpty()) }?.let {
+            // Support/refund state transitions are independently idempotent and must
+            // remain retryable until their Telegram notifications succeed.
+            runRetryable { handleMessage(it) }
+            return
+        }
+
         val updateId = update.updateId
         if (updateId != null) {
             if (!processedUpdateRepository.recordUpdate(updateId)) {
@@ -142,23 +225,30 @@ class GameService(
                 return
             }
         }
-        update.preCheckoutQuery?.let {
-            handlePreCheckout(it.id, it.invoicePayload, it.totalAmount)
-            return
-        }
         update.callbackQuery?.let {
             it.data?.let { data -> gameMetrics.callback(data) }
             handleCallback(it)
             return
         }
         update.message?.let {
-            // Successful Stars payment arrives as a service message.
-            val payment = it.successfulPayment
-            if (payment != null) {
-                handleSuccessfulPayment(it)
-                return
-            }
             handleMessage(it)
+        }
+    }
+
+    private fun runRetryable(action: () -> Unit) {
+        try {
+            action()
+        } catch (e: RetryableTelegramUpdateException) {
+            throw e
+        } catch (e: HttpClientErrorException) {
+            if (isRetryableTelegramClientStatus(e.statusCode.value())) {
+                throw RetryableTelegramUpdateException(e)
+            }
+            logger.error("Terminal Telegram client error; acknowledging update to avoid queue poisoning", e)
+        } catch (e: IllegalArgumentException) {
+            logger.error("Permanent invalid payment/support input; acknowledging update", e)
+        } catch (e: Exception) {
+            throw RetryableTelegramUpdateException(e)
         }
     }
 
@@ -166,10 +256,19 @@ class GameService(
         val chatId = message.chat?.id ?: return
         val telegramId = message.from?.id ?: return
         val fromGroupChat = isGroupChat(message.chat?.type)
+        val text = message.text?.trim().orEmpty()
+
+        if (isAdminCommand(text)) {
+            if (isAuthorizedPaymentAdmin(properties.telegram.adminTgId, chatId, telegramId)) {
+                handleAdminPaymentCommand(chatId, text)
+            } else {
+                logger.warn("Rejected payment admin command from chat {} user {}", chatId, telegramId)
+            }
+            return
+        }
 
         val user = userRepository.findByTelegramUserId(telegramId) ?: run {
             // First touch: remember the /start payload for attribution, if any.
-            val text = message.text?.trim().orEmpty()
             val payload = if (text.startsWith("/start")) text.substringAfter(' ', "").trim() else ""
             pendingSources[telegramId] = GameMetrics.normalizeRegistrationSource(payload.ifEmpty { null })
             // First time user - show language selection
@@ -177,7 +276,6 @@ class GameService(
             return
         }
 
-        val text = message.text?.trim().orEmpty()
         val action = resolveAction(text, gameLocale(user))
         gameMetrics.command(action.name.lowercase(), if (text.startsWith("/")) "command" else "keyboard")
 
@@ -190,7 +288,8 @@ class GameService(
             Action.FREECARD -> handleFreeCard(chatId, user, fromGroupChat)
             Action.CRAFT -> handleCraft(chatId, user)
             Action.BUY -> handleBuy(chatId, user)
-            Action.PAYSUPPORT -> telegramClient.sendMessage(chatId, Messages.t("paysupport.text", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+            Action.PAYSUPPORT -> handlePaySupport(chatId, user, text)
+            Action.ANSWER -> handlePaySupportAnswer(chatId, user, text)
             Action.TRADE -> handleTrade(chatId, user)
             Action.MARKET -> handleMarket(chatId, user)
             Action.UNKNOWN_COMMAND -> telegramClient.sendMessage(chatId, Messages.t("unknownCommand", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
@@ -387,7 +486,7 @@ class GameService(
 
     private fun handleBuyCallback(chatId: Long, user: User, packs: Int) {
         val locale = gameLocale(user)
-        val stars = starsForPacks(packs)
+        val stars = configuredStarsForPacks(packs)
         if (stars == null) {
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
             return
@@ -397,7 +496,7 @@ class GameService(
                 chatId = chatId,
                 title = Messages.t("buy.invoiceTitle", locale, packs),
                 description = Messages.t("buy.invoiceDesc", locale),
-                payload = starsPayload(packs),
+                payload = starsPayload(packs, stars, user.telegramUserId, paymentPayloadSecret()),
                 currency = STARS_CURRENCY,
                 prices = listOf(TelegramLabeledPrice(Messages.t("buy.invoiceTitle", locale, packs), stars)),
             )
@@ -408,48 +507,335 @@ class GameService(
         }
     }
 
-    private fun handlePreCheckout(queryId: String?, payload: String?, totalAmount: Int?) {
+    private fun handlePreCheckout(
+        queryId: String?,
+        buyerTelegramId: Long?,
+        payload: String?,
+        currency: String?,
+        totalAmount: Int?,
+    ) {
         if (queryId == null) return
-        val packs = packsFromPayload(payload)
-        val expectedStars = packs?.let { starsForPacks(it) }
-        if (packs == null || expectedStars == null || totalAmount != expectedStars) {
+        val order = parseStarsOrder(payload, paymentPayloadSecret())
+        val expectedStars = order?.packs?.let(::configuredStarsForPacks)
+        if (!matchesPricedStarsPayment(order, buyerTelegramId, currency, totalAmount, expectedStars)) {
             telegramClient.answerPreCheckoutQuery(queryId, ok = false, errorMessage = "Invalid order")
             gameMetrics.stars("precheckout_failed")
             return
         }
         telegramClient.answerPreCheckoutQuery(queryId, ok = true)
-        gameMetrics.stars("precheckout_ok", packs.toString())
+        gameMetrics.stars("precheckout_ok", requireNotNull(order).packs.toString())
     }
 
     private fun handleSuccessfulPayment(message: TelegramMessage) {
         val chatId = message.chat?.id ?: return
         val telegramId = message.from?.id ?: return
         val payment = message.successfulPayment ?: return
-        val user = userRepository.findByTelegramUserId(telegramId) ?: return
+        val user = userRepository.findByTelegramUserId(telegramId)
+            ?: error("Paid Telegram user $telegramId does not exist")
         val locale = gameLocale(user)
 
-        val packs = packsFromPayload(payment.invoicePayload)
+        val order = parseStarsOrder(payment.invoicePayload, paymentPayloadSecret())
+        val packs = order?.packs
         val chargeId = payment.telegramPaymentChargeId
-        if (packs == null || chargeId == null) {
+        val totalAmount = payment.totalAmount
+        if (
+            packs == null || chargeId.isNullOrBlank() || totalAmount == null ||
+            !matchesStarsPayment(order, telegramId, payment.currency, totalAmount)
+        ) {
+            logger.error("Rejected invalid successful Stars payment payload for Telegram user {}", telegramId)
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
             return
         }
-        // Idempotency by Telegram charge id.
-        if (paymentRepository.findByTelegramPaymentId(chargeId) != null) {
-            telegramClient.sendMessage(chatId, Messages.t("buy.success", locale, packs), openPackKeyboard(locale))
-            return
-        }
         try {
-            paymentRepository.createPayment(user.id, chargeId, payment.totalAmount ?: 0, packs)
-            packLedgerRepository.addPacks(user.id, "stars", packs, payment.totalAmount, chargeId)
-            paymentRepository.markPaymentCompleted(paymentRepository.findByTelegramPaymentId(chargeId)!!.id)
+            val result = starsPurchaseService.fulfill(user.id, chargeId, totalAmount, packs)
+            if (result == StarsPurchaseService.Result.ALREADY_REFUNDED) {
+                logger.warn("Ignoring replay of refunded Stars charge {}", chargeId)
+                gameMetrics.stars("refunded_replay", packs.toString())
+                return
+            }
             gameMetrics.stars("paid", packs.toString())
             telegramClient.sendMessage(chatId, Messages.t("buy.success", locale, packs), openPackKeyboard(locale))
         } catch (e: Exception) {
             logger.error("Failed to credit Stars purchase {}", chargeId, e)
             gameMetrics.stars("failed", packs.toString())
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            throw e
         }
+    }
+
+    private fun configuredStarsForPacks(packs: Int): Int? = with(properties.economy.starsPricing) {
+        when (packs) {
+            1 -> onePack
+            3 -> threePacks
+            5 -> fivePacks
+            10 -> tenPacks
+            else -> null
+        }
+    }
+
+    private fun paymentPayloadSecret(): String = properties.telegram.paymentPayloadSecret
+        .ifBlank { properties.telegram.webhookSecret }
+
+    // ---- Stars payment support (RiverKing-compatible flow) ----
+
+    private fun handlePaySupport(chatId: Long, user: User, text: String) {
+        val locale = gameLocale(user)
+        val args = text.substringAfter(' ', "").trim()
+        val payments = paymentRepository.findRefundableByUserId(user.id)
+        if (args.isEmpty()) {
+            if (payments.isEmpty()) {
+                telegramClient.sendMessage(chatId, Messages.t("paysupport.empty", locale), mainMenuKeyboard(locale))
+                return
+            }
+            val list = payments.joinToString("\n") { payment ->
+                Messages.t("paysupport.paymentRow", locale, payment.id, payment.packsGranted, payment.stars)
+            }
+            telegramClient.sendMessage(
+                chatId,
+                Messages.t("paysupport.list", locale, list),
+                mainMenuKeyboard(locale),
+            )
+            return
+        }
+
+        val parts = args.split(Regex("\\s+"), limit = 2)
+        val paymentId = parts.firstOrNull()?.toLongOrNull()
+        val reason = parts.getOrNull(1)?.trim().orEmpty()
+        if (paymentId == null || reason.isBlank() || reason.length > SUPPORT_TEXT_LIMIT) {
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.invalid", locale), mainMenuKeyboard(locale))
+            return
+        }
+        val payment = paymentRepository.findById(paymentId)
+            ?.takeIf { it.userId == user.id && it.status == PaymentStatus.COMPLETED }
+        if (payment == null) {
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.notFound", locale), mainMenuKeyboard(locale))
+            return
+        }
+        val adminId = properties.telegram.adminTgId
+        if (adminId == 0L) {
+            logger.error("Payment support requested but ADMIN_TG_ID is not configured")
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.unavailable", locale), mainMenuKeyboard(locale))
+            return
+        }
+
+        val existingRequest = paymentSupportRepository.findByPaymentId(payment.id)
+        if (existingRequest != null) {
+            sendPaymentSupportRequestToAdmin(existingRequest.id, user, payment.id, payment.stars, payment.packsGranted, existingRequest.reason)
+            telegramClient.sendMessage(
+                chatId,
+                Messages.t("paysupport.alreadySubmitted", locale, existingRequest.id),
+                mainMenuKeyboard(locale),
+            )
+            return
+        }
+        val request = try {
+            paymentSupportRepository.create(user.id, payment.id, reason)
+        } catch (_: DuplicateKeyException) {
+            val concurrent = paymentSupportRepository.findByPaymentId(payment.id)
+                ?: throw IllegalStateException("Support request uniqueness conflict without a row")
+            telegramClient.sendMessage(
+                chatId,
+                Messages.t("paysupport.alreadySubmitted", locale, concurrent.id),
+                mainMenuKeyboard(locale),
+            )
+            return
+        }
+        sendPaymentSupportRequestToAdmin(request.id, user, payment.id, payment.stars, payment.packsGranted, reason)
+        telegramClient.sendMessage(
+            chatId,
+            Messages.t("paysupport.submitted", locale, request.id),
+            mainMenuKeyboard(locale),
+        )
+    }
+
+    private fun sendPaymentSupportRequestToAdmin(
+        requestId: Long,
+        user: User,
+        paymentId: Long,
+        stars: Int,
+        packs: Int,
+        reason: String,
+    ) {
+        telegramClient.sendMessage(
+            properties.telegram.adminTgId,
+            "Запрос #$requestId от ${user.telegramUserId}, платеж $paymentId " +
+                "($stars XTR, $packs наборов): $reason\n" +
+                "/refund $requestId — одобрить возврат\n" +
+                "/reject $requestId <причина> — отклонить\n" +
+                "/ask $requestId <вопрос> — запросить информацию",
+            parseMode = null,
+        )
+    }
+
+    private fun handlePaySupportAnswer(chatId: Long, user: User, text: String) {
+        val locale = gameLocale(user)
+        val args = text.substringAfter(' ', "").trim()
+        val parts = args.split(Regex("\\s+"), limit = 2)
+        val explicitId = parts.firstOrNull()?.toLongOrNull()
+        val request = if (explicitId != null) {
+            paymentSupportRepository.findById(explicitId)
+                ?.takeIf { it.userId == user.id && it.status == PaymentSupportStatus.INFO }
+        } else {
+            paymentSupportRepository.latestInfoRequest(user.id)
+        }
+        val answer = if (explicitId != null) parts.getOrNull(1)?.trim().orEmpty() else args
+        if (request == null && answer.isNotBlank()) {
+            val completedReplay = paymentSupportRepository.findPendingAnswer(user.id, explicitId, answer)
+            if (completedReplay != null) {
+                telegramClient.sendMessage(chatId, Messages.t("paysupport.answerSent", locale), mainMenuKeyboard(locale))
+                return
+            }
+        }
+        if (request == null || answer.isBlank() || answer.length > SUPPORT_TEXT_LIMIT) {
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.answerInvalid", locale), mainMenuKeyboard(locale))
+            return
+        }
+        if (properties.telegram.adminTgId == 0L) {
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.unavailable", locale), mainMenuKeyboard(locale))
+            return
+        }
+        telegramClient.sendMessage(
+            properties.telegram.adminTgId,
+            "Ответ по запросу #${request.id} от ${user.telegramUserId}: $answer\n" +
+                "/refund ${request.id} — одобрить возврат\n" +
+                "/reject ${request.id} <причина> — отклонить\n" +
+                "/ask ${request.id} <вопрос> — запросить информацию",
+            parseMode = null,
+        )
+        if (!paymentSupportRepository.submitUserAnswer(request.id, user.id, answer)) {
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.notFound", locale), mainMenuKeyboard(locale))
+            return
+        }
+        telegramClient.sendMessage(chatId, Messages.t("paysupport.answerSent", locale), mainMenuKeyboard(locale))
+    }
+
+    private fun isPaymentSupportCommand(text: String): Boolean =
+        commandName(text) in setOf("/paysupport", "/answer", "/refund", "/reject", "/ask")
+
+    private fun isAdminCommand(text: String): Boolean =
+        commandName(text) in setOf("/refund", "/reject", "/ask")
+
+    private fun commandName(text: String): String =
+        text.trim().substringBefore(' ').substringBefore('@').lowercase()
+
+    private fun handleAdminPaymentCommand(chatId: Long, text: String) {
+        val command = commandName(text)
+        val args = text.substringAfter(' ', "").trim()
+        val parts = args.split(Regex("\\s+"), limit = 2)
+        val requestId = parts.firstOrNull()?.toLongOrNull()
+        if (requestId == null) {
+            telegramClient.sendMessage(chatId, "Неверный формат команды.", parseMode = null)
+            return
+        }
+        when (command) {
+            "/refund" -> handleAdminRefund(chatId, requestId)
+            "/reject" -> handleAdminReject(chatId, requestId, parts.getOrNull(1)?.trim().orEmpty())
+            "/ask" -> handleAdminAsk(chatId, requestId, parts.getOrNull(1)?.trim().orEmpty())
+        }
+    }
+
+    private fun handleAdminRefund(chatId: Long, requestId: Long) {
+        val request = paymentSupportRepository.findById(requestId)
+        val payment = request?.let { paymentRepository.findById(it.paymentId) }
+        val user = request?.let { userRepository.findById(it.userId) }
+        if (request == null || payment == null || user == null || payment.userId != request.userId) {
+            telegramClient.sendMessage(chatId, "Запрос или платеж не найден.", parseMode = null)
+            return
+        }
+        if (payment.status == PaymentStatus.REFUNDED || request.status == PaymentSupportStatus.REFUNDED) {
+            notifyUserRefunded(user, requestId)
+            telegramClient.sendMessage(chatId, "Запрос #$requestId уже возвращён.", parseMode = null)
+            return
+        }
+        val mayProcess = when (request.status) {
+            PaymentSupportStatus.PENDING, PaymentSupportStatus.INFO -> paymentSupportRepository.claimForRefund(requestId)
+            PaymentSupportStatus.PROCESSING -> true
+            PaymentSupportStatus.REFUNDED, PaymentSupportStatus.REJECTED -> false
+        }
+        if (payment.status != PaymentStatus.COMPLETED || !mayProcess) {
+            telegramClient.sendMessage(chatId, "Запрос #$requestId уже обрабатывается или закрыт.", parseMode = null)
+            return
+        }
+
+        try {
+            telegramClient.refundStarPayment(user.telegramUserId, payment.telegramPaymentId)
+        } catch (e: Exception) {
+            paymentSupportRepository.resetAfterRefundFailure(requestId, "Telegram refund failed")
+            logger.error("Telegram Stars refund failed for request {}", requestId, e)
+            if (e !is HttpClientErrorException || isRetryableTelegramClientStatus(e.statusCode.value())) {
+                throw e
+            }
+            telegramClient.sendMessage(chatId, "Возврат #$requestId не выполнен: Telegram отклонил запрос.", parseMode = null)
+            return
+        }
+
+        try {
+            starsRefundService.finalizeRefund(requestId, payment)
+        } catch (e: Exception) {
+            logger.error("CRITICAL: Stars were refunded but local finalization failed for request {}", requestId, e)
+            throw e
+        }
+
+        telegramClient.sendMessage(chatId, "Возврат по запросу #$requestId выполнен.", parseMode = null)
+        notifyUserRefunded(user, requestId)
+    }
+
+    private fun notifyUserRefunded(user: User, requestId: Long) {
+        telegramClient.sendMessage(
+            user.telegramUserId,
+            Messages.t("paysupport.refunded", gameLocale(user), requestId),
+            mainMenuKeyboard(gameLocale(user)),
+        )
+    }
+
+    private fun handleAdminReject(chatId: Long, requestId: Long, reason: String) {
+        if (reason.isBlank() || reason.length > SUPPORT_TEXT_LIMIT) {
+            telegramClient.sendMessage(chatId, "Используйте /reject <ID> <причина>.", parseMode = null)
+            return
+        }
+        val request = paymentSupportRepository.findById(requestId)
+        val user = request?.let { userRepository.findById(it.userId) }
+        if (request != null && user != null && request.status == PaymentSupportStatus.REJECTED) {
+            val savedReason = request.adminMessage ?: reason
+            telegramClient.sendMessage(
+                user.telegramUserId,
+                Messages.t("paysupport.rejected", gameLocale(user), requestId, savedReason),
+                mainMenuKeyboard(gameLocale(user)),
+                parseMode = null,
+            )
+            telegramClient.sendMessage(chatId, "Запрос #$requestId уже отклонён.", parseMode = null)
+            return
+        }
+        if (request == null || user == null || !paymentSupportRepository.resolvePending(requestId, PaymentSupportStatus.REJECTED, reason)) {
+            telegramClient.sendMessage(chatId, "Запрос не найден или уже закрыт.", parseMode = null)
+            return
+        }
+        telegramClient.sendMessage(chatId, "Запрос #$requestId отклонён.", parseMode = null)
+        telegramClient.sendMessage(
+            user.telegramUserId,
+            Messages.t("paysupport.rejected", gameLocale(user), requestId, reason),
+            mainMenuKeyboard(gameLocale(user)),
+            parseMode = null,
+        )
+    }
+
+    private fun handleAdminAsk(chatId: Long, requestId: Long, question: String) {
+        if (question.isBlank() || question.length > SUPPORT_TEXT_LIMIT) {
+            telegramClient.sendMessage(chatId, "Используйте /ask <ID> <вопрос>.", parseMode = null)
+            return
+        }
+        val request = paymentSupportRepository.findById(requestId)
+        val user = request?.let { userRepository.findById(it.userId) }
+        if (request == null || user == null || !paymentSupportRepository.resolvePending(requestId, PaymentSupportStatus.INFO, question)) {
+            telegramClient.sendMessage(chatId, "Запрос не найден или уже закрыт.", parseMode = null)
+            return
+        }
+        telegramClient.sendMessage(chatId, "Вопрос по запросу #$requestId отправлен.", parseMode = null)
+        telegramClient.sendMessage(
+            user.telegramUserId,
+            Messages.t("paysupport.ask", gameLocale(user), requestId, question, requestId),
+            mainMenuKeyboard(gameLocale(user)),
+            parseMode = null,
+        )
     }
 
     // ---- Random trade ----
@@ -975,7 +1361,7 @@ class GameService(
     // ---- Routing ----
 
     private enum class Action {
-        START, HELP, LANGUAGE, COLLECTION, PACK, FREECARD, CRAFT, BUY, PAYSUPPORT, TRADE, MARKET, UNKNOWN_COMMAND, UNKNOWN_TEXT
+        START, HELP, LANGUAGE, COLLECTION, PACK, FREECARD, CRAFT, BUY, PAYSUPPORT, ANSWER, TRADE, MARKET, UNKNOWN_COMMAND, UNKNOWN_TEXT
     }
 
     private fun resolveAction(text: String, locale: GameLocale): Action {
@@ -993,6 +1379,7 @@ class GameService(
                 "/craft" -> Action.CRAFT
                 "/buy" -> Action.BUY
                 "/paysupport" -> Action.PAYSUPPORT
+                "/answer" -> Action.ANSWER
                 "/trade" -> Action.TRADE
                 "/market" -> Action.MARKET
                 else -> Action.UNKNOWN_COMMAND

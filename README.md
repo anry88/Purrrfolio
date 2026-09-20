@@ -20,7 +20,7 @@ Open `@purrrfolio_bot` and use:
 - `/market` — list duplicates, browse others, offer card-for-card trades
 - `/language` — switch between English and Russian
 - `/help` — command help
-- `/paysupport` — Stars payment support
+- `/paysupport` — select a Stars purchase and request an admin-approved refund
 
 Common actions also work as plain chat words in both languages: `pack` / `набор`,
 `craft` / `крафт`, `market` / `биржа`, and `card`, `cat`, `kitty`, `kitten` /
@@ -66,7 +66,8 @@ The bot is English by default; players whose Telegram language is Russian see Ru
 ```bash
 docker compose up -d
 cp src/main/resources/application-local.example.yml src/main/resources/application-local.yml
-# edit application-local.yml with TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_SECRET
+# edit application-local.yml with TELEGRAM_BOT_TOKEN, TELEGRAM_WEBHOOK_SECRET,
+# PAYMENT_PAYLOAD_SECRET, and the private ADMIN_TG_ID used for payment-support decisions
 
 ./gradlew test
 ./gradlew bootRun --args='--spring.profiles.active=local'

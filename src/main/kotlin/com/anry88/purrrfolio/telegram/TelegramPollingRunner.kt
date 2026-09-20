@@ -2,6 +2,7 @@ package com.anry88.purrrfolio.telegram
 
 import com.anry88.purrrfolio.config.PurrrfolioProperties
 import com.anry88.purrrfolio.game.GameService
+import com.anry88.purrrfolio.game.RetryableTelegramUpdateException
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.event.ApplicationReadyEvent
@@ -40,8 +41,8 @@ class TelegramPollingRunner(
             logger.warn("Telegram getMe failed; polling will still attempt to start")
         }
 
-        telegramClient.deleteWebhook(dropPendingUpdates = true)
-        logger.info("Dropped pending updates to avoid processing stale messages")
+        telegramClient.deleteWebhook(dropPendingUpdates = false)
+        logger.info("Webhook disabled without dropping pending Telegram updates")
 
         thread(name = "telegram-polling", isDaemon = true) {
             logger.info("Telegram long polling started")
@@ -54,15 +55,22 @@ class TelegramPollingRunner(
                             logger.error("Ignoring Telegram update without update_id to prevent repeated processing")
                             continue
                         }
-                        nextOffset.set(updateId + 1)
                         try {
                             gameService.handle(update)
+                            nextOffset.set(updateId + 1)
+                        } catch (e: RetryableTelegramUpdateException) {
+                            logger.error("Retryable error handling update {}", updateId, e)
+                            val rateLimit = e.cause as? HttpClientErrorException.TooManyRequests
+                            Thread.sleep((rateLimit?.let { extractRetryAfter(it.responseBodyAsString) } ?: 1L) * 1000L)
+                            break
                         } catch (e: HttpClientErrorException.TooManyRequests) {
                             val retryAfter = extractRetryAfter(e.responseBodyAsString)
                             logger.warn("Rate limited by Telegram, sleeping {}s", retryAfter)
                             Thread.sleep(retryAfter * 1000L)
+                            break
                         } catch (e: Exception) {
                             logger.error("Error handling update {}", updateId, e)
+                            nextOffset.set(updateId + 1)
                         }
                     }
                 } catch (e: HttpClientErrorException.TooManyRequests) {

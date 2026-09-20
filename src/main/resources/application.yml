@@ -34,6 +34,8 @@ purrrfolio:
     webhook-secret: ${TELEGRAM_WEBHOOK_SECRET:}
     bot-username: ${TELEGRAM_BOT_USERNAME:purrrfolio_bot}
     polling-enabled: ${TELEGRAM_POLLING_ENABLED:false}
+    admin-tg-id: ${ADMIN_TG_ID:0}
+    payment-payload-secret: ${PAYMENT_PAYLOAD_SECRET:}
   economy:
     starter-packs: ${STARTER_PACKS:3}
     free-pack-interval-hours: ${FREE_PACK_INTERVAL_HOURS:23}

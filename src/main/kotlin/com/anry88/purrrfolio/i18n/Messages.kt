@@ -137,8 +137,48 @@ object Messages {
                 "⭐ Оплата получена! Добавлено наборов: %s. Открой их через /pack."
             ),
         "paysupport.text" to (
-            "💳 *Payment support*\n\nIf Stars were charged but packs did not arrive, tell us the date, amount of Stars and your Telegram @username. We check the payment log and credit missing packs or issue a Stars refund." to
-                "💳 *Поддержка платежей*\n\nЕсли Stars списались, а наборы не пришли, напиши дату, сумму Stars и свой @username в Telegram. Мы проверим журнал оплат и доначислим наборы или вернём Stars."
+            "💳 *Payment support*\n\nUse /paysupport to select a purchase and send a refund request for admin review." to
+                "💳 *Поддержка платежей*\n\nИспользуй /paysupport, чтобы выбрать покупку и отправить запрос на возврат администратору."
+            ),
+        "paysupport.empty" to ("No refundable purchases found." to "Покупок, доступных для возврата, не найдено."),
+        "paysupport.list" to (
+            "Choose a purchase for refund with /paysupport <ID> <reason>:\n%s" to
+                "Выбери покупку для возврата командой /paysupport <ID> <причина>:\n%s"
+            ),
+        "paysupport.paymentRow" to ("%s: %s packs — %s XTR" to "%s: %s наборов — %s XTR"),
+        "paysupport.invalid" to (
+            "Invalid format. Use /paysupport <ID> <reason>." to
+                "Неверный формат. Используй /paysupport <ID> <причина>."
+            ),
+        "paysupport.notFound" to ("Purchase or request not found." to "Покупка или запрос не найдены."),
+        "paysupport.unavailable" to (
+            "Payment support is temporarily unavailable. Please try again later." to
+                "Поддержка платежей временно недоступна. Попробуй позже."
+            ),
+        "paysupport.submitted" to (
+            "Request #%s has been sent to the admins." to
+                "Запрос #%s отправлен администрации."
+            ),
+        "paysupport.alreadySubmitted" to (
+            "A support request already exists for this purchase: #%s." to
+                "Для этой покупки уже создан запрос #%s."
+            ),
+        "paysupport.answerInvalid" to (
+            "Provide your reply with /answer <ID> <message>." to
+                "Отправь ответ командой /answer <ID> <ответ>."
+            ),
+        "paysupport.answerSent" to ("Your reply has been sent to the admins." to "Ответ отправлен администрации."),
+        "paysupport.refunded" to (
+            "Your request #%s was approved. The Stars payment has been refunded." to
+                "Твой запрос #%s одобрен. Платёж в Stars возвращён."
+            ),
+        "paysupport.rejected" to (
+            "Request #%s was rejected: %s" to
+                "Запрос #%s отклонён: %s"
+            ),
+        "paysupport.ask" to (
+            "An admin asks about request #%s: %s\nReply with /answer %s <message>." to
+                "Администратор уточняет по запросу #%s: %s\nОтветь командой /answer %s <ответ>."
             ),
         "collection.empty" to (
             "Your collection is empty. Open your first /pack!" to

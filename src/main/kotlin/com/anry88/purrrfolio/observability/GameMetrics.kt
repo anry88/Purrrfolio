@@ -176,10 +176,10 @@ class GameMetrics(
     companion object {
         private val PERIODS = listOf("day", "week", "month", "total")
         private val PAYMENT_STATES = listOf("PENDING", "COMPLETED", "FAILED", "REFUNDED")
-        private val PACK_SOURCES = listOf("starter", "stars", "craft", "opened")
+        private val PACK_SOURCES = listOf("starter", "stars", "craft", "opened", "refund")
 
         fun packSourceGaugeValue(source: String, ledgerTotal: Long): Long =
-            if (source == "opened") -ledgerTotal else ledgerTotal
+            if (source == "opened" || source == "refund") -ledgerTotal else ledgerTotal
 
         /** Bounds /start payloads to lowercase campaign codes; everything else is direct/other. */
         fun normalizeRegistrationSource(raw: String?): String {
@@ -207,7 +207,7 @@ class GameMetrics(
 
         private val KNOWN_COMMANDS = setOf(
             "start", "collection", "pack", "freecard", "craft", "buy",
-            "trade", "market", "language", "help", "paysupport",
+            "trade", "market", "language", "help", "paysupport", "answer",
         )
         private val REGISTRATION_SOURCE_PATTERN = Regex("[a-z0-9_-]{1,64}")
         private const val MAX_SOURCE_SERIES = 24

@@ -49,9 +49,12 @@ Core business logic is split into small packages:
 
 ### Stars purchase
 
-1. `/buy` sends a Telegram Stars invoice (XTR, 5/12/16/25 Stars for 1/3/5/10 packs).
-2. `pre_checkout_query` is answered OK after payload/amount validation.
-3. `successful_payment` inserts `payments` + positive `pack_ledger` row (idempotent by Telegram charge id).
+1. `/buy` sends a buyer-bound Telegram Stars invoice (XTR, 5/12/16/25 Stars for 1/3/5/10 packs). Its payload is authenticated with HMAC so the buyer, pack count, and price cannot be altered.
+2. `pre_checkout_query` is answered OK only after buyer, payload, currency, and amount validation.
+3. `successful_payment` revalidates the order and atomically inserts `payments` + one positive `pack_ledger` row. Telegram retries are idempotent by charge id.
+4. `/paysupport` lists completed purchases without an existing support request and creates one persisted request per payment.
+5. The private `ADMIN_TG_ID` can `/refund`, `/reject`, or `/ask`; users answer requests for information with `/answer`.
+6. A confirmed refund calls Telegram first, then atomically marks the payment/request refunded and writes one negative `pack_ledger` reversal. If purchased packs were already opened, the ledger may become negative so future grants repay the refunded entitlement.
 
 ### Theme completion (planned)
 
@@ -104,6 +107,7 @@ Main tables:
 - `market_listings`
 - `trade_offers`
 - `payments`
+- `payment_support_requests`
 - `processed_telegram_updates`
 
 ## Catalog and Assets
@@ -120,6 +124,8 @@ after art changes.
 Application settings are in `src/main/resources/application.yml` under the `purrrfolio.*` prefix:
 
 - `purrrfolio.telegram.*` — bot token, webhook secret, username
+- `purrrfolio.telegram.admin-tg-id` / `ADMIN_TG_ID` — private admin identity for payment refunds
+- `purrrfolio.telegram.payment-payload-secret` / `PAYMENT_PAYLOAD_SECRET` — HMAC key for Stars orders; a blank value falls back to the webhook secret
 - `purrrfolio.economy.*` — starter fish, daily reward, pack cost, cards per pack
 
 Local overrides: copy `application-local.example.yml` to `application-local.yml` (gitignored).

@@ -15,6 +15,8 @@ data class TelegramProperties(
     val webhookSecret: String = "",
     val botUsername: String = "purrrfolio_bot",
     val pollingEnabled: Boolean = false,
+    val adminTgId: Long = 0,
+    val paymentPayloadSecret: String = "",
 )
 
 data class EconomyProperties(

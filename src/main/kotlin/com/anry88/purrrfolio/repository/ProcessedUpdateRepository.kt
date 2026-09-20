@@ -1,6 +1,7 @@
 package com.anry88.purrrfolio.repository
 
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Repository
 import java.time.OffsetDateTime
 
@@ -12,8 +13,8 @@ class ProcessedUpdateRepository(private val jdbcTemplate: JdbcTemplate) {
             val sql = "INSERT INTO processed_telegram_updates (update_id) VALUES (?)"
             jdbcTemplate.update(sql, updateId)
             true
-        } catch (e: Exception) {
-            // Update already processed (unique constraint violated)
+        } catch (_: DuplicateKeyException) {
+            // The primary key proves this exact update was already claimed.
             false
         }
     }

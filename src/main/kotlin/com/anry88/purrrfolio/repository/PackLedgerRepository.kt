@@ -30,6 +30,15 @@ class PackLedgerRepository(private val jdbcTemplate: JdbcTemplate) {
         jdbcTemplate.update(sql, userId, source, quantity, starsPaid, paymentId)
     }
 
+    fun addPaymentPacksOnce(userId: Long, source: String, quantity: Int, starsPaid: Int?, paymentId: String): Boolean {
+        val sql = """
+            INSERT INTO pack_ledger (user_id, source, quantity, stars_paid, payment_id)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT (source, payment_id) DO NOTHING
+        """.trimIndent()
+        return jdbcTemplate.update(sql, userId, source, quantity, starsPaid, paymentId) == 1
+    }
+
     fun findByUserId(userId: Long): List<PackLedger> {
         val sql = "SELECT * FROM pack_ledger WHERE user_id = ? ORDER BY created_at DESC"
         return jdbcTemplate.query(sql, packLedgerRowMapper, userId)

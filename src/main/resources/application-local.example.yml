@@ -13,3 +13,5 @@ purrrfolio:
     webhook-secret: replace-me
     bot-username: purrrfolio_bot
     polling-enabled: true
+    admin-tg-id: 0
+    payment-payload-secret: replace-me
