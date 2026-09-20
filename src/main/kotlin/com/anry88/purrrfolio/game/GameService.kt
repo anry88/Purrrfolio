@@ -194,6 +194,55 @@ class GameService(
             }
         }
 
+        internal fun resolveAction(text: String, locale: GameLocale): Action? {
+            val trimmed = text.trim()
+            if (trimmed.startsWith("/")) {
+                val command = trimmed.substringBefore(' ').substringBefore('@').lowercase()
+                return when (command) {
+                    "/start" -> Action.START
+                    "/help" -> Action.HELP
+                    "/language" -> Action.LANGUAGE
+                    "/collection" -> Action.COLLECTION
+                    "/themes" -> Action.COLLECTION // legacy alias
+                    "/pack" -> Action.PACK
+                    "/freecard", "/card", "/cat", "/kitty", "/kitten" -> Action.FREECARD
+                    "/craft" -> Action.CRAFT
+                    "/buy" -> Action.BUY
+                    "/paysupport" -> Action.PAYSUPPORT
+                    "/answer" -> Action.ANSWER
+                    "/trade" -> Action.TRADE
+                    "/market" -> Action.MARKET
+                    else -> null
+                }
+            }
+
+            when (textCommandAlias(trimmed)) {
+                "pack" -> return Action.PACK
+                "freecard" -> return Action.FREECARD
+                "craft" -> return Action.CRAFT
+                "market" -> return Action.MARKET
+            }
+
+            val normalized = trimmed.lowercase().replace(" ", "")
+            fun matches(key: String): Boolean {
+                val other = if (locale == GameLocale.RU) GameLocale.EN else GameLocale.RU
+                fun norm(l: GameLocale) = Messages.t(key, l).lowercase().replace(" ", "")
+                return normalized == norm(locale) || normalized == norm(other)
+            }
+
+            return when {
+                matches("menu.collection") -> Action.COLLECTION
+                matches("menu.pack") -> Action.PACK
+                matches("menu.freecard") -> Action.FREECARD
+                matches("menu.craft") -> Action.CRAFT
+                matches("menu.buy") -> Action.BUY
+                matches("menu.trade") -> Action.TRADE
+                matches("menu.market") -> Action.MARKET
+                matches("menu.language") -> Action.LANGUAGE
+                else -> null
+            }
+        }
+
         fun isGroupChat(type: String?): Boolean = type == "group" || type == "supergroup"
 
         fun isAuthorizedPaymentAdmin(adminTgId: Long, chatId: Long, telegramUserId: Long): Boolean =
@@ -269,7 +318,10 @@ class GameService(
             return
         }
 
-        val user = userRepository.findByTelegramUserId(telegramId) ?: run {
+        val existingUser = userRepository.findByTelegramUserId(telegramId)
+        val action = resolveAction(text, existingUser?.let(::gameLocale) ?: GameLocale.EN) ?: return
+
+        val user = existingUser ?: run {
             // First touch: remember the /start payload for attribution, if any.
             val payload = if (text.startsWith("/start")) text.substringAfter(' ', "").trim() else ""
             pendingSources[telegramId] = GameMetrics.normalizeRegistrationSource(payload.ifEmpty { null })
@@ -278,7 +330,6 @@ class GameService(
             return
         }
 
-        val action = resolveAction(text, gameLocale(user))
         gameMetrics.command(action.name.lowercase(), if (text.startsWith("/")) "command" else "keyboard")
 
         when (action) {
@@ -294,8 +345,6 @@ class GameService(
             Action.ANSWER -> handlePaySupportAnswer(chatId, user, text)
             Action.TRADE -> handleTrade(chatId, user)
             Action.MARKET -> handleMarket(chatId, user)
-            Action.UNKNOWN_COMMAND -> telegramClient.sendMessage(chatId, Messages.t("unknownCommand", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
-            Action.UNKNOWN_TEXT -> telegramClient.sendMessage(chatId, Messages.t("unknownText", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
         }
     }
 
@@ -1405,57 +1454,8 @@ class GameService(
 
     // ---- Routing ----
 
-    private enum class Action {
-        START, HELP, LANGUAGE, COLLECTION, PACK, FREECARD, CRAFT, BUY, PAYSUPPORT, ANSWER, TRADE, MARKET, UNKNOWN_COMMAND, UNKNOWN_TEXT
-    }
-
-    private fun resolveAction(text: String, locale: GameLocale): Action {
-        val trimmed = text.trim()
-        if (trimmed.startsWith("/")) {
-            val command = trimmed.substringBefore(' ').substringBefore('@').lowercase()
-            return when (command) {
-                "/start" -> Action.START
-                "/help" -> Action.HELP
-                "/language" -> Action.LANGUAGE
-                "/collection" -> Action.COLLECTION
-                "/themes" -> Action.COLLECTION // legacy alias
-                "/pack" -> Action.PACK
-                "/freecard", "/card", "/cat", "/kitty", "/kitten" -> Action.FREECARD
-                "/craft" -> Action.CRAFT
-                "/buy" -> Action.BUY
-                "/paysupport" -> Action.PAYSUPPORT
-                "/answer" -> Action.ANSWER
-                "/trade" -> Action.TRADE
-                "/market" -> Action.MARKET
-                else -> Action.UNKNOWN_COMMAND
-            }
-        }
-
-        when (textCommandAlias(trimmed)) {
-            "pack" -> return Action.PACK
-            "freecard" -> return Action.FREECARD
-            "craft" -> return Action.CRAFT
-            "market" -> return Action.MARKET
-        }
-
-        val normalized = trimmed.lowercase().replace(" ", "")
-        fun matches(key: String): Boolean {
-            val other = if (locale == GameLocale.RU) GameLocale.EN else GameLocale.RU
-            fun norm(l: GameLocale) = Messages.t(key, l).lowercase().replace(" ", "")
-            return normalized == norm(locale) || normalized == norm(other)
-        }
-
-        return when {
-            matches("menu.collection") -> Action.COLLECTION
-            matches("menu.pack") -> Action.PACK
-            matches("menu.freecard") -> Action.FREECARD
-            matches("menu.craft") -> Action.CRAFT
-            matches("menu.buy") -> Action.BUY
-            matches("menu.trade") -> Action.TRADE
-            matches("menu.market") -> Action.MARKET
-            matches("menu.language") -> Action.LANGUAGE
-            else -> Action.UNKNOWN_TEXT
-        }
+    internal enum class Action {
+        START, HELP, LANGUAGE, COLLECTION, PACK, FREECARD, CRAFT, BUY, PAYSUPPORT, ANSWER, TRADE, MARKET
     }
 
     private fun handleCallback(callback: TelegramCallbackQuery) {

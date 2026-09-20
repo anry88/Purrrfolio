@@ -22,6 +22,10 @@ Open `@purrrfolio_bot` and use:
 - `/help` — command help
 - `/paysupport` — select a Stars purchase and request an admin-approved refund
 
+The bot ignores arbitrary text and unsupported commands. In private and group
+chats it responds only to supported slash commands, controls, and documented
+text aliases.
+
 Common actions also work as plain chat words in both languages: `pack` / `набор`,
 `craft` / `крафт`, `market` / `биржа`, and `card`, `cat`, `kitty`, `kitten` /
 `карточка`, `котик`, `кот`, `котейка`, `кошка`, `котёнок` for the free card.

@@ -318,8 +318,6 @@ object Messages {
             "An error occurred. Please try again." to
                 "Произошла ошибка. Пожалуйста, попробуй ещё раз."
             ),
-        "unknownCommand" to ("Unknown command. Send /help." to "Неизвестная команда. Напиши /help."),
-        "unknownText" to ("Use /help to see available commands." to "Используй /help, чтобы увидеть доступные команды."),
         "callback.expired" to (
             "This button is no longer active. Use the menu below to continue." to
                 "Эта кнопка больше не активна. Продолжи через меню ниже."

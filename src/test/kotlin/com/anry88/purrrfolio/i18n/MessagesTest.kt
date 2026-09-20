@@ -86,7 +86,7 @@ class MessagesTest {
             "market.browse",
             "market.listButton", "market.returnButton", "market.offerButton", "market.accept", "market.reject",
             "error.general",
-            "unknownCommand", "unknownText", "callback.expired",
+            "callback.expired",
             "gallery.back", "gallery.viewCards", "gallery.owned", "gallery.missing", "gallery.counter",
             "gallery.trade", "gallery.listMarket",
             "cmd.start", "cmd.pack", "cmd.collection", "cmd.buy", "cmd.freecard", "cmd.craft", "cmd.trade", "cmd.market",
