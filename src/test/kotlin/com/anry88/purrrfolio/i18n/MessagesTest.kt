@@ -73,7 +73,7 @@ class MessagesTest {
             "paysupport.alreadySubmitted", "paysupport.answerInvalid", "paysupport.answerSent",
             "paysupport.refunded", "paysupport.rejected", "paysupport.ask",
             "collection.empty", "collection.title", "collection.more", "collection.page",
-            "collection.next", "collection.prev",
+            "collection.next", "collection.prev", "collection.reward",
             "profile.title", "profile.unique", "profile.packs",
             "themeStatus.claimed", "themeStatus.completed", "themeStatus.inProgress", "themes.title",
             "trade.hint", "trade.added", "trade.addedToPool", "trade.matched", "trade.noDuplicates",

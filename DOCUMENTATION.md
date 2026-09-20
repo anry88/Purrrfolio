@@ -103,6 +103,7 @@ Main tables:
 - `users`
 - `user_cards` (TEXT `card_id` matching `catalog/cards.json`)
 - `pack_ledger` (positive grants, negative `opened` consumption rows)
+- `collection_completion_rewards` (one claim per user, theme and catalog-card-set hash)
 - `random_trade_pool`
 - `market_listings`
 - `trade_offers`
@@ -118,6 +119,12 @@ mirrored to `src/main/resources/static/assets/cards/`. Prompts and seeds are
 recorded in `docs/source/card-art-prompts.md`; the full card/collection roster
 with RU/EN names lives in `docs/collections.md`. Keep both PNG trees in sync
 after art changes.
+
+Collection completion rewards are evaluated against this JSON catalog. A
+SHA-256 hash of each collection's sorted card ids is stored with the reward
+claim, so catalog expansion creates a new eligible version without duplicating
+rewards for the unchanged version. The claim and its `collection_completion`
+pack-ledger entry are committed atomically.
 
 ## Configuration
 

@@ -105,3 +105,61 @@ Every scene contains at least two cats and deliberately avoids sports.
 | lantern-makers | Epic | cats crafting glowing paper lanterns in a magical workshop |
 | treehouse-gang | Legendary | a close group of cats in an elaborate lantern-lit treehouse |
 | friendship-festival | Mythic | many cats celebrating friendship at a radiant night festival |
+
+## Food & Drinks expansion
+
+Generated as separate template-guided images. Each card uses an existing card
+of the same rarity as its geometry and frame reference. Preserve the top-left
+paw badge, rarity-colored rounded frame, central art window, bottom nameplate,
+leaf ornaments and small scene icon. Render only the exact English title; do
+not add the rarity word, signage, logos or incidental text.
+
+| card | rarity | scene |
+| --- | --- | --- |
+| muffin | Common | cream-and-ginger kitten holding an oversized blueberry muffin in a warm village bakery |
+| cheese-board | Common | gray kitten presenting a rustic board of cheeses, crackers and grapes in a sunny pantry |
+| apple-pie | Uncommon | calico kitten serving a steaming lattice apple pie in an autumn cottage kitchen |
+| matcha-parfait | Rare | white-and-tabby kitten presenting a tall matcha parfait in a lantern-lit dessert cafe |
+| moonlight-fondue | Epic | tuxedo kitten dipping fruit into chocolate fondue at a moonlit rooftop cafe |
+| golden-honey | Legendary | regal amber kitten raising a luminous honey jar in an enchanted royal apiary |
+
+## Professions expansion
+
+Use the matching rarity template and the same invariants as the food expansion.
+Keep the role and tools immediately readable at thumbnail size.
+
+| card | rarity | scene |
+| --- | --- | --- |
+| tailor | Common | silver tabby sewing floral fabric in a sunny atelier |
+| teacher | Common | ginger teacher leading two pupils in a plant-filled classroom |
+| carpenter | Uncommon | brown-and-white carpenter planing a wooden stool in a timber workshop |
+| veterinarian | Uncommon | black-and-white veterinarian examining a small rabbit |
+| scientist | Rare | blue-gray scientist studying a softly glowing crystal sample in a botanical lab |
+| conductor | Epic | black cat conducting a small orchestra in a lantern-lit concert hall |
+| royal-architect | Legendary | white-and-gold architect presenting an illuminated palace model |
+
+## Transport collection
+
+Fourteen standalone cards use the same master geometry and rarity frames. Cats
+are still round and kawaii, but have composed expressions, closed mouths or
+subtle determined smiles, steady gazes and confident postures. Vehicle
+silhouettes must be distinct. `Night Express` is the collection's only train.
+`Alpine Cable Car` shows a passenger with a map inside an automatically moved
+gondola; it must not contain a steering wheel, control desk or driver role.
+
+| card | rarity | scene |
+| --- | --- | --- |
+| city-bus | Common | uniformed tabby driving a cream-and-red city bus through an old town at sunrise |
+| red-tram | Common | ginger tram operator at the controls of a classic red tram in a flowered square |
+| cargo-bike | Common | courier cat pedaling a parcel-loaded cargo bicycle along a canal |
+| harbor-tug | Common | gray captain steering a compact red harbor tug beside docks and lighthouse |
+| taxi-cab | Uncommon | black-and-white chauffeur driving a yellow taxi on a rainy evening avenue |
+| river-ferry | Uncommon | calico captain piloting a green-and-cream river ferry |
+| alpine-cable-car | Uncommon | serious passenger holding a picture map inside a red gondola over alpine waterfalls |
+| seaplane | Rare | silver tabby pilot flying a blue-and-cream floatplane over an island bay |
+| rescue-helicopter | Rare | white-and-orange pilot flying a red rescue helicopter over snowy ridges |
+| desert-convoy | Rare | sand-colored driver leading vintage expedition trucks across desert dunes |
+| night-express | Epic | black conductor aboard a midnight-blue luxury express in a moonlit city |
+| ocean-liner | Epic | white captain at the bridge wheel of a grand ocean liner |
+| sky-cruiser | Legendary | silver captain commanding a golden airship above a cloud kingdom |
+| starship-ark | Mythic | midnight-blue commander piloting a crescent-wing starship through a magenta nebula |

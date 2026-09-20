@@ -32,12 +32,17 @@ current month or season; Friends cards can drop only from pack or free-card
 requests made in a Telegram group or supergroup. Special status does not alter
 the configured rarity odds.
 
+Completing a themed collection grants one free pack. The reward is tracked per
+catalog version: if new cards are later added to that collection, completing
+the expanded set grants another pack.
+
 The bot is English by default; players whose Telegram language is Russian see Russian copy automatically. Use `/language` at any time to switch.
 
 ## Product Principles
 
 - A normal session should fit into 1–3 minutes of Telegram chat.
 - Depth comes from rarity, themed sets, duplicates, and social trading — not from a separate client UI.
+- Every completed collection grants 1 pack; an expanded collection can grant again after its new version is completed.
 - There is no in-game currency: 3 starter packs of 3 cards, then 1 free single card every 3 hours, extra packs via Telegram Stars.
 - Card definitions, themes, pack prices, and rarity weights are data-driven JSON.
 - The backend is the authority for inventory, packs, trades, and marketplace settlement.

@@ -190,6 +190,10 @@ object Messages {
         "collection.next" to ("Next ➡️" to "Далее ➡️"),
         "collection.prev" to ("⬅️ Back" to "⬅️ Назад"),
         "collection.openFirst" to ("Open the first card ➡️" to "Открыть первую карточку ➡️"),
+        "collection.reward" to (
+            "🎉 *Collection complete:* %s\nFree packs added: %s. If new cards are added to this collection, completing the expanded set will earn another pack." to
+                "🎉 *Коллекция собрана:* %s\nНачислено бесплатных наборов: %s. Если в коллекцию добавят новые карты, за повторное завершение расширенного набора ты получишь ещё один пак."
+            ),
         "profile.title" to ("👤 *%s*" to "👤 *%s*"),
         "profile.player" to ("Player" to "Игрок"),
         "profile.unique" to ("🃏 Unique cards: %s / %s" to "🃏 Уникальных карточек: %s / %s"),

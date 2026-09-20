@@ -31,6 +31,12 @@
       "completionBonusFish": 200
     },
     {
+      "id": "transport",
+      "nameRu": "Транспорт",
+      "nameEn": "Transport",
+      "completionBonusFish": 225
+    },
+    {
       "id": "space",
       "nameRu": "Космос",
       "nameEn": "Space",
@@ -492,6 +498,195 @@
       "sortOrder": 12
     },
     {
+      "id": "tailor",
+      "nameRu": "Портной",
+      "nameEn": "Tailor",
+      "themeId": "professions",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/tailor.png",
+      "sortOrder": 13
+    },
+    {
+      "id": "teacher",
+      "nameRu": "Учитель",
+      "nameEn": "Teacher",
+      "themeId": "professions",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/teacher.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "carpenter",
+      "nameRu": "Столяр",
+      "nameEn": "Carpenter",
+      "themeId": "professions",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/carpenter.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "veterinarian",
+      "nameRu": "Ветеринар",
+      "nameEn": "Veterinarian",
+      "themeId": "professions",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/veterinarian.png",
+      "sortOrder": 16
+    },
+    {
+      "id": "scientist",
+      "nameRu": "Учёный",
+      "nameEn": "Scientist",
+      "themeId": "professions",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/scientist.png",
+      "sortOrder": 17
+    },
+    {
+      "id": "conductor",
+      "nameRu": "Дирижёр",
+      "nameEn": "Conductor",
+      "themeId": "professions",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/conductor.png",
+      "sortOrder": 18
+    },
+    {
+      "id": "royal-architect",
+      "nameRu": "Королевский архитектор",
+      "nameEn": "Royal Architect",
+      "themeId": "professions",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/royal-architect.png",
+      "sortOrder": 19
+    },
+    {
+      "id": "city-bus",
+      "nameRu": "Городской автобус",
+      "nameEn": "City Bus",
+      "themeId": "transport",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/city-bus.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "red-tram",
+      "nameRu": "Красный трамвай",
+      "nameEn": "Red Tram",
+      "themeId": "transport",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/red-tram.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "cargo-bike",
+      "nameRu": "Грузовой велосипед",
+      "nameEn": "Cargo Bike",
+      "themeId": "transport",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/cargo-bike.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "harbor-tug",
+      "nameRu": "Портовый буксир",
+      "nameEn": "Harbor Tug",
+      "themeId": "transport",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/harbor-tug.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "taxi-cab",
+      "nameRu": "Такси",
+      "nameEn": "Taxi Cab",
+      "themeId": "transport",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/taxi-cab.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "river-ferry",
+      "nameRu": "Речной паром",
+      "nameEn": "River Ferry",
+      "themeId": "transport",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/river-ferry.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "alpine-cable-car",
+      "nameRu": "Альпийская канатная дорога",
+      "nameEn": "Alpine Cable Car",
+      "themeId": "transport",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/alpine-cable-car.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "seaplane",
+      "nameRu": "Гидросамолёт",
+      "nameEn": "Seaplane",
+      "themeId": "transport",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/seaplane.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "rescue-helicopter",
+      "nameRu": "Спасательный вертолёт",
+      "nameEn": "Rescue Helicopter",
+      "themeId": "transport",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/rescue-helicopter.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "desert-convoy",
+      "nameRu": "Пустынный конвой",
+      "nameEn": "Desert Convoy",
+      "themeId": "transport",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/desert-convoy.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "night-express",
+      "nameRu": "Ночной экспресс",
+      "nameEn": "Night Express",
+      "themeId": "transport",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/night-express.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "ocean-liner",
+      "nameRu": "Океанский лайнер",
+      "nameEn": "Ocean Liner",
+      "themeId": "transport",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/ocean-liner.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "sky-cruiser",
+      "nameRu": "Небесный крейсер",
+      "nameEn": "Sky Cruiser",
+      "themeId": "transport",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/sky-cruiser.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "starship-ark",
+      "nameRu": "Звёздный ковчег",
+      "nameEn": "Starship Ark",
+      "themeId": "transport",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/starship-ark.png",
+      "sortOrder": 13
+    },
+    {
       "id": "backpacker",
       "nameRu": "Бэкпекер",
       "nameEn": "Backpacker",
@@ -922,6 +1117,60 @@
       "rarity": "MYTHIC",
       "imagePath": "/assets/cards/ambrosia.png",
       "sortOrder": 13
+    },
+    {
+      "id": "muffin",
+      "nameRu": "Маффин",
+      "nameEn": "Muffin",
+      "themeId": "food",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/muffin.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "cheese-board",
+      "nameRu": "Сырная тарелка",
+      "nameEn": "Cheese Board",
+      "themeId": "food",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/cheese-board.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "apple-pie",
+      "nameRu": "Яблочный пирог",
+      "nameEn": "Apple Pie",
+      "themeId": "food",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/apple-pie.png",
+      "sortOrder": 16
+    },
+    {
+      "id": "matcha-parfait",
+      "nameRu": "Матча-парфе",
+      "nameEn": "Matcha Parfait",
+      "themeId": "food",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/matcha-parfait.png",
+      "sortOrder": 17
+    },
+    {
+      "id": "moonlight-fondue",
+      "nameRu": "Лунное фондю",
+      "nameEn": "Moonlight Fondue",
+      "themeId": "food",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/moonlight-fondue.png",
+      "sortOrder": 18
+    },
+    {
+      "id": "golden-honey",
+      "nameRu": "Золотой мёд",
+      "nameEn": "Golden Honey",
+      "themeId": "food",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/golden-honey.png",
+      "sortOrder": 19
     },
     {
       "id": "runner",

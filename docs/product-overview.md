@@ -12,6 +12,7 @@ The target MVP includes:
 - No in-game currency: 3 starter packs of 3 cards, 1 free single card every 3 hours, extra packs via Telegram Stars
 - Six-tier card rarity with weighted pack rolls
 - Themed collections with progress tracking
+- One free pack for each completed collection version; expanded collections can reward again
 - Duplicate trading between players via a shared random-trade pool
 - Simple card-for-card marketplace (list duplicates, offer listed cards, accept/reject)
 - Static card art served from the backend and sent as Telegram photos

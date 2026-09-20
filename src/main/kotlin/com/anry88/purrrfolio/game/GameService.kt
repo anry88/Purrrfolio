@@ -4,6 +4,7 @@ import com.anry88.purrrfolio.catalog.CardCatalog
 import com.anry88.purrrfolio.catalog.CardDefinition
 import com.anry88.purrrfolio.catalog.ThemeDefinition
 import com.anry88.purrrfolio.collection.CollectionService
+import com.anry88.purrrfolio.collection.CollectionCompletionRewardService
 import com.anry88.purrrfolio.collection.ThemeProgress
 import com.anry88.purrrfolio.config.PurrrfolioProperties
 import com.anry88.purrrfolio.craft.CraftPolicy
@@ -57,6 +58,7 @@ class GameService(
     private val properties: PurrrfolioProperties,
     private val cardCatalog: CardCatalog,
     private val collectionService: CollectionService,
+    private val collectionCompletionRewardService: CollectionCompletionRewardService,
     private val packOpeningService: PackOpeningService,
     private val userRepository: UserRepository,
     private val userCardRepository: UserCardRepository,
@@ -338,6 +340,7 @@ class GameService(
 
         // Save cards
         userCardRepository.addCards(user.id, rolledCards.map { it.id })
+        val completedCollections = claimCollectionCompletionRewards(user.id)
         rolledCards.forEach { card -> gameMetrics.cardOpened(card.rarity.name, "pack") }
 
         for (card in rolledCards) {
@@ -357,6 +360,7 @@ class GameService(
             }
         }
         telegramClient.sendMessage(chatId, Messages.t("pack.opened", locale), mainMenuKeyboard(locale))
+        sendCollectionCompletionRewards(chatId, user, completedCollections)
     }
 
     // ---- Free single card (one card every 3h, first one immediately) ----
@@ -388,6 +392,7 @@ class GameService(
             return
         }
         userCardRepository.addCards(fresh.id, listOf(card.id))
+        val completedCollections = claimCollectionCompletionRewards(fresh.id)
         gameMetrics.cardOpened(card.rarity.name, "free")
         gameMetrics.freeCardClaimed()
         val isNew = !owned.contains(card.id)
@@ -408,6 +413,7 @@ class GameService(
             logger.warn("Failed to send free card photo for {}", card.id, e)
             runCatching { telegramClient.sendMessage(chatId, caption, revealKeyboard) }
         }
+        sendCollectionCompletionRewards(chatId, fresh, completedCollections)
         sendFreeCardWait(chatId, locale, properties.economy.freeCardIntervalHours * 60L)
     }
 
@@ -923,6 +929,7 @@ class GameService(
                     mainMenuKeyboard(locale),
                 )
             }.onFailure { logger.warn("Failed to notify random-trade owner {}", user.id, it) }
+            claimAndNotifyCollectionRewards(user.telegramUserId, user)
             // The waiting side has no other way to learn about the swap.
             runCatching {
                 userRepository.findById(match.peerUserId)?.let { peer ->
@@ -932,6 +939,7 @@ class GameService(
                         Messages.t("trade.matched", gameLocale(peer), peerName),
                         mainMenuKeyboard(gameLocale(peer)),
                     )
+                    claimAndNotifyCollectionRewards(peer.telegramUserId, peer)
                 }
             }.onFailure { logger.warn("Failed to notify random-trade peer {}", match.peerUserId, it) }
         } else {
@@ -1207,6 +1215,7 @@ class GameService(
                 mainMenuKeyboard(locale),
             )
         }.onFailure { logger.warn("Failed to notify accepted market target owner {}", settled.targetOwner.id, it) }
+        claimAndNotifyCollectionRewards(settled.targetOwner.telegramUserId, settled.targetOwner)
         val peerLocale = gameLocale(settled.offerOwner)
         val peerReceivedName = runCatching { cardCatalog.card(settled.targetCardId).nameFor(peerLocale) }
             .getOrElse { settled.targetCardId }
@@ -1217,6 +1226,7 @@ class GameService(
                 mainMenuKeyboard(peerLocale),
             )
         }.onFailure { logger.warn("Failed to notify accepted market offer owner {}", settled.offerOwner.id, it) }
+        claimAndNotifyCollectionRewards(settled.offerOwner.telegramUserId, settled.offerOwner)
     }
 
     private fun handleMarketReject(chatId: Long, user: User, offerId: UUID) {
@@ -1330,6 +1340,7 @@ class GameService(
 
     private fun sendCollectionView(chatId: Long, user: User, page: Int) {
         val locale = gameLocale(user)
+        claimAndNotifyCollectionRewards(chatId, user)
         val ownedIds = userCardRepository.findByUserId(user.id).map { it.cardId }.toSet()
         val progress = collectionService.buildThemeProgress(ownedIds, emptySet())
         val totalPages = (progress.size + COLLECTIONS_PAGE_SIZE - 1) / COLLECTIONS_PAGE_SIZE
@@ -1353,6 +1364,38 @@ class GameService(
         val header = Messages.t("collection.page", locale, "${safePage + 1}/$totalPages", lines) +
             "\n\n" + Messages.t("collection.title", locale, ownedCount, cardCatalog.cards.size)
         telegramClient.sendMessage(chatId, header, TelegramReplyMarkup(inlineKeyboard = buttons))
+    }
+
+    private fun claimAndNotifyCollectionRewards(chatId: Long, user: User) {
+        sendCollectionCompletionRewards(chatId, user, claimCollectionCompletionRewards(user.id))
+    }
+
+    private fun claimCollectionCompletionRewards(userId: Long): List<ThemeDefinition> =
+        runCatching { collectionCompletionRewardService.claimCompletedCollections(userId) }
+            .onFailure { logger.error("Failed to grant collection completion rewards for user {}", userId, it) }
+            .getOrDefault(emptyList())
+
+    private fun sendCollectionCompletionRewards(
+        chatId: Long,
+        user: User,
+        completedCollections: List<ThemeDefinition>,
+    ) {
+        if (completedCollections.isEmpty()) return
+        val locale = gameLocale(user)
+        val names = completedCollections.joinToString(", ") { theme ->
+            when (locale) {
+                GameLocale.RU -> theme.nameRu
+                GameLocale.EN -> theme.nameEn
+            }
+        }
+        gameMetrics.collectionCompleted(completedCollections.size)
+        runCatching {
+            telegramClient.sendMessage(
+                chatId,
+                Messages.t("collection.reward", locale, names, completedCollections.size),
+                openPackKeyboard(locale),
+            )
+        }.onFailure { logger.warn("Failed to notify collection completion rewards for user {}", user.id, it) }
     }
 
     private fun sendThemesView(chatId: Long, user: User) {

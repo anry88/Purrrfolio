@@ -79,6 +79,10 @@ class GameMetrics(
         registry.counter("purrrfolio.craft.packs").increment(packs.toDouble())
     }
 
+    fun collectionCompleted(packs: Int) {
+        registry.counter("purrrfolio.collection.completed").increment(packs.toDouble())
+    }
+
     fun tradeMatched() {
         registry.counter("purrrfolio.trade.matched").increment()
     }
@@ -186,7 +190,7 @@ class GameMetrics(
     companion object {
         private val PERIODS = listOf("day", "week", "month", "total")
         private val PAYMENT_STATES = listOf("PENDING", "COMPLETED", "FAILED", "REFUNDED")
-        private val PACK_SOURCES = listOf("starter", "stars", "craft", "opened", "refund")
+        private val PACK_SOURCES = listOf("starter", "stars", "craft", "collection_completion", "opened", "refund")
 
         fun packSourceGaugeValue(source: String, ledgerTotal: Long): Long =
             if (source == "opened" || source == "refund") -ledgerTotal else ledgerTotal

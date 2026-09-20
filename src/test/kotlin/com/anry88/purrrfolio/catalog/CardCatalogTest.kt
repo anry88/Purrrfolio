@@ -11,7 +11,7 @@ class CardCatalogTest {
 
     @Test
     fun loadsStarterCardsAndCollections() {
-        assertEquals(138, catalog.cards.size)
+        assertEquals(165, catalog.cards.size)
         assertTrue(catalog.collections.isNotEmpty())
         assertEquals("Соня", catalog.card("sleepy").nameRu)
         assertEquals(CardRarity.LEGENDARY, catalog.card("baker").rarity)
@@ -19,6 +19,11 @@ class CardCatalogTest {
         assertEquals(CardRarity.UNCOMMON, catalog.card("blossom").rarity)
         assertEquals("Спорт", catalog.collection("sports").nameRu)
         assertEquals(16, catalog.cardsByCollection("sports").size)
+        assertEquals(20, catalog.cardsByCollection("professions").size)
+        assertEquals(20, catalog.cardsByCollection("food").size)
+        assertEquals("Транспорт", catalog.collection("transport").nameRu)
+        assertEquals(14, catalog.cardsByCollection("transport").size)
+        assertEquals(CardRarity.MYTHIC, catalog.card("starship-ark").rarity)
         assertEquals(
             5,
             catalog.cardsByCollection("sports").count {
