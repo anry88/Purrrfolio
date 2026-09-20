@@ -60,6 +60,16 @@ class GameMetrics(
         registry.counter("purrrfolio.card.claimed").increment()
     }
 
+    fun cardOpened(rarity: String, source: String) {
+        registry.counter(
+            "purrrfolio.card.opened",
+            "rarity",
+            normalizeRarity(rarity),
+            "source",
+            normalizeCardSource(source),
+        ).increment()
+    }
+
     fun craftMelted(rarity: String, points: Int) {
         registry.counter("purrrfolio.craft.melted", "rarity", rarity.lowercase()).increment()
         registry.counter("purrrfolio.craft.points", "direction", "earned").increment(points.toDouble())
@@ -193,6 +203,12 @@ class GameMetrics(
             return command.takeIf { it in KNOWN_COMMANDS } ?: "unknown"
         }
 
+        fun normalizeRarity(raw: String): String =
+            raw.trim().lowercase().takeIf { it in CARD_RARITIES } ?: "unknown"
+
+        fun normalizeCardSource(raw: String): String =
+            raw.trim().lowercase().takeIf { it in CARD_SOURCES } ?: "unknown"
+
         fun callbackAction(data: String): String = when {
             data.startsWith("gal:") || data.startsWith("col:page:") -> "gallery"
             data.startsWith("trade:") -> "trade"
@@ -209,6 +225,8 @@ class GameMetrics(
             "start", "collection", "pack", "freecard", "craft", "buy",
             "trade", "market", "language", "help", "paysupport", "answer",
         )
+        private val CARD_RARITIES = setOf("common", "uncommon", "rare", "epic", "mythic", "legendary")
+        private val CARD_SOURCES = setOf("pack", "free")
         private val REGISTRATION_SOURCE_PATTERN = Regex("[a-z0-9_-]{1,64}")
         private const val MAX_SOURCE_SERIES = 24
     }

@@ -338,6 +338,7 @@ class GameService(
 
         // Save cards
         userCardRepository.addCards(user.id, rolledCards.map { it.id })
+        rolledCards.forEach { card -> gameMetrics.cardOpened(card.rarity.name, "pack") }
 
         for (card in rolledCards) {
             val isNew = !currentInventory.contains(card.id)
@@ -387,6 +388,7 @@ class GameService(
             return
         }
         userCardRepository.addCards(fresh.id, listOf(card.id))
+        gameMetrics.cardOpened(card.rarity.name, "free")
         gameMetrics.freeCardClaimed()
         val isNew = !owned.contains(card.id)
         val caption = packOpeningService.formatReveal(card, isNew, locale)

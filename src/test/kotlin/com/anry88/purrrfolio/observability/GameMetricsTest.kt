@@ -1,7 +1,10 @@
 package com.anry88.purrrfolio.observability
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.mock
+import org.springframework.jdbc.core.JdbcTemplate
 
 class GameMetricsTest {
 
@@ -48,5 +51,30 @@ class GameMetricsTest {
         assertEquals(3, GameMetrics.packSourceGaugeValue("refund", -3))
         assertEquals(3, GameMetrics.packSourceGaugeValue("starter", 3))
         assertEquals(2, GameMetrics.packSourceGaugeValue("craft", 2))
+    }
+
+    @Test
+    fun `opened cards are counted by bounded rarity and source`() {
+        val registry = SimpleMeterRegistry()
+        val metrics = GameMetrics(registry, mock(JdbcTemplate::class.java))
+
+        metrics.cardOpened("LEGENDARY", "pack")
+        metrics.cardOpened(" legendary ", "pack")
+        metrics.cardOpened("unexpected", "forwarded-chat")
+
+        assertEquals(
+            2.0,
+            registry.get("purrrfolio.card.opened")
+                .tags("rarity", "legendary", "source", "pack")
+                .counter()
+                .count(),
+        )
+        assertEquals(
+            1.0,
+            registry.get("purrrfolio.card.opened")
+                .tags("rarity", "unknown", "source", "unknown")
+                .counter()
+                .count(),
+        )
     }
 }
