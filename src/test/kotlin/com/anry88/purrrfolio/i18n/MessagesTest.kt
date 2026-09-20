@@ -76,7 +76,7 @@ class MessagesTest {
             "collection.next", "collection.prev", "collection.reward",
             "profile.title", "profile.unique", "profile.packs",
             "themeStatus.claimed", "themeStatus.completed", "themeStatus.inProgress", "themes.title",
-            "trade.hint", "trade.added", "trade.addedToPool", "trade.matched", "trade.noDuplicates",
+            "trade.title", "trade.hint", "trade.added", "trade.addedToPool", "trade.matched", "trade.noDuplicates",
             "trade.pickCard", "trade.offerButton", "trade.waiting",
             "market.hint", "market.listed", "market.returned", "market.noListings", "market.myListings",
             "market.noDuplicates", "market.selectCard", "market.cardListing", "market.specialCollection",

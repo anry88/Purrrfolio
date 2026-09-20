@@ -902,41 +902,29 @@ class GameService(
 
         val duplicates = userCardRepository.findByUserId(user.id)
             .filter { TradePolicy.canOfferDuplicate(it.quantity) }
+            .mapNotNull { uc ->
+                runCatching { cardCatalog.card(uc.cardId) }.getOrNull()?.let { card ->
+                    RandomTradeCardOption(card.id, card.nameFor(locale))
+                }
+            }
 
-        if (duplicates.isEmpty()) {
-            telegramClient.sendMessage(
-                chatId,
-                Messages.t("trade.noDuplicates", locale),
-                mainMenuKeyboard(locale),
-            )
+        val waiting = runCatching { randomTradeRepository.findWaitingTradesForUser(user.id) }
+            .getOrDefault(emptyList())
+            .map { trade ->
+                val name = runCatching { cardCatalog.card(trade.cardId).nameFor(locale) }.getOrElse { trade.cardId }
+                WaitingRandomTradeOption(trade.id, name)
+            }
+
+        val menu = buildRandomTradeMenu(locale, duplicates, waiting)
+        if (menu == null) {
+            telegramClient.sendMessage(chatId, Messages.t("trade.noDuplicates", locale), mainMenuKeyboard(locale))
             return
         }
 
-        val buttons = duplicates.take(10).mapNotNull { uc ->
-            runCatching { cardCatalog.card(uc.cardId) }.getOrNull()?.let { card ->
-                listOf(TelegramInlineButton(Messages.t("trade.offerButton", locale, card.nameFor(locale)), "trade:add:${card.id}"))
-            }
-        }.toMutableList()
-        // Show the user's own waiting pool entries with return buttons.
-        val waiting = runCatching { randomTradeRepository.findWaitingTradesForUser(user.id) }.getOrDefault(emptyList())
-        if (waiting.isNotEmpty()) {
-            waiting.take(5).forEach { trade ->
-                val name = runCatching { cardCatalog.card(trade.cardId).nameFor(locale) }.getOrElse { trade.cardId }
-                buttons.add(listOf(TelegramInlineButton(Messages.t("trade.returnButton", locale, name), "trade:ret:${trade.id}")))
-            }
-        }
-        val waitingLine = if (waiting.isEmpty()) {
-            ""
-        } else {
-            "\n\n" + Messages.t("trade.waiting", locale) + "\n" + waiting.take(5).joinToString("\n") { trade ->
-                val name = runCatching { cardCatalog.card(trade.cardId).nameFor(locale) }.getOrElse { trade.cardId }
-                "• 🎴 $name"
-            }
-        }
         telegramClient.sendMessage(
             chatId,
-            Messages.t("trade.hint", locale) + "\n\n" + Messages.t("trade.pickCard", locale) + waitingLine,
-            TelegramReplyMarkup(inlineKeyboard = buttons),
+            menu.text,
+            menu.replyMarkup,
         )
     }
 

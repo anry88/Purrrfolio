@@ -202,6 +202,7 @@ object Messages {
         "themeStatus.completed" to ("completed!" to "собрана!"),
         "themeStatus.inProgress" to ("in progress" to "в процессе"),
         "themes.title" to ("📚 *Themes*" to "📚 *Темы*"),
+        "trade.title" to ("🎲 *Random Trade*" to "🎲 *Случайный обмен*"),
         "trade.hint" to (
             "🎲 *Random Trade*\n\nChoose a duplicate. It stays in the pool until another player adds a different card; then the exchange happens automatically and both players are notified." to
                 "🎲 *Случайный обмен*\n\nВыбери дубликат. Он останется в пуле, пока другой игрок не добавит другую карточку; затем обмен произойдёт автоматически и оба игрока получат уведомление."
