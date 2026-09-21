@@ -87,6 +87,11 @@ class GameMetrics(
         registry.counter("purrrfolio.trade.matched").increment()
     }
 
+    fun raffleHeld(packs: Int) {
+        registry.counter("purrrfolio.raffle.held").increment()
+        registry.counter("purrrfolio.raffle.packs").increment(packs.toDouble())
+    }
+
     fun marketOffer(stage: String) {
         registry.counter("purrrfolio.market.offer", "stage", stage).increment()
     }

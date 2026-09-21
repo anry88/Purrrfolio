@@ -66,7 +66,7 @@ class MessagesTest {
     @Test
     fun `all locale keys are present for both locales`() {
         val knownKeys = listOf(
-            "welcome", "help",
+            "welcome", "help", "raffle.result",
             "menu.collection", "menu.pack", "menu.packCount", "menu.buy", "menu.freecard", "menu.craft", "menu.trade", "menu.market", "menu.language",
             "language.title", "language.changed",
             "pack.noPacks", "pack.opening", "pack.opened", "pack.newCard", "pack.starter",

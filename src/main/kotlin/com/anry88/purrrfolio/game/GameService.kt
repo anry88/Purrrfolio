@@ -11,6 +11,7 @@ import com.anry88.purrrfolio.craft.CraftPolicy
 import com.anry88.purrrfolio.i18n.GameLocale
 import com.anry88.purrrfolio.i18n.Messages
 import com.anry88.purrrfolio.i18n.nameFor
+import com.anry88.purrrfolio.models.GroupRaffleCandidate
 import com.anry88.purrrfolio.models.MarketListing
 import com.anry88.purrrfolio.models.PaymentStatus
 import com.anry88.purrrfolio.models.PaymentSupportStatus
@@ -18,6 +19,7 @@ import com.anry88.purrrfolio.models.User
 import com.anry88.purrrfolio.models.UserCard
 import com.anry88.purrrfolio.observability.GameMetrics
 import com.anry88.purrrfolio.pack.PackOpeningService
+import com.anry88.purrrfolio.repository.GroupRaffleRepository
 import com.anry88.purrrfolio.repository.MarketRepository
 import com.anry88.purrrfolio.repository.PackLedgerRepository
 import com.anry88.purrrfolio.repository.PaymentRepository
@@ -65,6 +67,7 @@ class GameService(
     private val packLedgerRepository: PackLedgerRepository,
     private val marketRepository: MarketRepository,
     private val randomTradeRepository: RandomTradeRepository,
+    private val groupRaffleRepository: GroupRaffleRepository,
     private val paymentRepository: PaymentRepository,
     private val paymentSupportRepository: PaymentSupportRepository,
     private val processedUpdateRepository: ProcessedUpdateRepository,
@@ -175,6 +178,34 @@ class GameService(
             val nextClaim = lastFree.plusHours(intervalHours.toLong())
             if (!nextClaim.isAfter(now)) return 0
             return (Duration.between(now, nextClaim).seconds + 59) / 60
+        }
+
+        const val RAFFLE_COOLDOWN_HOURS = 24L
+        const val RAFFLE_MIN_MEMBERS = 10
+        const val RAFFLE_MEMBERS_PER_PACK = 10
+        const val RAFFLE_MAX_PACKS = 10
+
+        /** Packs for a group raffle by member count: 1 per 10 members, capped at 10. */
+        fun packsForRaffle(memberCount: Int): Int =
+            (memberCount / RAFFLE_MEMBERS_PER_PACK).coerceIn(0, RAFFLE_MAX_PACKS)
+
+        /** True when the chat never had a raffle or the last one is older than 24h. */
+        fun isRaffleDue(lastRaffleAt: OffsetDateTime?, now: OffsetDateTime): Boolean {
+            if (lastRaffleAt == null) return true
+            return !lastRaffleAt.plusHours(RAFFLE_COOLDOWN_HOURS).isAfter(now)
+        }
+
+        /** Strip Markdown-breaking characters so winner mentions never break message parsing. */
+        fun sanitizeMentionName(name: String): String =
+            name.replace(Regex("[\\[\\]()_*`#]"), "").trim().replace(Regex("\\s+"), " ")
+
+        fun packsLabel(count: Int, locale: GameLocale): String = when (locale) {
+            GameLocale.RU -> "$count " + when {
+                count % 10 == 1 && count % 100 != 11 -> "пак"
+                count % 10 in 2..4 && count % 100 !in 12..14 -> "пака"
+                else -> "паков"
+            }
+            GameLocale.EN -> if (count == 1) "1 pack" else "$count packs"
         }
 
         fun textCommandAlias(text: String): String? {
@@ -334,6 +365,10 @@ class GameService(
 
         gameMetrics.command(action.name.lowercase(), if (text.startsWith("/")) "command" else "keyboard")
 
+        if (fromGroupChat) {
+            trackGroupMember(chatId, user, message)
+        }
+
         when (action) {
             Action.START -> telegramClient.sendMessage(chatId, Messages.t("welcome", gameLocale(user)), mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
             Action.HELP -> telegramClient.sendMessage(chatId, Messages.t("help", gameLocale(user)), helpKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
@@ -347,6 +382,11 @@ class GameService(
             Action.ANSWER -> handlePaySupportAnswer(chatId, user, text)
             Action.TRADE -> handleTrade(chatId, user)
             Action.MARKET -> handleMarket(chatId, user)
+        }
+
+        // Automatic daily pack raffle: runs after any processed command in a group chat.
+        if (fromGroupChat) {
+            maybeGroupRaffle(chatId, user)
         }
     }
 
@@ -453,6 +493,86 @@ class GameService(
             chatId,
             Messages.t("card.nextFreeIn", locale, hours, minutes),
             mainMenuKeyboard(locale, availablePacks),
+        )
+    }
+
+    // ---- Daily pack raffle in group chats ----
+    //
+    // Runs automatically after any processed command from a group/supergroup:
+    // 10+ members -> 1 pack per 10 members, capped at 10 packs, at most once
+    // per 24h per chat. Winners are registered players seen in that chat,
+    // verified as non-bots at award time, and unique within one raffle.
+
+    private fun trackGroupMember(chatId: Long, user: User, message: TelegramMessage) {
+        val from = message.from ?: return
+        val displayName = (from.firstName?.take(200) ?: from.username ?: "").take(200)
+        runCatching {
+            groupRaffleRepository.trackMember(chatId, user.id, displayName, from.username?.take(100))
+        }.onFailure { logger.warn("Failed to track group member {} in chat {}", user.id, chatId, it) }
+    }
+
+    private fun maybeGroupRaffle(chatId: Long, trigger: User) {
+        runCatching {
+            val now = OffsetDateTime.now(ZoneId.of(properties.gameTimezone))
+            // Fast path first: 24h cooldown from the database, no Telegram calls.
+            val lastRaffle = groupRaffleRepository.findLastRaffle(chatId)
+            if (!isRaffleDue(lastRaffle?.raffledAt, now)) return
+            val memberCount = telegramClient.getChatMemberCount(chatId) ?: return
+            if (memberCount < RAFFLE_MIN_MEMBERS) return
+            val tierPacks = packsForRaffle(memberCount)
+            if (tierPacks <= 0) return
+            // Oversample: bots and departed members are filtered out below.
+            val candidates = groupRaffleRepository
+                .findRandomCandidates(chatId, (tierPacks * 3).coerceAtLeast(tierPacks + 5))
+            if (candidates.isEmpty()) return
+            val winners = candidates
+                .filter { isEligibleRaffleWinner(chatId, it.telegramUserId) }
+                .distinctBy { it.userId }
+                .take(tierPacks)
+            if (winners.isEmpty()) return
+            // Serialize concurrent triggers; re-check the cooldown inside the lock.
+            val raffleId = transactionTemplate.execute<Long> {
+                groupRaffleRepository.lockChat(chatId)
+                val freshLast = groupRaffleRepository.findLastRaffle(chatId)
+                val nowLocked = OffsetDateTime.now(ZoneId.of(properties.gameTimezone))
+                if (!isRaffleDue(freshLast?.raffledAt, nowLocked)) return@execute null
+                val id = groupRaffleRepository.createRaffle(chatId, memberCount, winners.size)
+                winners.forEach { winner ->
+                    packLedgerRepository.addPacks(winner.userId, "raffle", 1)
+                    groupRaffleRepository.addWinner(id, winner.userId, 1)
+                }
+                id
+            } ?: return
+            gameMetrics.raffleHeld(winners.size)
+            sendRaffleResult(chatId, trigger, memberCount, winners, raffleId)
+        }.onFailure { logger.warn("Group raffle failed in chat {}", chatId, it) }
+    }
+
+    private fun isEligibleRaffleWinner(chatId: Long, telegramUserId: Long): Boolean {
+        val member = telegramClient.getChatMember(chatId, telegramUserId) ?: return false
+        if (member.user?.isBot == true) return false
+        return member.status !in setOf("left", "kicked")
+    }
+
+    private fun sendRaffleResult(
+        chatId: Long,
+        trigger: User,
+        memberCount: Int,
+        winners: List<GroupRaffleCandidate>,
+        raffleId: Long,
+    ) {
+        val locale = gameLocale(trigger)
+        val mentions = winners.joinToString("\n") { winner ->
+            val safeName = sanitizeMentionName(winner.displayName).ifBlank {
+                Messages.t("profile.player", locale)
+            }
+            "🎁 [$safeName](tg://user?id=${winner.telegramUserId})"
+        }
+        logger.info("Group raffle {} in chat {}: {} packs to {} winners", raffleId, chatId, winners.size, winners.size)
+        telegramClient.sendMessage(
+            chatId,
+            Messages.t("raffle.result", locale, memberCount, packsLabel(winners.size, locale), mentions),
+            mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(trigger.id)),
         )
     }
 

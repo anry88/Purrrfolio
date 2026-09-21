@@ -211,6 +211,42 @@ class TelegramClient(
             .toBodilessEntity()
     }
 
+    /** Total member count of a chat (includes bots). Null when the call fails. */
+    fun getChatMemberCount(chatId: Long): Int? {
+        if (!isConfigured()) {
+            return null
+        }
+        return try {
+            restClient.get()
+                .uri("getChatMemberCount?chat_id=$chatId")
+                .retrieve()
+                .body(TelegramChatMemberCountResponse::class.java)
+                ?.takeIf { it.ok }
+                ?.result
+        } catch (e: Exception) {
+            logger.warn("Failed to get member count for chat {}", chatId, e)
+            null
+        }
+    }
+
+    /** Single chat member with bot flag and membership status. Null when the call fails. */
+    fun getChatMember(chatId: Long, userId: Long): TelegramChatMember? {
+        if (!isConfigured()) {
+            return null
+        }
+        return try {
+            restClient.get()
+                .uri("getChatMember?chat_id=$chatId&user_id=$userId")
+                .retrieve()
+                .body(TelegramChatMemberResponse::class.java)
+                ?.takeIf { it.ok }
+                ?.result
+        } catch (e: Exception) {
+            logger.warn("Failed to get chat member {} in chat {}", userId, chatId, e)
+            null
+        }
+    }
+
     fun deleteMessage(chatId: Long, messageId: Long) {
         if (!isConfigured()) {
             logger.warn("Telegram bot token is not configured; skipping deleteMessage")

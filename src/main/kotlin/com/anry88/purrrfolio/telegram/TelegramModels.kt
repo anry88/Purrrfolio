@@ -139,6 +139,34 @@ data class TelegramLabeledPrice(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramChatMemberCountResponse(
+    val ok: Boolean = false,
+    val result: Int? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramChatMemberResponse(
+    val ok: Boolean = false,
+    val result: TelegramChatMember? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramChatMember(
+    val user: TelegramChatMemberUser? = null,
+    val status: String? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramChatMemberUser(
+    val id: Long? = null,
+    @JsonProperty("is_bot")
+    val isBot: Boolean? = null,
+    @JsonProperty("first_name")
+    val firstName: String? = null,
+    val username: String? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class TelegramBotCommand(
     val command: String,
     val description: String,

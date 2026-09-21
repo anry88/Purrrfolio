@@ -85,6 +85,10 @@ object Messages {
                 "🇬🇧 Английский канал: [Purrrfolio EN](https://t.me/Purrrfolio_En)"
             ),
         "menu.collection" to ("🗂 Collection" to "🗂 Коллекция"),
+        "raffle.result" to (
+            "🎉 *Daily pack raffle!*\n\n%s members in this chat → %s up for grabs!\n\nOur winners:\n%s\n\nOpen your prize with /pack!" to
+                "🎉 *Ежедневный розыгрыш паков!*\n\nУчастников в чате: %s → разыгрывается %s!\n\nНаши победители:\n%s\n\nОткрой приз через /pack!"
+            ),
         "menu.pack" to ("🎁 Pack" to "🎁 Набор"),
         "menu.packCount" to ("🎁 Pack (%s)" to "🎁 Набор (%s)"),
         "menu.trade" to ("🎲 Random Trade" to "🎲 Случайный обмен"),
