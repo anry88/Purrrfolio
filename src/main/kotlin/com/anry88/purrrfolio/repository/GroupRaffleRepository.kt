@@ -69,9 +69,16 @@ class GroupRaffleRepository(private val jdbcTemplate: JdbcTemplate) {
         return jdbcTemplate.queryForObject(sql, Int::class.java, chatId) ?: 0
     }
 
-    /** Serialize concurrent raffles of the same chat; must be called inside a transaction. */
+    /**
+     * Serialize concurrent raffles of the same chat; must be called inside a transaction.
+     * pg_advisory_xact_lock returns void, so it runs as an update-style statement.
+     */
     fun lockChat(chatId: Long) {
-        jdbcTemplate.queryForObject("SELECT pg_advisory_xact_lock(hashtext(?))", Long::class.java, "raffle:$chatId")
+        jdbcTemplate.update({ con ->
+            con.prepareStatement("SELECT pg_advisory_xact_lock(hashtext(?))").apply {
+                setString(1, "raffle:$chatId")
+            }
+        })
     }
 
     fun createRaffle(chatId: Long, memberCount: Int, packsGranted: Int): Long {
