@@ -14,7 +14,10 @@ object Messages {
                 "/trade — random trade\n" +
                 "/market — card market\n" +
                 "/language — change language\n" +
-                "/help — help" to
+                "/help — help\n\n" +
+                "📢 *News & updates:*\n" +
+                "🇷🇺 Russian channel: [Purrrfolio RU](https://t.me/Purrrfolio_Ru)\n" +
+                "🇬🇧 English channel: [Purrrfolio EN](https://t.me/Purrrfolio_En)" to
             "🐾 *Purrrfolio* — уютная коллекционная игра про кавайных котиков.\n\n" +
                 "Собирай карточки, открывай пушистые наборы, завершай тематические коллекции и обменивай дубликаты.\n\n" +
                 "Основные команды:\n" +
@@ -26,7 +29,10 @@ object Messages {
                 "/trade — случайный обмен\n" +
                 "/market — биржа карточек\n" +
                 "/language — сменить язык\n" +
-                "/help — справка"
+                "/help — справка\n\n" +
+                "📢 *Новости и обновления:*\n" +
+                "🇷🇺 Русский канал: [Purrrfolio RU](https://t.me/Purrrfolio_Ru)\n" +
+                "🇬🇧 Английский канал: [Purrrfolio EN](https://t.me/Purrrfolio_En)"
             ),
         "help" to (
             "*Purrrfolio commands*\n\n" +
@@ -49,7 +55,10 @@ object Messages {
                 "✨ *Special collections*\n" +
                 "• Calendar Cats: a month card drops only in that month; a season card only during its season.\n" +
                 "• Friends: drops only when a pack or free card is requested from a group or supergroup chat.\n" +
-                "Special cards keep the normal odds of their rarity." to
+                "Special cards keep the normal odds of their rarity.\n\n" +
+                "📢 *News & updates:*\n" +
+                "🇷🇺 Russian channel: [Purrrfolio RU](https://t.me/Purrrfolio_Ru)\n" +
+                "🇬🇧 English channel: [Purrrfolio EN](https://t.me/Purrrfolio_En)" to
             "*Команды Purrrfolio*\n\n" +
                 "/start — регистрация и выбор языка\n" +
                 "/collection — список карточек и дубликатов\n" +
@@ -70,7 +79,10 @@ object Messages {
                 "✨ *Спешл-коллекции*\n" +
                 "• Месяцы и сезоны: карточка месяца выпадает только в этот месяц, карточка времени года — только в его месяцы.\n" +
                 "• Друзья: выпадает только при запросе набора или бесплатной карточки из группового чата или супергруппы.\n" +
-                "Шанс спешл-карточки остаётся обычным для её редкости."
+                "Шанс спешл-карточки остаётся обычным для её редкости.\n\n" +
+                "📢 *Новости и обновления:*\n" +
+                "🇷🇺 Русский канал: [Purrrfolio RU](https://t.me/Purrrfolio_Ru)\n" +
+                "🇬🇧 Английский канал: [Purrrfolio EN](https://t.me/Purrrfolio_En)"
             ),
         "menu.collection" to ("🗂 Collection" to "🗂 Коллекция"),
         "menu.pack" to ("🎁 Pack" to "🎁 Набор"),
