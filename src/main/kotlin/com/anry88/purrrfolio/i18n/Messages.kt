@@ -86,6 +86,7 @@ object Messages {
             ),
         "menu.collection" to ("🗂 Collection" to "🗂 Коллекция"),
         "menu.pack" to ("🎁 Pack" to "🎁 Набор"),
+        "menu.packCount" to ("🎁 Pack (%s)" to "🎁 Набор (%s)"),
         "menu.trade" to ("🎲 Random Trade" to "🎲 Случайный обмен"),
         "menu.market" to ("🏪 Market" to "🏪 Биржа"),
         "menu.language" to ("🌐 Language" to "🌐 Язык"),

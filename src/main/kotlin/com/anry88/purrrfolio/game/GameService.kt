@@ -224,10 +224,12 @@ class GameService(
             }
 
             val normalized = trimmed.lowercase().replace(" ", "")
+            // The reply-keyboard pack button carries the unopened-pack count: "🎁 Набор (3)".
+            val menuText = normalized.replace(Regex("\\(\\d+\\)$"), "")
             fun matches(key: String): Boolean {
                 val other = if (locale == GameLocale.RU) GameLocale.EN else GameLocale.RU
                 fun norm(l: GameLocale) = Messages.t(key, l).lowercase().replace(" ", "")
-                return normalized == norm(locale) || normalized == norm(other)
+                return menuText == norm(locale) || menuText == norm(other)
             }
 
             return when {
@@ -333,8 +335,8 @@ class GameService(
         gameMetrics.command(action.name.lowercase(), if (text.startsWith("/")) "command" else "keyboard")
 
         when (action) {
-            Action.START -> telegramClient.sendMessage(chatId, Messages.t("welcome", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
-            Action.HELP -> telegramClient.sendMessage(chatId, Messages.t("help", gameLocale(user)), helpKeyboard(gameLocale(user)))
+            Action.START -> telegramClient.sendMessage(chatId, Messages.t("welcome", gameLocale(user)), mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
+            Action.HELP -> telegramClient.sendMessage(chatId, Messages.t("help", gameLocale(user)), helpKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
             Action.LANGUAGE -> handleLanguage(chatId, user)
             Action.COLLECTION -> sendCollectionView(chatId, user, page = 0)
             Action.PACK -> handlePackOpening(chatId, user, fromGroupChat)
@@ -396,7 +398,7 @@ class GameService(
             val isNew = !currentInventory.contains(card.id)
             sendCardReveal(chatId, card, isNew, locale, logContext = "pack card")
         }
-        telegramClient.sendMessage(chatId, Messages.t("pack.opened", locale), mainMenuKeyboard(locale))
+        telegramClient.sendMessage(chatId, Messages.t("pack.opened", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         sendCollectionCompletionRewards(chatId, user, completedCollections)
     }
 
@@ -410,22 +412,23 @@ class GameService(
         // Re-read and atomically claim for double-tap and concurrent-update safety.
         val fresh = userRepository.findByTelegramUserId(user.telegramUserId) ?: user
         val locale = gameLocale(fresh)
+        val availablePacks = packLedgerRepository.getTotalAvailablePacks(fresh.id)
         val now = OffsetDateTime.now(ZoneId.of(properties.gameTimezone))
         val minutesLeft = minutesUntilFreeCard(fresh.lastFreeCardAt, now, properties.economy.freeCardIntervalHours)
         if (minutesLeft > 0) {
-            sendFreeCardWait(chatId, locale, minutesLeft)
+            sendFreeCardWait(chatId, locale, minutesLeft, availablePacks)
             return
         }
         if (!userRepository.claimFreeCardIfDue(fresh.id, now, properties.economy.freeCardIntervalHours)) {
             val latest = userRepository.findByTelegramUserId(fresh.telegramUserId) ?: fresh
             val latestMinutes = minutesUntilFreeCard(latest.lastFreeCardAt, now, properties.economy.freeCardIntervalHours)
-            sendFreeCardWait(chatId, locale, latestMinutes)
+            sendFreeCardWait(chatId, locale, latestMinutes, availablePacks)
             return
         }
         val owned = userCardRepository.findByUserId(fresh.id).map { it.cardId }.toSet()
         val card = packOpeningService.rollCards(1, owned, currentGameMonth(), fromGroupChat).firstOrNull()
         if (card == null) {
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         userCardRepository.addCards(fresh.id, listOf(card.id))
@@ -433,23 +436,23 @@ class GameService(
         gameMetrics.cardOpened(card.rarity.name, "free")
         gameMetrics.freeCardClaimed()
         val isNew = !owned.contains(card.id)
-        val revealKeyboard = if (packLedgerRepository.getTotalAvailablePacks(fresh.id) > 0) {
-            openPackKeyboard(locale)
+        val revealKeyboard = if (availablePacks > 0) {
+            openPackKeyboard(locale, availablePacks)
         } else {
             null
         }
         sendCardReveal(chatId, card, isNew, locale, revealKeyboard, logContext = "free card")
         sendCollectionCompletionRewards(chatId, fresh, completedCollections)
-        sendFreeCardWait(chatId, locale, properties.economy.freeCardIntervalHours * 60L)
+        sendFreeCardWait(chatId, locale, properties.economy.freeCardIntervalHours * 60L, availablePacks)
     }
 
-    private fun sendFreeCardWait(chatId: Long, locale: GameLocale, minutesLeft: Long) {
+    private fun sendFreeCardWait(chatId: Long, locale: GameLocale, minutesLeft: Long, availablePacks: Int) {
         val hours = minutesLeft / 60
         val minutes = minutesLeft % 60
         telegramClient.sendMessage(
             chatId,
             Messages.t("card.nextFreeIn", locale, hours, minutes),
-            mainMenuKeyboard(locale),
+            mainMenuKeyboard(locale, availablePacks),
         )
     }
 
@@ -462,7 +465,8 @@ class GameService(
     ) {
         val card = runCatching { cardCatalog.card(cardId) }.getOrNull()
         if (card == null) {
-            telegramClient.sendMessage(chatId, Messages.t(headerKey, locale, cardId), mainMenuKeyboard(locale))
+            val packsFallback = packLedgerRepository.getTotalAvailablePacks(userId)
+            telegramClient.sendMessage(chatId, Messages.t(headerKey, locale, cardId), mainMenuKeyboard(locale, packsFallback))
             return
         }
         val quantity = userCardRepository.findByUserIdAndCardId(userId, cardId)?.quantity ?: 0
@@ -473,7 +477,7 @@ class GameService(
             card = card,
             isNew = isNew,
             locale = locale,
-            replyMarkup = mainMenuKeyboard(locale),
+            replyMarkup = mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(userId)),
             header = header,
             logContext = "trade result card",
         )
@@ -518,7 +522,7 @@ class GameService(
             telegramClient.sendMessage(
                 chatId,
                 header + "\n\n" + Messages.t("craft.noDuplicates", locale),
-                mainMenuKeyboard(locale),
+                mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)),
             )
             return
         }
@@ -542,7 +546,7 @@ class GameService(
         val owned = userCardRepository.findByUserIdAndCardId(fresh.id, cardId)
         val card = runCatching { cardCatalog.card(cardId) }.getOrNull()
         if (owned == null || card == null || !TradePolicy.canOfferDuplicate(owned.quantity)) {
-            telegramClient.sendMessage(chatId, Messages.t("craft.noDuplicates", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("craft.noDuplicates", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         userCardRepository.removeCard(fresh.id, cardId, 1)
@@ -558,7 +562,7 @@ class GameService(
             gameMetrics.craftPackBuilt(result.packs)
             lines.add(Messages.t("craft.crafted", locale, result.packs))
         }
-        telegramClient.sendMessage(chatId, lines.joinToString("\n\n"), openPackKeyboard(locale))
+        telegramClient.sendMessage(chatId, lines.joinToString("\n\n"), openPackKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(fresh.id)))
     }
 
     // ---- Stars shop ----
@@ -572,7 +576,7 @@ class GameService(
         val locale = gameLocale(user)
         val stars = configuredStarsForPacks(packs)
         if (stars == null) {
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         runCatching {
@@ -587,7 +591,7 @@ class GameService(
             gameMetrics.stars("invoice_sent", packs.toString())
         }.onFailure {
             logger.warn("Failed to send Stars invoice to chat {}", chatId, it)
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         }
     }
 
@@ -627,7 +631,7 @@ class GameService(
             !matchesStarsPayment(order, telegramId, payment.currency, totalAmount)
         ) {
             logger.error("Rejected invalid successful Stars payment payload for Telegram user {}", telegramId)
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         try {
@@ -638,7 +642,7 @@ class GameService(
                 return
             }
             gameMetrics.stars("paid", packs.toString())
-            telegramClient.sendMessage(chatId, Messages.t("buy.success", locale, packs), openPackKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("buy.success", locale, packs), openPackKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         } catch (e: Exception) {
             logger.error("Failed to credit Stars purchase {}", chargeId, e)
             gameMetrics.stars("failed", packs.toString())
@@ -667,7 +671,7 @@ class GameService(
         val payments = paymentRepository.findRefundableByUserId(user.id)
         if (args.isEmpty()) {
             if (payments.isEmpty()) {
-                telegramClient.sendMessage(chatId, Messages.t("paysupport.empty", locale), mainMenuKeyboard(locale))
+                telegramClient.sendMessage(chatId, Messages.t("paysupport.empty", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
                 return
             }
             val list = payments.joinToString("\n") { payment ->
@@ -676,7 +680,7 @@ class GameService(
             telegramClient.sendMessage(
                 chatId,
                 Messages.t("paysupport.list", locale, list),
-                mainMenuKeyboard(locale),
+                mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)),
             )
             return
         }
@@ -685,19 +689,19 @@ class GameService(
         val paymentId = parts.firstOrNull()?.toLongOrNull()
         val reason = parts.getOrNull(1)?.trim().orEmpty()
         if (paymentId == null || reason.isBlank() || reason.length > SUPPORT_TEXT_LIMIT) {
-            telegramClient.sendMessage(chatId, Messages.t("paysupport.invalid", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.invalid", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val payment = paymentRepository.findById(paymentId)
             ?.takeIf { it.userId == user.id && it.status == PaymentStatus.COMPLETED }
         if (payment == null) {
-            telegramClient.sendMessage(chatId, Messages.t("paysupport.notFound", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.notFound", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val adminId = properties.telegram.adminTgId
         if (adminId == 0L) {
             logger.error("Payment support requested but ADMIN_TG_ID is not configured")
-            telegramClient.sendMessage(chatId, Messages.t("paysupport.unavailable", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.unavailable", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
 
@@ -707,7 +711,7 @@ class GameService(
             telegramClient.sendMessage(
                 chatId,
                 Messages.t("paysupport.alreadySubmitted", locale, existingRequest.id),
-                mainMenuKeyboard(locale),
+                mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)),
             )
             return
         }
@@ -719,7 +723,7 @@ class GameService(
             telegramClient.sendMessage(
                 chatId,
                 Messages.t("paysupport.alreadySubmitted", locale, concurrent.id),
-                mainMenuKeyboard(locale),
+                mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)),
             )
             return
         }
@@ -727,7 +731,7 @@ class GameService(
         telegramClient.sendMessage(
             chatId,
             Messages.t("paysupport.submitted", locale, request.id),
-            mainMenuKeyboard(locale),
+            mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)),
         )
     }
 
@@ -765,16 +769,16 @@ class GameService(
         if (request == null && answer.isNotBlank()) {
             val completedReplay = paymentSupportRepository.findPendingAnswer(user.id, explicitId, answer)
             if (completedReplay != null) {
-                telegramClient.sendMessage(chatId, Messages.t("paysupport.answerSent", locale), mainMenuKeyboard(locale))
+                telegramClient.sendMessage(chatId, Messages.t("paysupport.answerSent", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
                 return
             }
         }
         if (request == null || answer.isBlank() || answer.length > SUPPORT_TEXT_LIMIT) {
-            telegramClient.sendMessage(chatId, Messages.t("paysupport.answerInvalid", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.answerInvalid", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         if (properties.telegram.adminTgId == 0L) {
-            telegramClient.sendMessage(chatId, Messages.t("paysupport.unavailable", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.unavailable", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         telegramClient.sendMessage(
@@ -786,10 +790,10 @@ class GameService(
             parseMode = null,
         )
         if (!paymentSupportRepository.submitUserAnswer(request.id, user.id, answer)) {
-            telegramClient.sendMessage(chatId, Messages.t("paysupport.notFound", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("paysupport.notFound", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
-        telegramClient.sendMessage(chatId, Messages.t("paysupport.answerSent", locale), mainMenuKeyboard(locale))
+        telegramClient.sendMessage(chatId, Messages.t("paysupport.answerSent", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
     }
 
     private fun isPaymentSupportCommand(text: String): Boolean =
@@ -867,7 +871,7 @@ class GameService(
         telegramClient.sendMessage(
             user.telegramUserId,
             Messages.t("paysupport.refunded", gameLocale(user), requestId),
-            mainMenuKeyboard(gameLocale(user)),
+            mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)),
         )
     }
 
@@ -883,7 +887,7 @@ class GameService(
             telegramClient.sendMessage(
                 user.telegramUserId,
                 Messages.t("paysupport.rejected", gameLocale(user), requestId, savedReason),
-                mainMenuKeyboard(gameLocale(user)),
+                mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)),
                 parseMode = null,
             )
             telegramClient.sendMessage(chatId, "Запрос #$requestId уже отклонён.", parseMode = null)
@@ -897,7 +901,7 @@ class GameService(
         telegramClient.sendMessage(
             user.telegramUserId,
             Messages.t("paysupport.rejected", gameLocale(user), requestId, reason),
-            mainMenuKeyboard(gameLocale(user)),
+            mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)),
             parseMode = null,
         )
     }
@@ -917,7 +921,7 @@ class GameService(
         telegramClient.sendMessage(
             user.telegramUserId,
             Messages.t("paysupport.ask", gameLocale(user), requestId, question, requestId),
-            mainMenuKeyboard(gameLocale(user)),
+            mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)),
             parseMode = null,
         )
     }
@@ -946,7 +950,7 @@ class GameService(
 
         val menu = buildRandomTradeMenu(locale, duplicates, waiting)
         if (menu == null) {
-            telegramClient.sendMessage(chatId, Messages.t("trade.noDuplicates", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("trade.noDuplicates", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
 
@@ -978,7 +982,7 @@ class GameService(
         val locale = gameLocale(user)
         val owned = userCardRepository.findByUserIdAndCardId(user.id, cardId)
         if (owned == null || !TradePolicy.canOfferDuplicate(owned.quantity)) {
-            telegramClient.sendMessage(chatId, Messages.t("trade.noDuplicates", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("trade.noDuplicates", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val card = runCatching { cardCatalog.card(cardId) }.getOrNull()
@@ -1016,7 +1020,7 @@ class GameService(
             telegramClient.sendMessage(
                 chatId,
                 Messages.t("trade.addedToPool", locale) + "\n" + cardLine,
-                mainMenuKeyboard(locale),
+                mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)),
             )
         }
     }
@@ -1024,13 +1028,13 @@ class GameService(
     private fun handleTradeReturn(chatId: Long, user: User, tradeId: Long?) {
         val locale = gameLocale(user)
         if (tradeId == null) {
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val trade = runCatching { randomTradeRepository.findWaitingTradesForUser(user.id) }.getOrDefault(emptyList())
             .firstOrNull { it.id == tradeId }
         if (trade == null) {
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val returned = transactionTemplate.execute {
@@ -1039,11 +1043,11 @@ class GameService(
             true
         } == true
         if (!returned) {
-            telegramClient.sendMessage(chatId, Messages.t("callback.expired", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("callback.expired", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val name = runCatching { cardCatalog.card(trade.cardId).nameFor(locale) }.getOrElse { trade.cardId }
-        telegramClient.sendMessage(chatId, Messages.t("trade.returned", locale, name), mainMenuKeyboard(locale))
+        telegramClient.sendMessage(chatId, Messages.t("trade.returned", locale, name), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
     }
 
     /**
@@ -1122,18 +1126,18 @@ class GameService(
         val locale = gameLocale(user)
         val owned = userCardRepository.findByUserIdAndCardId(user.id, cardId)
         if (owned == null || !TradePolicy.canOfferDuplicate(owned.quantity)) {
-            telegramClient.sendMessage(chatId, Messages.t("market.noDuplicates", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("market.noDuplicates", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         // Keep one copy in the collection; only the duplicate goes to the market.
         userCardRepository.removeCard(user.id, cardId, 1)
         try {
             marketRepository.createListing(user.id, cardId)
-            telegramClient.sendMessage(chatId, Messages.t("market.listed", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("market.listed", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         } catch (e: Exception) {
             logger.error("Failed to create market listing", e)
             runCatching { userCardRepository.addCards(user.id, listOf(cardId)) }
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         }
     }
 
@@ -1141,7 +1145,7 @@ class GameService(
         val locale = gameLocale(user)
         val listing = marketRepository.findListingById(listingId)
         if (listing == null || listing.sellerId != user.id) {
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val returned = transactionTemplate.execute {
@@ -1150,22 +1154,22 @@ class GameService(
             true
         } == true
         if (!returned) {
-            telegramClient.sendMessage(chatId, Messages.t("callback.expired", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("callback.expired", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
-        telegramClient.sendMessage(chatId, Messages.t("market.returned", locale), mainMenuKeyboard(locale))
+        telegramClient.sendMessage(chatId, Messages.t("market.returned", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
     }
 
     private fun handleMarketBrowse(chatId: Long, user: User, page: Int) {
         val locale = gameLocale(user)
         val others = marketRepository.findAllActiveListings().filter { it.sellerId != user.id }
         if (others.isEmpty()) {
-            telegramClient.sendMessage(chatId, Messages.t("market.noListings", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("market.noListings", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val pageItems = others.drop(page * 5).take(5)
         if (pageItems.isEmpty()) {
-            telegramClient.sendMessage(chatId, Messages.t("market.noListings", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("market.noListings", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val text = pageItems.map { listing ->
@@ -1192,12 +1196,12 @@ class GameService(
         val locale = gameLocale(user)
         val target = marketRepository.findListingById(targetId)
         if (target == null || target.sellerId == user.id) {
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val mine = marketRepository.findActiveListingsBySeller(user.id)
         if (mine.isEmpty()) {
-            telegramClient.sendMessage(chatId, Messages.t("market.noDuplicates", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("market.noDuplicates", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         pendingMarketOffers[chatId] = targetId
@@ -1224,7 +1228,7 @@ class GameService(
         val locale = gameLocale(user)
         val targetId = pendingMarketOffers.remove(chatId)
         if (targetId == null) {
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val target = marketRepository.findListingById(targetId)
@@ -1234,13 +1238,13 @@ class GameService(
             target.status.name != "ACTIVE" || offered.status.name != "ACTIVE" ||
             offered.sellerId != user.id || target.sellerId == user.id
         ) {
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         try {
             val offer = marketRepository.createTradeOffer(targetId, offeredId)
             gameMetrics.marketOffer("created")
-            telegramClient.sendMessage(chatId, Messages.t("market.offerMade", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("market.offerMade", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             // Notify the owner with accept/reject buttons.
             val owner = userRepository.findById(target.sellerId)
             // Best effort: we can only notify if we knew the owner's chat id (= telegram id for 1:1 chats).
@@ -1267,7 +1271,7 @@ class GameService(
             }
         } catch (e: Exception) {
             logger.error("Failed to create trade offer", e)
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         }
     }
 
@@ -1285,11 +1289,11 @@ class GameService(
                 // Backward-compatible long prefixes from earlier builds.
                 data.startsWith("market:accept:") -> handleMarketAccept(chatId, user, UUID.fromString(data.removePrefix("market:accept:")))
                 data.startsWith("market:reject:") -> handleMarketReject(chatId, user, UUID.fromString(data.removePrefix("market:reject:")))
-                else -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", locale), mainMenuKeyboard(locale))
+                else -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             }
         }.onFailure {
             logger.error("Failed to handle market callback {}", data, it)
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         }
     }
 
@@ -1297,7 +1301,7 @@ class GameService(
         val locale = gameLocale(user)
         val settled = settleMarketplaceOffer(offerId, user.id)
         if (settled == null) {
-            telegramClient.sendMessage(chatId, Messages.t("market.settlementFailed", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("market.settlementFailed", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         val targetLocale = gameLocale(settled.targetOwner)
@@ -1328,14 +1332,14 @@ class GameService(
         val locale = gameLocale(user)
         val rejected = rejectMarketplaceOffer(offerId, user.id)
         if (rejected == null) {
-            telegramClient.sendMessage(chatId, Messages.t("market.settlementFailed", locale), mainMenuKeyboard(locale))
+            telegramClient.sendMessage(chatId, Messages.t("market.settlementFailed", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
         runCatching {
             telegramClient.sendMessage(
                 rejected.targetOwner.telegramUserId,
                 Messages.t("market.offerRejectedByYou", locale),
-                mainMenuKeyboard(locale),
+                mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(rejected.targetOwner.id)),
             )
         }.onFailure { logger.warn("Failed to notify rejecting market target owner {}", rejected.targetOwner.id, it) }
         val peerLocale = gameLocale(rejected.offerOwner)
@@ -1343,7 +1347,7 @@ class GameService(
             telegramClient.sendMessage(
                 rejected.offerOwner.telegramUserId,
                 Messages.t("market.offerRejectedNotice", peerLocale),
-                mainMenuKeyboard(peerLocale),
+                mainMenuKeyboard(peerLocale, packLedgerRepository.getTotalAvailablePacks(rejected.offerOwner.id)),
             )
         }.onFailure { logger.warn("Failed to notify rejected market offer owner {}", rejected.offerOwner.id, it) }
     }
@@ -1481,7 +1485,7 @@ class GameService(
             telegramClient.sendMessage(
                 chatId,
                 Messages.t("collection.reward", locale, names, completedCollections.size),
-                openPackKeyboard(locale),
+                openPackKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)),
             )
         }.onFailure { logger.warn("Failed to notify collection completion rewards for user {}", user.id, it) }
     }
@@ -1510,16 +1514,16 @@ class GameService(
                     val newUser = userRepository.create(telegramId, GameLocale.EN.code, source)
                     gameMetrics.registration(source)
                     grantStarterPacks(newUser.id)
-                    telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.EN), mainMenuKeyboard(GameLocale.EN))
-                    telegramClient.sendMessage(chatId, Messages.t("pack.starter", GameLocale.EN, properties.economy.starterPacks), openPackKeyboard(GameLocale.EN))
+                    telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.EN), mainMenuKeyboard(GameLocale.EN, packLedgerRepository.getTotalAvailablePacks(newUser.id)))
+                    telegramClient.sendMessage(chatId, Messages.t("pack.starter", GameLocale.EN, properties.economy.starterPacks), openPackKeyboard(GameLocale.EN, packLedgerRepository.getTotalAvailablePacks(newUser.id)))
                 }
                 "lang:ru" -> {
                     val source = pendingSources.remove(telegramId) ?: "direct"
                     val newUser = userRepository.create(telegramId, GameLocale.RU.code, source)
                     gameMetrics.registration(source)
                     grantStarterPacks(newUser.id)
-                    telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.RU), mainMenuKeyboard(GameLocale.RU))
-                    telegramClient.sendMessage(chatId, Messages.t("pack.starter", GameLocale.RU, properties.economy.starterPacks), openPackKeyboard(GameLocale.RU))
+                    telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.RU), mainMenuKeyboard(GameLocale.RU, packLedgerRepository.getTotalAvailablePacks(newUser.id)))
+                    telegramClient.sendMessage(chatId, Messages.t("pack.starter", GameLocale.RU, properties.economy.starterPacks), openPackKeyboard(GameLocale.RU, packLedgerRepository.getTotalAvailablePacks(newUser.id)))
                 }
                 else -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", GameLocale.EN), mainMenuKeyboard(GameLocale.EN))
             }
@@ -1538,11 +1542,11 @@ class GameService(
         when (val data = callback.data) {
             "lang:en" -> {
                 userRepository.updateLanguage(user.id, GameLocale.EN.code)
-                telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.EN), mainMenuKeyboard(GameLocale.EN))
+                telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.EN), mainMenuKeyboard(GameLocale.EN, packLedgerRepository.getTotalAvailablePacks(user.id)))
             }
             "lang:ru" -> {
                 userRepository.updateLanguage(user.id, GameLocale.RU.code)
-                telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.RU), mainMenuKeyboard(GameLocale.RU))
+                telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.RU), mainMenuKeyboard(GameLocale.RU, packLedgerRepository.getTotalAvailablePacks(user.id)))
             }
             "menu:collection" -> sendCollectionView(chatId, user, page = 0)
             "menu:pack", "menu:open-pack" -> handlePackOpening(chatId, user, fromGroupChat)
@@ -1563,7 +1567,7 @@ class GameService(
                     data.startsWith("craft:add:") -> handleCraftAdd(chatId, user, data.removePrefix("craft:add:"))
                     data.startsWith("col:page:") -> sendCollectionView(chatId, user, data.removePrefix("col:page:").toIntOrNull() ?: 0)
                     data.startsWith("m:") || data.startsWith("market:") -> handleMarketCallback(chatId, user, data)
-                    else -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+                    else -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", gameLocale(user)), mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
                 }
             }
         }
@@ -1639,12 +1643,17 @@ class GameService(
 
     private fun gameLocale(user: User): GameLocale = GameLocale.fromCode(user.language)
 
-    private fun mainMenuKeyboard(locale: GameLocale): TelegramReplyMarkup =
+    /** Pack button label with the unopened-pack count, e.g. "🎁 Набор (3)". */
+    private fun packButtonLabel(locale: GameLocale, availablePacks: Int): String =
+        if (availablePacks > 0) Messages.t("menu.packCount", locale, availablePacks)
+        else Messages.t("menu.pack", locale)
+
+    private fun mainMenuKeyboard(locale: GameLocale, availablePacks: Int = 0): TelegramReplyMarkup =
         TelegramReplyMarkup(
             keyboard = listOf(
                 listOf(
                     TelegramKeyboardButton(Messages.t("menu.collection", locale)),
-                    TelegramKeyboardButton(Messages.t("menu.pack", locale)),
+                    TelegramKeyboardButton(packButtonLabel(locale, availablePacks)),
                 ),
                 listOf(
                     TelegramKeyboardButton(Messages.t("menu.trade", locale)),
@@ -1669,11 +1678,11 @@ class GameService(
             ),
         )
 
-    private fun helpKeyboard(locale: GameLocale): TelegramReplyMarkup =
+    private fun helpKeyboard(locale: GameLocale, availablePacks: Int = 0): TelegramReplyMarkup =
         TelegramReplyMarkup(
             inlineKeyboard = listOf(
                 listOf(
-                    TelegramInlineButton(Messages.t("menu.pack", locale), "menu:pack"),
+                    TelegramInlineButton(packButtonLabel(locale, availablePacks), "menu:pack"),
                     TelegramInlineButton(Messages.t("menu.freecard", locale), "menu:freecard"),
                 ),
                 listOf(
@@ -1693,10 +1702,10 @@ class GameService(
             ),
         )
 
-    private fun openPackKeyboard(locale: GameLocale): TelegramReplyMarkup =
+    private fun openPackKeyboard(locale: GameLocale, availablePacks: Int = 0): TelegramReplyMarkup =
         TelegramReplyMarkup(
             inlineKeyboard = listOf(
-                listOf(TelegramInlineButton(Messages.t("menu.pack", locale), "menu:open-pack")),
+                listOf(TelegramInlineButton(packButtonLabel(locale, availablePacks), "menu:open-pack")),
             ),
         )
 
@@ -1717,7 +1726,7 @@ class GameService(
             is GalleryAction.Collection -> {
                 val ownedCards = ownedUniqueCards(user.id)
                 if (ownedCards.isEmpty()) {
-                    telegramClient.sendMessage(chatId, Messages.t("collection.empty", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+                    telegramClient.sendMessage(chatId, Messages.t("collection.empty", gameLocale(user)), mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
                     return
                 }
                 val index = action.index.coerceIn(0, ownedCards.size - 1)
@@ -1743,7 +1752,7 @@ class GameService(
                 val cards = cardCatalog.cardsByCollection(action.themeId)
                     .filter { (quantities[it.id] ?: 0) > 0 }
                 if (cards.isEmpty()) {
-                    telegramClient.sendMessage(chatId, Messages.t("collection.empty", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+                    telegramClient.sendMessage(chatId, Messages.t("collection.empty", gameLocale(user)), mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
                     return
                 }
                 val index = action.index.coerceIn(0, cards.size - 1)
@@ -1767,7 +1776,7 @@ class GameService(
                 when (key) {
                     GalleryKey.Collection -> sendCollectionView(chatId, user, page = 0)
                     is GalleryKey.Theme -> sendCollectionView(chatId, user, page = 0)
-                    null -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", gameLocale(user)), mainMenuKeyboard(gameLocale(user)))
+                    null -> telegramClient.sendMessage(chatId, Messages.t("callback.expired", gameLocale(user)), mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
                 }
             }
         }
@@ -1878,7 +1887,7 @@ class GameService(
         telegramClient.sendMessage(
             chatId,
             Messages.t("market.browsingListings", locale, listingText, Messages.t("market.browseHint", locale)),
-            mainMenuKeyboard(locale),
+            mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)),
         )
     }
 }

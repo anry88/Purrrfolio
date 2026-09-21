@@ -28,4 +28,11 @@ class MessageRoutingTest {
         assertThat(GameService.resolveAction("🎁 Набор", GameLocale.EN)).isEqualTo(GameService.Action.PACK)
         assertThat(GameService.resolveAction("🗂 Collection", GameLocale.RU)).isEqualTo(GameService.Action.COLLECTION)
     }
+
+    @Test
+    fun `recognizes pack button with unopened-pack count`() {
+        assertThat(GameService.resolveAction("🎁 Набор (3)", GameLocale.RU)).isEqualTo(GameService.Action.PACK)
+        assertThat(GameService.resolveAction("🎁 Pack (12)", GameLocale.EN)).isEqualTo(GameService.Action.PACK)
+        assertThat(GameService.resolveAction("🎁 Pack (3)", GameLocale.RU)).isEqualTo(GameService.Action.PACK)
+    }
 }

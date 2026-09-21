@@ -58,10 +58,16 @@ class MessagesTest {
     }
 
     @Test
+    fun `pack count label formats with args`() {
+        assertEquals("🎁 Pack (3)", Messages.t("menu.packCount", en, 3))
+        assertEquals("🎁 Набор (3)", Messages.t("menu.packCount", ru, 3))
+    }
+
+    @Test
     fun `all locale keys are present for both locales`() {
         val knownKeys = listOf(
             "welcome", "help",
-            "menu.collection", "menu.pack", "menu.buy", "menu.freecard", "menu.craft", "menu.trade", "menu.market", "menu.language",
+            "menu.collection", "menu.pack", "menu.packCount", "menu.buy", "menu.freecard", "menu.craft", "menu.trade", "menu.market", "menu.language",
             "language.title", "language.changed",
             "pack.noPacks", "pack.opening", "pack.opened", "pack.newCard", "pack.starter",
             "card.special", "card.nextFreeIn",
