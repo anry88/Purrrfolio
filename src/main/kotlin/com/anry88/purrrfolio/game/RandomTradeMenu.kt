@@ -8,11 +8,13 @@ import com.anry88.purrrfolio.telegram.TelegramReplyMarkup
 internal data class RandomTradeCardOption(
     val cardId: String,
     val name: String,
+    val summary: String,
 )
 
 internal data class WaitingRandomTradeOption(
     val tradeId: Long,
     val name: String,
+    val summary: String,
 )
 
 internal data class RandomTradeMenu(
@@ -47,16 +49,22 @@ internal fun buildRandomTradeMenu(
         )
     }
 
+    val duplicatesSection = if (duplicates.isEmpty()) {
+        ""
+    } else {
+        "\n" + duplicates.take(10).joinToString("\n") { "• 🎴 ${it.name}\n    ${it.summary}" }
+    }
+
     val intro = if (duplicates.isEmpty()) {
         Messages.t("trade.title", locale)
     } else {
-        Messages.t("trade.hint", locale) + "\n\n" + Messages.t("trade.pickCard", locale)
+        Messages.t("trade.hint", locale) + "\n\n" + Messages.t("trade.pickCard", locale) + duplicatesSection
     }
     val waitingSection = if (waiting.isEmpty()) {
         ""
     } else {
         "\n\n" + Messages.t("trade.waiting", locale) + "\n" +
-            waiting.take(5).joinToString("\n") { "• 🎴 ${it.name}" }
+            waiting.take(5).joinToString("\n") { "• 🎴 ${it.name}\n    ${it.summary}" }
     }
 
     return RandomTradeMenu(

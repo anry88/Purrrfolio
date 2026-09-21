@@ -394,19 +394,7 @@ class GameService(
 
         for (card in rolledCards) {
             val isNew = !currentInventory.contains(card.id)
-            val caption = packOpeningService.formatReveal(card, isNew, locale)
-
-            val resource = ClassPathResource("static/assets/cards/${card.id}.png")
-            try {
-                if (resource.exists()) {
-                    telegramClient.sendPhoto(chatId, resource, caption)
-                } else {
-                    telegramClient.sendMessage(chatId, caption)
-                }
-            } catch (e: Throwable) {
-                logger.warn("Failed to send card photo for {}", card.id, e)
-                runCatching { telegramClient.sendMessage(chatId, caption) }
-            }
+            sendCardReveal(chatId, card, isNew, locale, logContext = "pack card")
         }
         telegramClient.sendMessage(chatId, Messages.t("pack.opened", locale), mainMenuKeyboard(locale))
         sendCollectionCompletionRewards(chatId, user, completedCollections)
@@ -445,23 +433,12 @@ class GameService(
         gameMetrics.cardOpened(card.rarity.name, "free")
         gameMetrics.freeCardClaimed()
         val isNew = !owned.contains(card.id)
-        val caption = packOpeningService.formatReveal(card, isNew, locale)
-        val resource = ClassPathResource("static/assets/cards/${card.id}.png")
         val revealKeyboard = if (packLedgerRepository.getTotalAvailablePacks(fresh.id) > 0) {
             openPackKeyboard(locale)
         } else {
             null
         }
-        try {
-            if (resource.exists()) {
-                telegramClient.sendPhoto(chatId, resource, caption, revealKeyboard)
-            } else {
-                telegramClient.sendMessage(chatId, caption, revealKeyboard)
-            }
-        } catch (e: Throwable) {
-            logger.warn("Failed to send free card photo for {}", card.id, e)
-            runCatching { telegramClient.sendMessage(chatId, caption, revealKeyboard) }
-        }
+        sendCardReveal(chatId, card, isNew, locale, revealKeyboard, logContext = "free card")
         sendCollectionCompletionRewards(chatId, fresh, completedCollections)
         sendFreeCardWait(chatId, locale, properties.economy.freeCardIntervalHours * 60L)
     }
@@ -474,6 +451,56 @@ class GameService(
             Messages.t("card.nextFreeIn", locale, hours, minutes),
             mainMenuKeyboard(locale),
         )
+    }
+
+    private fun sendTradeResultReveal(
+        chatId: Long,
+        cardId: String,
+        userId: Long,
+        locale: GameLocale,
+        headerKey: String,
+    ) {
+        val card = runCatching { cardCatalog.card(cardId) }.getOrNull()
+        if (card == null) {
+            telegramClient.sendMessage(chatId, Messages.t(headerKey, locale, cardId), mainMenuKeyboard(locale))
+            return
+        }
+        val quantity = userCardRepository.findByUserIdAndCardId(userId, cardId)?.quantity ?: 0
+        val isNew = quantity <= 1
+        val header = Messages.t(headerKey, locale, card.nameFor(locale))
+        sendCardReveal(
+            chatId = chatId,
+            card = card,
+            isNew = isNew,
+            locale = locale,
+            replyMarkup = mainMenuKeyboard(locale),
+            header = header,
+            logContext = "trade result card",
+        )
+    }
+
+    private fun sendCardReveal(
+        chatId: Long,
+        card: CardDefinition,
+        isNew: Boolean,
+        locale: GameLocale,
+        replyMarkup: TelegramReplyMarkup? = null,
+        header: String? = null,
+        logContext: String = "card",
+    ) {
+        val reveal = packOpeningService.formatReveal(card, isNew, locale)
+        val caption = listOfNotNull(header, reveal).joinToString("\n\n")
+        val resource = ClassPathResource("static/assets/cards/${card.id}.png")
+        try {
+            if (resource.exists()) {
+                telegramClient.sendPhoto(chatId, resource, caption, replyMarkup)
+            } else {
+                telegramClient.sendMessage(chatId, caption, replyMarkup)
+            }
+        } catch (e: Throwable) {
+            logger.warn("Failed to send {} photo for {}", logContext, card.id, e)
+            runCatching { telegramClient.sendMessage(chatId, caption, replyMarkup) }
+        }
     }
 
     private fun currentGameMonth(): Int =
@@ -904,15 +931,17 @@ class GameService(
             .filter { TradePolicy.canOfferDuplicate(it.quantity) }
             .mapNotNull { uc ->
                 runCatching { cardCatalog.card(uc.cardId) }.getOrNull()?.let { card ->
-                    RandomTradeCardOption(card.id, card.nameFor(locale))
+                    RandomTradeCardOption(card.id, card.nameFor(locale), cardSummary(card, locale))
                 }
             }
 
         val waiting = runCatching { randomTradeRepository.findWaitingTradesForUser(user.id) }
             .getOrDefault(emptyList())
             .map { trade ->
-                val name = runCatching { cardCatalog.card(trade.cardId).nameFor(locale) }.getOrElse { trade.cardId }
-                WaitingRandomTradeOption(trade.id, name)
+                val card = runCatching { cardCatalog.card(trade.cardId) }.getOrNull()
+                val name = card?.nameFor(locale) ?: trade.cardId
+                val summary = card?.let { cardSummary(it, locale) } ?: ""
+                WaitingRandomTradeOption(trade.id, name, summary)
             }
 
         val menu = buildRandomTradeMenu(locale, duplicates, waiting)
@@ -952,29 +981,34 @@ class GameService(
             telegramClient.sendMessage(chatId, Messages.t("trade.noDuplicates", locale), mainMenuKeyboard(locale))
             return
         }
-        val cardName = runCatching { cardCatalog.card(cardId).nameFor(locale) }.getOrElse { cardId }
+        val card = runCatching { cardCatalog.card(cardId) }.getOrNull()
+        val cardName = card?.nameFor(locale) ?: cardId
+        val summary = card?.let { cardSummary(it, locale) } ?: ""
         // The extra copy leaves the collection and enters the shared pool.
         userCardRepository.removeCard(user.id, cardId, 1)
         val match = attemptRandomTradeMatching(user.id, cardId)
         if (match != null) {
-            val matchedName = runCatching { cardCatalog.card(match.receivedCardId).nameFor(locale) }.getOrElse { match.receivedCardId }
             gameMetrics.tradeMatched()
             runCatching {
-                telegramClient.sendMessage(
-                    user.telegramUserId,
-                    Messages.t("trade.matched", locale, matchedName),
-                    mainMenuKeyboard(locale),
+                sendTradeResultReveal(
+                    chatId = user.telegramUserId,
+                    cardId = match.receivedCardId,
+                    userId = user.id,
+                    locale = locale,
+                    headerKey = "trade.matched",
                 )
             }.onFailure { logger.warn("Failed to notify random-trade owner {}", user.id, it) }
             claimAndNotifyCollectionRewards(user.telegramUserId, user)
             // The waiting side has no other way to learn about the swap.
             runCatching {
                 userRepository.findById(match.peerUserId)?.let { peer ->
-                    val peerName = runCatching { cardCatalog.card(cardId).nameFor(gameLocale(peer)) }.getOrElse { cardId }
-                    telegramClient.sendMessage(
-                        peer.telegramUserId,
-                        Messages.t("trade.matched", gameLocale(peer), peerName),
-                        mainMenuKeyboard(gameLocale(peer)),
+                    val peerLocale = gameLocale(peer)
+                    sendTradeResultReveal(
+                        chatId = peer.telegramUserId,
+                        cardId = cardId,
+                        userId = peer.id,
+                        locale = peerLocale,
+                        headerKey = "trade.matched",
                     )
                     claimAndNotifyCollectionRewards(peer.telegramUserId, peer)
                 }
@@ -982,7 +1016,7 @@ class GameService(
         } else {
             telegramClient.sendMessage(
                 chatId,
-                Messages.t("trade.addedToPool", locale) + "\n🎴 $cardName",
+                Messages.t("trade.addedToPool", locale) + "\n🎴 $cardName\n$summary",
                 mainMenuKeyboard(locale),
             )
         }
@@ -1063,14 +1097,29 @@ class GameService(
         }
         buttons.add(listOf(TelegramInlineButton(Messages.t("market.browse", locale), "m:brw:0")))
 
-        val header = if (myListings.isEmpty()) {
-            Messages.t("market.hint", locale)
+        val myListingsSection = if (myListings.isEmpty()) {
+            ""
         } else {
             Messages.t("market.myListings", locale) + "\n" + myListings.take(5).joinToString("\n") { listing ->
-                val name = runCatching { cardCatalog.card(listing.cardId).nameFor(locale) }.getOrElse { listing.cardId }
-                "• $name"
-            } + "\n\n" + Messages.t("market.hint", locale)
+                val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
+                val name = card?.nameFor(locale) ?: listing.cardId
+                val summary = card?.let { cardSummary(it, locale) } ?: ""
+                "• 🎴 $name\n    $summary"
+            } + "\n\n"
         }
+
+        val duplicatesSection = if (duplicates.isEmpty()) {
+            ""
+        } else {
+            "\n\n" + Messages.t("market.selectCard", locale) + "\n" + duplicates.joinToString("\n") { uc ->
+                val card = runCatching { cardCatalog.card(uc.cardId) }.getOrNull()
+                val name = card?.nameFor(locale) ?: uc.cardId
+                val summary = card?.let { cardSummary(it, locale) } ?: ""
+                "• 🎴 $name\n    $summary"
+            }
+        }
+
+        val header = myListingsSection + Messages.t("market.hint", locale) + duplicatesSection
         telegramClient.sendMessage(chatId, header, TelegramReplyMarkup(inlineKeyboard = buttons))
     }
 
@@ -1157,12 +1206,26 @@ class GameService(
             return
         }
         pendingMarketOffers[chatId] = targetId
-        val targetName = runCatching { cardCatalog.card(target.cardId).nameFor(locale) }.getOrElse { target.cardId }
+        val targetCard = runCatching { cardCatalog.card(target.cardId) }.getOrNull()
+        val targetName = targetCard?.nameFor(locale) ?: target.cardId
+        val targetSummary = targetCard?.let { cardSummary(it, locale) } ?: ""
         val buttons = mine.take(10).map { listing ->
-            val name = runCatching { cardCatalog.card(listing.cardId).nameFor(locale) }.getOrElse { listing.cardId }
-            listOf(TelegramInlineButton(name, "m:off:${listing.id}"))
+            val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
+            val name = card?.nameFor(locale) ?: listing.cardId
+            listOf(TelegramInlineButton("🎴 $name", "m:off:${listing.id}"))
         }
-        telegramClient.sendMessage(chatId, Messages.t("market.chooseOffer", locale, targetName), TelegramReplyMarkup(inlineKeyboard = buttons))
+        val myListingsText = mine.take(10).joinToString("\n") { listing ->
+            val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
+            val name = card?.nameFor(locale) ?: listing.cardId
+            val summary = card?.let { cardSummary(it, locale) } ?: ""
+            "• 🎴 $name\n    $summary"
+        }
+        telegramClient.sendMessage(
+            chatId,
+            Messages.t("market.chooseOffer", locale, targetName) + "\n$targetSummary\n\n" +
+                Messages.t("market.myListings", locale) + "\n" + myListingsText,
+            TelegramReplyMarkup(inlineKeyboard = buttons),
+        )
     }
 
     private fun handleMarketOffer(chatId: Long, user: User, offeredId: UUID) {
@@ -1191,12 +1254,16 @@ class GameService(
             // Best effort: we can only notify if we knew the owner's chat id (= telegram id for 1:1 chats).
             if (owner != null) {
                 val ownerLocale = gameLocale(owner)
-                val targetName = runCatching { cardCatalog.card(target.cardId).nameFor(ownerLocale) }.getOrElse { target.cardId }
-                val offeredName = runCatching { cardCatalog.card(offered.cardId).nameFor(ownerLocale) }.getOrElse { offered.cardId }
+                val targetCard = runCatching { cardCatalog.card(target.cardId) }.getOrNull()
+                val targetName = targetCard?.nameFor(ownerLocale) ?: target.cardId
+                val targetSummary = targetCard?.let { cardSummary(it, ownerLocale) } ?: ""
+                val offeredCard = runCatching { cardCatalog.card(offered.cardId) }.getOrNull()
+                val offeredName = offeredCard?.nameFor(ownerLocale) ?: offered.cardId
+                val offeredSummary = offeredCard?.let { cardSummary(it, ownerLocale) } ?: ""
                 runCatching {
                     telegramClient.sendMessage(
                         owner.telegramUserId,
-                        Messages.t("market.offerReceived", ownerLocale, targetName, offeredName),
+                        Messages.t("market.offerReceived", ownerLocale, targetName, targetSummary, offeredName, offeredSummary),
                         TelegramReplyMarkup(
                             inlineKeyboard = listOf(
                                 listOf(
@@ -1243,24 +1310,25 @@ class GameService(
             telegramClient.sendMessage(chatId, Messages.t("market.settlementFailed", locale), mainMenuKeyboard(locale))
             return
         }
-        val receivedName = runCatching { cardCatalog.card(settled.offeredCardId).nameFor(locale) }
-            .getOrElse { settled.offeredCardId }
+        val targetLocale = gameLocale(settled.targetOwner)
         runCatching {
-            telegramClient.sendMessage(
-                settled.targetOwner.telegramUserId,
-                Messages.t("market.offerAccepted", locale, receivedName),
-                mainMenuKeyboard(locale),
+            sendTradeResultReveal(
+                chatId = settled.targetOwner.telegramUserId,
+                cardId = settled.offeredCardId,
+                userId = settled.targetOwner.id,
+                locale = targetLocale,
+                headerKey = "market.offerAccepted",
             )
         }.onFailure { logger.warn("Failed to notify accepted market target owner {}", settled.targetOwner.id, it) }
         claimAndNotifyCollectionRewards(settled.targetOwner.telegramUserId, settled.targetOwner)
         val peerLocale = gameLocale(settled.offerOwner)
-        val peerReceivedName = runCatching { cardCatalog.card(settled.targetCardId).nameFor(peerLocale) }
-            .getOrElse { settled.targetCardId }
         runCatching {
-            telegramClient.sendMessage(
-                settled.offerOwner.telegramUserId,
-                Messages.t("market.offerAccepted", peerLocale, peerReceivedName),
-                mainMenuKeyboard(peerLocale),
+            sendTradeResultReveal(
+                chatId = settled.offerOwner.telegramUserId,
+                cardId = settled.targetCardId,
+                userId = settled.offerOwner.id,
+                locale = peerLocale,
+                headerKey = "market.offerAccepted",
             )
         }.onFailure { logger.warn("Failed to notify accepted market offer owner {}", settled.offerOwner.id, it) }
         claimAndNotifyCollectionRewards(settled.offerOwner.telegramUserId, settled.offerOwner)
@@ -1371,6 +1439,21 @@ class GameService(
             collectionName,
             special,
         )
+    }
+
+    /** Compact one-liner: "⚪ Common · 📚 Cozy Cats" or with ✨ for special cards. */
+    private fun cardSummary(card: CardDefinition, locale: GameLocale): String {
+        val rarity = when (locale) {
+            GameLocale.RU -> card.rarity.labelRu
+            GameLocale.EN -> card.rarity.labelEn
+        }
+        val collection = cardCatalog.collection(card.themeId)
+        val collectionName = when (locale) {
+            GameLocale.RU -> collection.nameRu
+            GameLocale.EN -> collection.nameEn
+        }
+        val special = if (card.special) " · ✨" else ""
+        return "${card.rarity.emoji} $rarity · 📚 $collectionName$special"
     }
 
     // ---- Collections ----
