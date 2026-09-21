@@ -931,7 +931,7 @@ class GameService(
             .filter { TradePolicy.canOfferDuplicate(it.quantity) }
             .mapNotNull { uc ->
                 runCatching { cardCatalog.card(uc.cardId) }.getOrNull()?.let { card ->
-                    RandomTradeCardOption(card.id, card.nameFor(locale), cardSummary(card, locale))
+                    RandomTradeCardOption(card.id, card.nameFor(locale), formatTradeCard(card, locale))
                 }
             }
 
@@ -940,8 +940,8 @@ class GameService(
             .map { trade ->
                 val card = runCatching { cardCatalog.card(trade.cardId) }.getOrNull()
                 val name = card?.nameFor(locale) ?: trade.cardId
-                val summary = card?.let { cardSummary(it, locale) } ?: ""
-                WaitingRandomTradeOption(trade.id, name, summary)
+                val line = card?.let { formatTradeCard(it, locale) } ?: trade.cardId
+                WaitingRandomTradeOption(trade.id, name, line)
             }
 
         val menu = buildRandomTradeMenu(locale, duplicates, waiting)
@@ -982,8 +982,7 @@ class GameService(
             return
         }
         val card = runCatching { cardCatalog.card(cardId) }.getOrNull()
-        val cardName = card?.nameFor(locale) ?: cardId
-        val summary = card?.let { cardSummary(it, locale) } ?: ""
+        val cardLine = card?.let { formatTradeCard(it, locale) } ?: cardId
         // The extra copy leaves the collection and enters the shared pool.
         userCardRepository.removeCard(user.id, cardId, 1)
         val match = attemptRandomTradeMatching(user.id, cardId)
@@ -1016,7 +1015,7 @@ class GameService(
         } else {
             telegramClient.sendMessage(
                 chatId,
-                Messages.t("trade.addedToPool", locale) + "\n🎴 $cardName\n$summary",
+                Messages.t("trade.addedToPool", locale) + "\n" + cardLine,
                 mainMenuKeyboard(locale),
             )
         }
@@ -1102,9 +1101,7 @@ class GameService(
         } else {
             Messages.t("market.myListings", locale) + "\n" + myListings.take(5).joinToString("\n") { listing ->
                 val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
-                val name = card?.nameFor(locale) ?: listing.cardId
-                val summary = card?.let { cardSummary(it, locale) } ?: ""
-                "• 🎴 $name\n    $summary"
+                card?.let { formatTradeCard(it, locale) } ?: listing.cardId
             } + "\n\n"
         }
 
@@ -1113,9 +1110,7 @@ class GameService(
         } else {
             "\n\n" + Messages.t("market.selectCard", locale) + "\n" + duplicates.joinToString("\n") { uc ->
                 val card = runCatching { cardCatalog.card(uc.cardId) }.getOrNull()
-                val name = card?.nameFor(locale) ?: uc.cardId
-                val summary = card?.let { cardSummary(it, locale) } ?: ""
-                "• 🎴 $name\n    $summary"
+                card?.let { formatTradeCard(it, locale) } ?: uc.cardId
             }
         }
 
@@ -1174,8 +1169,8 @@ class GameService(
             return
         }
         val text = pageItems.map { listing ->
-            runCatching { marketCardDetails(cardCatalog.card(listing.cardId), locale) }
-                .getOrElse { "🎴 ${listing.cardId}" }
+            val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
+            card?.let { formatTradeCard(it, locale) } ?: listing.cardId
         }.joinToString("\n")
         val buttons = pageItems.map { listing ->
             val name = runCatching { cardCatalog.card(listing.cardId).nameFor(locale) }.getOrElse { listing.cardId }
@@ -1207,22 +1202,19 @@ class GameService(
         }
         pendingMarketOffers[chatId] = targetId
         val targetCard = runCatching { cardCatalog.card(target.cardId) }.getOrNull()
-        val targetName = targetCard?.nameFor(locale) ?: target.cardId
-        val targetSummary = targetCard?.let { cardSummary(it, locale) } ?: ""
+        val targetLine = targetCard?.let { formatTradeCard(it, locale) } ?: target.cardId
         val buttons = mine.take(10).map { listing ->
             val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
             val name = card?.nameFor(locale) ?: listing.cardId
-            listOf(TelegramInlineButton("🎴 $name", "m:off:${listing.id}"))
+            listOf(TelegramInlineButton(name, "m:off:${listing.id}"))
         }
         val myListingsText = mine.take(10).joinToString("\n") { listing ->
             val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
-            val name = card?.nameFor(locale) ?: listing.cardId
-            val summary = card?.let { cardSummary(it, locale) } ?: ""
-            "• 🎴 $name\n    $summary"
+            card?.let { formatTradeCard(it, locale) } ?: listing.cardId
         }
         telegramClient.sendMessage(
             chatId,
-            Messages.t("market.chooseOffer", locale, targetName) + "\n$targetSummary\n\n" +
+            Messages.t("market.chooseOffer", locale, targetLine) + "\n\n" +
                 Messages.t("market.myListings", locale) + "\n" + myListingsText,
             TelegramReplyMarkup(inlineKeyboard = buttons),
         )
@@ -1255,15 +1247,13 @@ class GameService(
             if (owner != null) {
                 val ownerLocale = gameLocale(owner)
                 val targetCard = runCatching { cardCatalog.card(target.cardId) }.getOrNull()
-                val targetName = targetCard?.nameFor(ownerLocale) ?: target.cardId
-                val targetSummary = targetCard?.let { cardSummary(it, ownerLocale) } ?: ""
+                val targetLine = targetCard?.let { formatTradeCard(it, ownerLocale) } ?: target.cardId
                 val offeredCard = runCatching { cardCatalog.card(offered.cardId) }.getOrNull()
-                val offeredName = offeredCard?.nameFor(ownerLocale) ?: offered.cardId
-                val offeredSummary = offeredCard?.let { cardSummary(it, ownerLocale) } ?: ""
+                val offeredLine = offeredCard?.let { formatTradeCard(it, ownerLocale) } ?: offered.cardId
                 runCatching {
                     telegramClient.sendMessage(
                         owner.telegramUserId,
-                        Messages.t("market.offerReceived", ownerLocale, targetName, targetSummary, offeredName, offeredSummary),
+                        Messages.t("market.offerReceived", ownerLocale, targetLine, offeredLine),
                         TelegramReplyMarkup(
                             inlineKeyboard = listOf(
                                 listOf(
@@ -1419,7 +1409,9 @@ class GameService(
         }
     }
 
-    private fun marketCardDetails(card: CardDefinition, locale: GameLocale): String {
+    /** One-liner: "⚪ Cat · Common · Cozy Cats" (color emoji, name, rarity, collection) */
+    private fun formatTradeCard(card: CardDefinition, locale: GameLocale): String {
+        val name = card.nameFor(locale)
         val rarity = when (locale) {
             GameLocale.RU -> card.rarity.labelRu
             GameLocale.EN -> card.rarity.labelEn
@@ -1429,31 +1421,7 @@ class GameService(
             GameLocale.RU -> collection.nameRu
             GameLocale.EN -> collection.nameEn
         }
-        val special = if (card.special) Messages.t("market.specialCollection", locale) else ""
-        return Messages.t(
-            "market.cardListing",
-            locale,
-            card.nameFor(locale),
-            card.rarity.emoji,
-            rarity,
-            collectionName,
-            special,
-        )
-    }
-
-    /** Compact one-liner: "⚪ Common · 📚 Cozy Cats" or with ✨ for special cards. */
-    private fun cardSummary(card: CardDefinition, locale: GameLocale): String {
-        val rarity = when (locale) {
-            GameLocale.RU -> card.rarity.labelRu
-            GameLocale.EN -> card.rarity.labelEn
-        }
-        val collection = cardCatalog.collection(card.themeId)
-        val collectionName = when (locale) {
-            GameLocale.RU -> collection.nameRu
-            GameLocale.EN -> collection.nameEn
-        }
-        val special = if (card.special) " · ✨" else ""
-        return "${card.rarity.emoji} $rarity · 📚 $collectionName$special"
+        return "${card.rarity.emoji} $name · $rarity · $collectionName"
     }
 
     // ---- Collections ----

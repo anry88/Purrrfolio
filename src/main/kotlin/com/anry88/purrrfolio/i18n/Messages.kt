@@ -291,8 +291,8 @@ object Messages {
                 "Предложение отправлено! Ожидаю ответ..."
             ),
         "market.offerReceived" to (
-            "New trade offer for: %s\n%s\nOffered: %s\n%s\n\nAccept or reject?" to
-                "Новое предложение за: %s\n%s\nПредлагает: %s\n%s\n\nПринять или отклонить?"
+            "New trade offer for: %s\nOffered: %s\n\nAccept or reject?" to
+                "Новое предложение за: %s\nПредлагает: %s\n\nПринять или отклонить?"
             ),
         "market.offerAccepted" to (
             "✅ Trade complete! You received: %s" to

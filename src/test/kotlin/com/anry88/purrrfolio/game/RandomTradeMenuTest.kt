@@ -16,12 +16,11 @@ class RandomTradeMenuTest {
         val menu = buildRandomTradeMenu(
             locale = GameLocale.EN,
             duplicates = emptyList(),
-            waiting = listOf(WaitingRandomTradeOption(42, "Sleepy Cat", "⚪ Common · 📚 Cozy Cats")),
+            waiting = listOf(WaitingRandomTradeOption(42, "Sleepy Cat", "⚪ Sleepy Cat · Common · Cozy Cats")),
         )
 
         assertThat(menu).isNotNull
-        assertThat(menu!!.text).contains("Waiting in the pool", "Sleepy Cat")
-        assertThat(menu.text).contains("⚪ Common · 📚 Cozy Cats")
+        assertThat(menu!!.text).contains("Waiting in the pool", "⚪ Sleepy Cat · Common · Cozy Cats")
         assertThat(menu.text).doesNotContain("Pick a duplicate")
         assertThat(menu.replyMarkup.inlineKeyboard.orEmpty().flatten().single().callbackData)
             .isEqualTo("trade:ret:42")
@@ -31,13 +30,13 @@ class RandomTradeMenuTest {
     fun `shows duplicate and waiting trade actions together`() {
         val menu = buildRandomTradeMenu(
             locale = GameLocale.RU,
-            duplicates = listOf(RandomTradeCardOption("chef-cat", "Шеф-кот", "🟢 Необычная · 📚 Профессии")),
-            waiting = listOf(WaitingRandomTradeOption(7, "Кот-учитель", "⚪ Обычная · 📚 Профессии")),
+            duplicates = listOf(RandomTradeCardOption("chef-cat", "Шеф-кот", "🟢 Шеф-кот · Необычная · Профессии")),
+            waiting = listOf(WaitingRandomTradeOption(7, "Кот-учитель", "⚪ Кот-учитель · Обычная · Профессии")),
         )
 
         assertThat(menu).isNotNull
-        assertThat(menu!!.text).contains("Шеф-кот", "🟢 Необычная · 📚 Профессии")
-        assertThat(menu.text).contains("Кот-учитель", "⚪ Обычная · 📚 Профессии")
+        assertThat(menu!!.text).contains("🟢 Шеф-кот · Необычная · Профессии")
+        assertThat(menu.text).contains("⚪ Кот-учитель · Обычная · Профессии")
         assertThat(menu.replyMarkup.inlineKeyboard.orEmpty().flatten().map { it.callbackData })
             .containsExactly("trade:add:chef-cat", "trade:ret:7")
     }
