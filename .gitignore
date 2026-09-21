@@ -62,3 +62,6 @@ temp/
 # Test and analysis output
 .test-results/
 test-results/
+
+# Raw unprocessed assets (local only, never commit)
+raw pictures/
