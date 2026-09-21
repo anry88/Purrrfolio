@@ -181,7 +181,8 @@ class GameService(
         }
 
         const val RAFFLE_COOLDOWN_HOURS = 24L
-        const val RAFFLE_MIN_MEMBERS = 10
+        // TEMP (testing): lowered from 10 to 2. Revert to 10 after group testing.
+        const val RAFFLE_MIN_MEMBERS = 2
         const val RAFFLE_MEMBERS_PER_PACK = 10
         const val RAFFLE_MAX_PACKS = 10
 
@@ -519,7 +520,8 @@ class GameService(
             if (!isRaffleDue(lastRaffle?.raffledAt, now)) return
             val memberCount = telegramClient.getChatMemberCount(chatId) ?: return
             if (memberCount < RAFFLE_MIN_MEMBERS) return
-            val tierPacks = packsForRaffle(memberCount)
+            // TEMP (testing): at least 1 pack while RAFFLE_MIN_MEMBERS < 10.
+            val tierPacks = packsForRaffle(memberCount).coerceAtLeast(1)
             if (tierPacks <= 0) return
             // Oversample: bots and departed members are filtered out below.
             val candidates = groupRaffleRepository
