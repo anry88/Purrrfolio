@@ -71,14 +71,11 @@ class GroupRaffleRepository(private val jdbcTemplate: JdbcTemplate) {
 
     /**
      * Serialize concurrent raffles of the same chat; must be called inside a transaction.
-     * pg_advisory_xact_lock returns void, so it runs as an update-style statement.
+     * pg_advisory_xact_lock returns a (void) row, so update-style calls are rejected
+     * by the driver and it must run via execute(). Inlining is safe: chatId is a Long.
      */
     fun lockChat(chatId: Long) {
-        jdbcTemplate.update({ con ->
-            con.prepareStatement("SELECT pg_advisory_xact_lock(hashtext(?))").apply {
-                setString(1, "raffle:$chatId")
-            }
-        })
+        jdbcTemplate.execute("SELECT pg_advisory_xact_lock(hashtext('raffle:$chatId'))")
     }
 
     fun createRaffle(chatId: Long, memberCount: Int, packsGranted: Int): Long {
