@@ -339,9 +339,6 @@ class GameService(
     private fun handleMessage(message: TelegramMessage) {
         val chatId = message.chat?.id ?: return
         val telegramId = message.from?.id ?: return
-        // Never serve bots (e.g. anonymous-admin posts via GroupAnonymousBot):
-        // no registration, no commands, no raffle tracking for them.
-        if (message.from?.isBot == true) return
         val fromGroupChat = isGroupChat(message.chat?.type)
         val text = message.text?.trim().orEmpty()
 
@@ -357,15 +354,16 @@ class GameService(
         val existingUser = userRepository.findByTelegramUserId(telegramId)
         val action = resolveAction(text, existingUser?.let(::gameLocale) ?: GameLocale.EN) ?: return
 
-        // Auto-register with English default so even a first touch
-        // (e.g. "кот" in a group chat) is processed instead of gated
-        // behind language selection. /language still switches any time.
+        // Auto-register so even a first touch (e.g. "кот" in a group chat)
+        // is processed instead of gated behind language selection.
+        // Telegram Russian -> RU, anything else -> EN. /language switches any time.
         val user = existingUser ?: run {
             val payload = if (text.startsWith("/start")) text.substringAfter(' ', "").trim() else ""
             val source = pendingSources.remove(telegramId)
                 ?: GameMetrics.normalizeRegistrationSource(payload.ifEmpty { null })
+            val initialLocale = GameLocale.fromTelegramLanguageCode(message.from?.languageCode)
             val (created, isNew) = try {
-                userRepository.create(telegramId, GameLocale.EN.code, source) to true
+                userRepository.create(telegramId, initialLocale.code, source) to true
             } catch (e: DuplicateKeyException) {
                 // Lost a concurrent first-touch race: reuse the winner's row
                 // without granting starter packs twice.
@@ -1324,9 +1322,10 @@ class GameService(
             telegramClient.sendMessage(chatId, Messages.t("market.noListings", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
         }
+        val quantities = ownedQuantities(user.id)
         val text = pageItems.map { listing ->
             val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
-            card?.let { formatTradeCard(it, locale) } ?: listing.cardId
+            card?.let { formatMarketCard(it, locale, quantities[it.id] ?: 0) } ?: listing.cardId
         }.joinToString("\n")
         val buttons = pageItems.map { listing ->
             val name = runCatching { cardCatalog.card(listing.cardId).nameFor(locale) }.getOrElse { listing.cardId }
@@ -1357,8 +1356,9 @@ class GameService(
             return
         }
         pendingMarketOffers[chatId] = targetId
+        val quantities = ownedQuantities(user.id)
         val targetCard = runCatching { cardCatalog.card(target.cardId) }.getOrNull()
-        val targetLine = targetCard?.let { formatTradeCard(it, locale) } ?: target.cardId
+        val targetLine = targetCard?.let { formatMarketCard(it, locale, quantities[it.id] ?: 0) } ?: target.cardId
         val buttons = mine.take(10).map { listing ->
             val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
             val name = card?.nameFor(locale) ?: listing.cardId
@@ -1366,7 +1366,7 @@ class GameService(
         }
         val myListingsText = mine.take(10).joinToString("\n") { listing ->
             val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
-            card?.let { formatTradeCard(it, locale) } ?: listing.cardId
+            card?.let { formatTradeCard(it, locale) + specialSuffix(it, locale) } ?: listing.cardId
         }
         telegramClient.sendMessage(
             chatId,
@@ -1402,10 +1402,11 @@ class GameService(
             // Best effort: we can only notify if we knew the owner's chat id (= telegram id for 1:1 chats).
             if (owner != null) {
                 val ownerLocale = gameLocale(owner)
+                val ownerQuantities = ownedQuantities(owner.id)
                 val targetCard = runCatching { cardCatalog.card(target.cardId) }.getOrNull()
-                val targetLine = targetCard?.let { formatTradeCard(it, ownerLocale) } ?: target.cardId
+                val targetLine = targetCard?.let { formatTradeCard(it, ownerLocale) + specialSuffix(it, ownerLocale) } ?: target.cardId
                 val offeredCard = runCatching { cardCatalog.card(offered.cardId) }.getOrNull()
-                val offeredLine = offeredCard?.let { formatTradeCard(it, ownerLocale) } ?: offered.cardId
+                val offeredLine = offeredCard?.let { formatMarketCard(it, ownerLocale, ownerQuantities[it.id] ?: 0) } ?: offered.cardId
                 runCatching {
                     telegramClient.sendMessage(
                         owner.telegramUserId,
@@ -1579,6 +1580,17 @@ class GameService(
         }
         return "${card.rarity.emoji} $name · $rarity · $collectionName"
     }
+
+    private fun specialSuffix(card: CardDefinition, locale: GameLocale): String =
+        if (card.special) " · " + Messages.t("card.specialTag", locale) else ""
+
+    private fun ownershipSuffix(ownedQty: Int, locale: GameLocale): String =
+        " · " + if (ownedQty > 0) Messages.t("gallery.owned", locale, ownedQty)
+        else Messages.t("gallery.missing", locale)
+
+    /** Someone else's card on the market: special tag plus the viewer's ownership. */
+    private fun formatMarketCard(card: CardDefinition, locale: GameLocale, viewerOwnedQty: Int): String =
+        formatTradeCard(card, locale) + specialSuffix(card, locale) + ownershipSuffix(viewerOwnedQty, locale)
 
     // ---- Collections ----
 

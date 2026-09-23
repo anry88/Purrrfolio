@@ -114,6 +114,7 @@ object Messages {
                 "🎁 Ты получил %s стартовых наборов! Открой их, чтобы начать коллекцию."
             ),
         "card.special" to ("✨ *SPECIAL CARD*" to "✨ *СПЕШЛ-КАРТОЧКА*"),
+        "card.specialTag" to ("✨ SPECIAL" to "✨ СПЕШЛ"),
         "card.nextFreeIn" to (
             "Next free card in %s h %s min." to
                 "Следующая бесплатная карточка через %s ч %s мин."

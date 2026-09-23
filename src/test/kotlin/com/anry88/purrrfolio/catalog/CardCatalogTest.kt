@@ -41,6 +41,11 @@ class CardCatalogTest {
         assertEquals(listOf(6, 7, 8), catalog.card("season-summer").availableMonths)
         assertEquals(listOf(9, 10, 11), catalog.card("season-autumn").availableMonths)
 
+        catalog.collections.forEach { theme ->
+            val ranks = catalog.cardsByCollection(theme.id).map { it.rarity.displayRank }
+            assertEquals(ranks.sorted(), ranks, "Collection ${theme.id} is not sorted by rarity")
+        }
+
         val friendshipCards = catalog.cardsByCollection("friendship")
         assertEquals("Друзья", catalog.collection("friendship").nameRu)
         assertEquals(12, friendshipCards.size)

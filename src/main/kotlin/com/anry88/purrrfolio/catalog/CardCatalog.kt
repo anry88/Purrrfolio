@@ -61,8 +61,9 @@ class CardCatalog(
     fun collection(id: String): ThemeDefinition =
         collectionsById[id] ?: throw IllegalArgumentException("Unknown collection: $id")
 
-    fun cardsByCollection(collectionId: String): List<CardDefinition> = 
-        cards.filter { it.themeId == collectionId }.sortedBy { it.sortOrder }
+    fun cardsByCollection(collectionId: String): List<CardDefinition> =
+        cards.filter { it.themeId == collectionId }
+            .sortedWith(compareBy({ it.rarity.displayRank }, { it.sortOrder }))
 
     fun cardsByRarity(rarity: CardRarity): List<CardDefinition> = cards.filter { it.rarity == rarity }
 }
