@@ -163,3 +163,160 @@ gondola; it must not contain a steering wheel, control desk or driver role.
 | ocean-liner | Epic | white captain at the bridge wheel of a grand ocean liner |
 | sky-cruiser | Legendary | silver captain commanding a golden airship above a cloud kingdom |
 | starship-ark | Mythic | midnight-blue commander piloting a crescent-wing starship through a magenta nebula |
+
+## European Cats collection
+
+Thirty standalone country cards use the ordinary rarity frames and never carry
+a Special marker. Each card shows exactly one country and one cat. Character
+rendering follows the Transport collection rather than an ultra-chibi look:
+slightly oversized round head, large but naturally rendered eyes, short muzzle,
+full cheeks, compact plush body, visible hand-painted fur strokes and fine dark
+contours. Expressions are composed, with closed mouths and no staged broad
+smiles. Country identity comes from breed where relevant, landscape,
+architecture, textiles and one small nameplate icon; flags, coats of arms,
+political imagery and caricatures are excluded.
+
+| card | rarity | scene |
+| --- | --- | --- |
+| europe-belarus | Common | gray-and-white cat at a misty forest edge with cornflowers, flax, wooden house and distant bison |
+| europe-belgium | Common | tortoiseshell cat beside a Bruges canal with stepped gables and a stone bridge |
+| europe-denmark | Common | cream-and-gray cat in cozy Nyhavn with colorful houses, boats and candlelight |
+| europe-netherlands | Common | orange-and-white cat among tulips, canals, brick houses and a windmill |
+| europe-czechia | Common | smoke-gray cat above Prague rooftops, Charles Bridge and the astronomical clock |
+| europe-hungary | Common | honey tabby overlooking Budapest, the Danube, Chain Bridge and thermal-bath steam |
+| europe-poland | Common | white-and-ginger cat in autumn Krakow with Wawel towers and rowan berries |
+| europe-finland | Common | white fluffy cat at a lakeside sauna cottage with birches and faint aurora |
+| europe-estonia | Common | black-and-white cat above snowy medieval Tallinn and the distant Baltic |
+| europe-serbia | Uncommon | tuxedo cat at Belgrade Fortress above the Sava-Danube confluence |
+| europe-germany | Uncommon | tabby in a Black Forest village with half-timbered houses and a cuckoo clock |
+| europe-austria | Uncommon | elegant longhair on a Vienna terrace with baroque roofs, Alps and edelweiss |
+| europe-portugal | Uncommon | striped cat at a Lisbon miradouro with azulejos, terracotta roofs and the Tagus |
+| europe-croatia | Uncommon | spotted white cat above Dubrovnik walls and the turquoise Adriatic |
+| europe-romania | Uncommon | silver tabby in a Transylvanian hill town with carved gate and distant citadel |
+| europe-sweden | Uncommon | blue-gray cat on a Swedish archipelago shore with a red cottage and sailboat |
+| europe-united-kingdom | Uncommon | blue British Shorthair on a rainy London street by a warm bookshop |
+| europe-armenia | Rare | copper longhair beside a rose-tuff monastery, apricot trees and Mount Ararat |
+| europe-georgia | Rare | smoky cat above old Tbilisi with balconies, bath domes, grapes and Caucasus ridges |
+| europe-spain | Rare | calico in an Andalusian courtyard with orange trees, tiles and old-town tower |
+| europe-switzerland | Rare | brown-and-white longhair in an alpine meadow above a lake and chalet |
+| europe-ireland | Rare | ginger tabby on windy Atlantic cliffs with fields, cottage and round tower |
+| europe-france | Rare | blue-gray Chartreux at a Parisian book cafe with the Eiffel Tower beyond |
+| europe-ukraine | Rare | cream-and-ginger cat in vyshyvanka among sunflowers, wheat and Kyiv-inspired domes |
+| europe-greece | Epic | Aegean cat on a Cycladic terrace above blue water, boats and whitewashed domes |
+| europe-italy | Epic | tuxedo cat at a Venice canal cafe with palazzi, gondola and campanile |
+| europe-norway | Epic | Norwegian Forest cat above a dramatic fjord with waterfalls and red cabins |
+| europe-russia | Epic | silver-blue Siberian cat in a snowy birch setting with carved house and historic domes |
+| europe-iceland | Legendary | silver-and-white cat on a black volcanic coast with basalt falls, grounded volcano and aurora |
+| europe-turkey | Mythic | white odd-eyed Turkish Angora on an Istanbul ferry crossing the Bosphorus |
+
+
+## Asian Cats collection
+
+Thirty ordinary regional cards follow the same composed kawaii character model and standard rarity frames as European Cats. Australia is intentionally included as an exception. Every card has one cat, one country, the exact English country name, the top-left paw badge and a small country-themed object or landmark icon in the nameplate. Never use flags, coats of arms, maps, political symbols, Special medallions or rainbow foil.
+
+| card | rarity | scene |
+| --- | --- | --- |
+| asia-bangladesh | Common | river village, wooden boats, water lilies and lush monsoon greenery |
+| asia-pakistan | Common | Hunza valley, carved wood, apricot trees and high mountains |
+| asia-malaysia | Common | tropical garden, traditional rooflines and warm equatorial light |
+| asia-singapore | Common | garden city waterfront, conservatory greenery and modern skyline |
+| asia-philippines | Common | island shore, banca boat, limestone cliffs and tropical flowers |
+| asia-cambodia | Common | Angkor stone towers, lotus pond and jungle roots |
+| asia-laos | Common | Mekong river, layered temple roofs and misty mountains |
+| asia-qatar | Common | Doha waterfront, desert dunes and a traditional dhow |
+| asia-south-korea | Common | hanok courtyard, cherry blossoms and layered mountains |
+| asia-kazakhstan | Uncommon | open steppe, snow mountains and subtle felt ornament |
+| asia-uzbekistan | Uncommon | Samarkand mosaic courtyard, blue domes and pomegranates |
+| asia-kyrgyzstan | Uncommon | felt yurt beside an alpine lake and snowy Tian Shan peaks |
+| asia-tajikistan | Uncommon | Pamir valley, blue mountain lake and embroidered textiles |
+| asia-vietnam | Uncommon | Hoi An riverside, silk lanterns and wooden boats |
+| asia-thailand | Uncommon | layered temple roofs, lotus garden and tropical greenery |
+| asia-united-arab-emirates | Uncommon | Dubai skyline, desert light and traditional wind-tower architecture |
+| asia-oman | Uncommon | adobe fort, rugged mountains, date palms and frankincense |
+| asia-nepal | Rare | Himalayan valley, stupa and gentle prayer-flag accents |
+| asia-bhutan | Rare | mountain dzong, rhododendrons and cloud-wrapped cliffs |
+| asia-sri-lanka | Rare | tea hills, palms, railway curve and Indian Ocean haze |
+| asia-mongolia | Rare | wide grass steppe, ger and distant blue mountains |
+| asia-iran | Rare | Persian garden, turquoise tilework, arches and roses |
+| asia-jordan | Rare | Petra sandstone facade and rose-red canyon |
+| asia-saudi-arabia | Rare | desert oasis, sandstone cliffs and historic carved gateway |
+| asia-china | Epic | misty karst mountains, pagoda, red lanterns and plum blossoms |
+| asia-india | Epic | palace garden, carved arches, marigolds and warm sunrise |
+| asia-australia | Epic | eucalyptus woodland, red escarpments and bright ocean coast |
+| asia-indonesia | Epic | Balinese temple gate, rice terraces and a grounded volcano |
+| asia-myanmar | Legendary | golden Bagan pagodas across a sunrise plain with hot-air balloons |
+| asia-japan | Mythic | Mount Fuji, shrine architecture, cherry blossoms and luminous dawn |
+
+## African Cats collection
+
+Thirty ordinary one-country cards use the same master geometry, composed kawaii cats and rarity colors. Identity comes from landscape, architecture, plants, craft and a small thematic nameplate icon. Never use flags, coats of arms, political imagery, Special medallions or caricatures.
+
+| card | rarity | scene |
+| --- | --- | --- |
+| africa-ghana | Common | coastal fort, kente-inspired textiles and Atlantic light |
+| africa-uganda | Common | green hills, lake shore and crested-crane motifs |
+| africa-rwanda | Common | terraced hills and misty tea plantations |
+| africa-malawi | Common | Lake Malawi, painted boats and mountain shore |
+| africa-zambia | Common | Victoria Falls mist, river gorge and broad sky |
+| africa-senegal | Common | island waterfront, colorful fishing boats and warm facades |
+| africa-cameroon | Common | volcanic mountain, tropical forest and red-earth path |
+| africa-gabon | Common | rainforest lagoon meeting a quiet Atlantic beach |
+| africa-cape-verde | Common | volcanic island valley, colorful houses and ocean cliffs |
+| africa-algeria | Uncommon | white casbah terraces opening toward the Sahara |
+| africa-tunisia | Uncommon | Sidi Bou Said lanes, blue doors, ceramic tile and sea |
+| africa-nigeria | Uncommon | Lagos lagoon, lively waterfront and patterned textiles |
+| africa-botswana | Uncommon | Okavango delta, reeds, water lilies and mokoro canoe |
+| africa-zimbabwe | Uncommon | Great Zimbabwe stone walls and balancing granite hills |
+| africa-mozambique | Uncommon | Indian Ocean island architecture, palms and dhow |
+| africa-angola | Uncommon | Atlantic escarpment, miombo woodland and golden grass |
+| africa-cote-divoire | Uncommon | cocoa garden, tropical flowers and contemporary basilica silhouette |
+| africa-ethiopia | Rare | Simien mountains and a rock-hewn church in highland light |
+| africa-kenya | Rare | savanna, acacia trees and distant Kilimanjaro |
+| africa-tanzania | Rare | Serengeti grassland and crater highlands |
+| africa-namibia | Rare | red Sossusvlei dunes, pale clay pan and dead acacia |
+| africa-mauritius | Rare | turquoise lagoon, basalt peaks and tropical flowers |
+| africa-seychelles | Rare | granite boulders, palms and luminous turquoise cove |
+| africa-sudan | Rare | Nubian pyramids beside the Nile in amber desert light |
+| africa-morocco | Epic | Fez riad, zellige tile, fountain and Atlas mountain glimpse |
+| africa-south-africa | Epic | Cape Town, Table Mountain, ocean and protea flowers |
+| africa-madagascar | Epic | avenue of baobabs, red earth and soft sunset |
+| africa-dr-congo | Epic | vast Congo river, dense rainforest and misty green light |
+| africa-mali | Legendary | monumental Djenné adobe architecture at a golden Sahel sunset |
+| africa-egypt | Mythic | pyramids and Nile garden beneath a radiant desert dawn |
+
+## American Cats collection
+
+Thirty ordinary cards cover North America, Central America, South America and the Caribbean in one collection. Use one composed kawaii cat per country, the standard rarity frame, exact English country name and a small cultural or natural nameplate icon. Never use flags, coats of arms, political imagery, Special medallions or rainbow foil.
+
+| card | rarity | scene |
+| --- | --- | --- |
+| americas-belize | Common | Caribbean cove, reef water, mangroves and limestone shore |
+| americas-honduras | Common | Copán stonework, orchids and deep green jungle |
+| americas-el-salvador | Common | volcanic ridge, coffee slopes and bright tropical flowers |
+| americas-nicaragua | Common | colonial street overlooking a volcanic lake |
+| americas-bahamas | Common | pale turquoise bay, sailboat, coral and soft sand |
+| americas-barbados | Common | tropical garden, coral-stone house and Atlantic coast |
+| americas-guyana | Common | Kaieteur Falls plunging through dense rainforest |
+| americas-suriname | Common | wooden riverside architecture and lush tropical banks |
+| americas-uruguay | Common | Montevideo rambla, mate gourd and silver-blue coast |
+| americas-guatemala | Uncommon | Lake Atitlán, volcanoes and woven textile accents |
+| americas-costa-rica | Uncommon | cloud forest, heliconia flowers and distant volcano |
+| americas-panama | Uncommon | canal locks, tropical waterfront and passing ship |
+| americas-dominican-republic | Uncommon | colonial street, palms and bright Caribbean shore |
+| americas-jamaica | Uncommon | Blue Mountains, tropical garden and warm island light |
+| americas-haiti | Uncommon | mountain town, vivid folk-art colors and Caribbean horizon |
+| americas-trinidad-and-tobago | Uncommon | tropical cove and restrained carnival color accents |
+| americas-paraguay | Uncommon | riverfront garden and delicate ñandutí lace motif |
+| americas-canada | Rare | Rocky Mountain lake, firs and red maple leaves |
+| americas-colombia | Rare | Cartagena balconies, coffee branches and bougainvillea |
+| americas-venezuela | Rare | tepui cliffs, high waterfall and rainforest mist |
+| americas-ecuador | Rare | Andean Quito rooftops and equatorial flowers |
+| americas-bolivia | Rare | Salar de Uyuni reflections and Altiplano mountains |
+| americas-cuba | Rare | Havana facades, classic car and Malecón sea wall |
+| americas-grenada | Rare | spice island hills, nutmeg and sheltered green bay |
+| americas-united-states | Epic | Grand Canyon overlook beneath a vast starry sky |
+| americas-mexico | Epic | colonial courtyard, marigolds and ancient carved stone |
+| americas-peru | Epic | Machu Picchu, Andes sunrise and woven textile accents |
+| americas-chile | Epic | Patagonian granite peaks, glacial lake and araucaria |
+| americas-argentina | Legendary | golden pampas opening toward dramatic Patagonian peaks |
+| americas-brazil | Mythic | Rio bay, Sugarloaf Mountain, tropical orchids and a green-gold carnival-mask icon |

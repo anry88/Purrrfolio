@@ -71,6 +71,30 @@
       "nameRu": "Друзья",
       "nameEn": "Friends",
       "completionBonusFish": 250
+    },
+    {
+      "id": "european-cats",
+      "nameRu": "Европейские котики",
+      "nameEn": "European Cats",
+      "completionBonusFish": 400
+    },
+    {
+      "id": "asian-cats",
+      "nameRu": "Азиатские котики",
+      "nameEn": "Asian Cats",
+      "completionBonusFish": 400
+    },
+    {
+      "id": "african-cats",
+      "nameRu": "Африканские котики",
+      "nameEn": "African Cats",
+      "completionBonusFish": 400
+    },
+    {
+      "id": "american-cats",
+      "nameRu": "Американские котики",
+      "nameEn": "American Cats",
+      "completionBonusFish": 400
     }
   ],
   "packs": [
@@ -1679,6 +1703,1086 @@
       "source": "special-group-friendship-collection",
       "groupChatOnly": true,
       "sortOrder": 11
+    },
+    {
+      "id": "europe-belarus",
+      "nameRu": "Беларусь",
+      "nameEn": "Belarus",
+      "themeId": "european-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/europe-belarus.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "europe-belgium",
+      "nameRu": "Бельгия",
+      "nameEn": "Belgium",
+      "themeId": "european-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/europe-belgium.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "europe-denmark",
+      "nameRu": "Дания",
+      "nameEn": "Denmark",
+      "themeId": "european-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/europe-denmark.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "europe-netherlands",
+      "nameRu": "Нидерланды",
+      "nameEn": "Netherlands",
+      "themeId": "european-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/europe-netherlands.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "europe-czechia",
+      "nameRu": "Чехия",
+      "nameEn": "Czechia",
+      "themeId": "european-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/europe-czechia.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "europe-hungary",
+      "nameRu": "Венгрия",
+      "nameEn": "Hungary",
+      "themeId": "european-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/europe-hungary.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "europe-poland",
+      "nameRu": "Польша",
+      "nameEn": "Poland",
+      "themeId": "european-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/europe-poland.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "europe-finland",
+      "nameRu": "Финляндия",
+      "nameEn": "Finland",
+      "themeId": "european-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/europe-finland.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "europe-estonia",
+      "nameRu": "Эстония",
+      "nameEn": "Estonia",
+      "themeId": "european-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/europe-estonia.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "europe-serbia",
+      "nameRu": "Сербия",
+      "nameEn": "Serbia",
+      "themeId": "european-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/europe-serbia.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "europe-germany",
+      "nameRu": "Германия",
+      "nameEn": "Germany",
+      "themeId": "european-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/europe-germany.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "europe-austria",
+      "nameRu": "Австрия",
+      "nameEn": "Austria",
+      "themeId": "european-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/europe-austria.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "europe-portugal",
+      "nameRu": "Португалия",
+      "nameEn": "Portugal",
+      "themeId": "european-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/europe-portugal.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "europe-croatia",
+      "nameRu": "Хорватия",
+      "nameEn": "Croatia",
+      "themeId": "european-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/europe-croatia.png",
+      "sortOrder": 13
+    },
+    {
+      "id": "europe-romania",
+      "nameRu": "Румыния",
+      "nameEn": "Romania",
+      "themeId": "european-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/europe-romania.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "europe-sweden",
+      "nameRu": "Швеция",
+      "nameEn": "Sweden",
+      "themeId": "european-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/europe-sweden.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "europe-united-kingdom",
+      "nameRu": "Великобритания",
+      "nameEn": "United Kingdom",
+      "themeId": "european-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/europe-united-kingdom.png",
+      "sortOrder": 16
+    },
+    {
+      "id": "europe-armenia",
+      "nameRu": "Армения",
+      "nameEn": "Armenia",
+      "themeId": "european-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/europe-armenia.png",
+      "sortOrder": 17
+    },
+    {
+      "id": "europe-georgia",
+      "nameRu": "Грузия",
+      "nameEn": "Georgia",
+      "themeId": "european-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/europe-georgia.png",
+      "sortOrder": 18
+    },
+    {
+      "id": "europe-spain",
+      "nameRu": "Испания",
+      "nameEn": "Spain",
+      "themeId": "european-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/europe-spain.png",
+      "sortOrder": 19
+    },
+    {
+      "id": "europe-switzerland",
+      "nameRu": "Швейцария",
+      "nameEn": "Switzerland",
+      "themeId": "european-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/europe-switzerland.png",
+      "sortOrder": 20
+    },
+    {
+      "id": "europe-ireland",
+      "nameRu": "Ирландия",
+      "nameEn": "Ireland",
+      "themeId": "european-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/europe-ireland.png",
+      "sortOrder": 21
+    },
+    {
+      "id": "europe-france",
+      "nameRu": "Франция",
+      "nameEn": "France",
+      "themeId": "european-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/europe-france.png",
+      "sortOrder": 22
+    },
+    {
+      "id": "europe-ukraine",
+      "nameRu": "Украина",
+      "nameEn": "Ukraine",
+      "themeId": "european-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/europe-ukraine.png",
+      "sortOrder": 23
+    },
+    {
+      "id": "europe-greece",
+      "nameRu": "Греция",
+      "nameEn": "Greece",
+      "themeId": "european-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/europe-greece.png",
+      "sortOrder": 24
+    },
+    {
+      "id": "europe-italy",
+      "nameRu": "Италия",
+      "nameEn": "Italy",
+      "themeId": "european-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/europe-italy.png",
+      "sortOrder": 25
+    },
+    {
+      "id": "europe-norway",
+      "nameRu": "Норвегия",
+      "nameEn": "Norway",
+      "themeId": "european-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/europe-norway.png",
+      "sortOrder": 26
+    },
+    {
+      "id": "europe-russia",
+      "nameRu": "Россия",
+      "nameEn": "Russia",
+      "themeId": "european-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/europe-russia.png",
+      "sortOrder": 27
+    },
+    {
+      "id": "europe-iceland",
+      "nameRu": "Исландия",
+      "nameEn": "Iceland",
+      "themeId": "european-cats",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/europe-iceland.png",
+      "sortOrder": 28
+    },
+    {
+      "id": "europe-turkey",
+      "nameRu": "Турция",
+      "nameEn": "Turkey",
+      "themeId": "european-cats",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/europe-turkey.png",
+      "sortOrder": 29
+    },
+    {
+      "id": "asia-bangladesh",
+      "nameRu": "Бангладеш",
+      "nameEn": "Bangladesh",
+      "themeId": "asian-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/asia-bangladesh.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "asia-pakistan",
+      "nameRu": "Пакистан",
+      "nameEn": "Pakistan",
+      "themeId": "asian-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/asia-pakistan.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "asia-malaysia",
+      "nameRu": "Малайзия",
+      "nameEn": "Malaysia",
+      "themeId": "asian-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/asia-malaysia.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "asia-singapore",
+      "nameRu": "Сингапур",
+      "nameEn": "Singapore",
+      "themeId": "asian-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/asia-singapore.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "asia-philippines",
+      "nameRu": "Филиппины",
+      "nameEn": "Philippines",
+      "themeId": "asian-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/asia-philippines.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "asia-cambodia",
+      "nameRu": "Камбоджа",
+      "nameEn": "Cambodia",
+      "themeId": "asian-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/asia-cambodia.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "asia-laos",
+      "nameRu": "Лаос",
+      "nameEn": "Laos",
+      "themeId": "asian-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/asia-laos.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "asia-qatar",
+      "nameRu": "Катар",
+      "nameEn": "Qatar",
+      "themeId": "asian-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/asia-qatar.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "asia-south-korea",
+      "nameRu": "Южная Корея",
+      "nameEn": "South Korea",
+      "themeId": "asian-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/asia-south-korea.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "asia-kazakhstan",
+      "nameRu": "Казахстан",
+      "nameEn": "Kazakhstan",
+      "themeId": "asian-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/asia-kazakhstan.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "asia-uzbekistan",
+      "nameRu": "Узбекистан",
+      "nameEn": "Uzbekistan",
+      "themeId": "asian-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/asia-uzbekistan.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "asia-kyrgyzstan",
+      "nameRu": "Кыргызстан",
+      "nameEn": "Kyrgyzstan",
+      "themeId": "asian-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/asia-kyrgyzstan.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "asia-tajikistan",
+      "nameRu": "Таджикистан",
+      "nameEn": "Tajikistan",
+      "themeId": "asian-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/asia-tajikistan.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "asia-vietnam",
+      "nameRu": "Вьетнам",
+      "nameEn": "Vietnam",
+      "themeId": "asian-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/asia-vietnam.png",
+      "sortOrder": 13
+    },
+    {
+      "id": "asia-thailand",
+      "nameRu": "Таиланд",
+      "nameEn": "Thailand",
+      "themeId": "asian-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/asia-thailand.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "asia-united-arab-emirates",
+      "nameRu": "ОАЭ",
+      "nameEn": "United Arab Emirates",
+      "themeId": "asian-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/asia-united-arab-emirates.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "asia-oman",
+      "nameRu": "Оман",
+      "nameEn": "Oman",
+      "themeId": "asian-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/asia-oman.png",
+      "sortOrder": 16
+    },
+    {
+      "id": "asia-nepal",
+      "nameRu": "Непал",
+      "nameEn": "Nepal",
+      "themeId": "asian-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/asia-nepal.png",
+      "sortOrder": 17
+    },
+    {
+      "id": "asia-bhutan",
+      "nameRu": "Бутан",
+      "nameEn": "Bhutan",
+      "themeId": "asian-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/asia-bhutan.png",
+      "sortOrder": 18
+    },
+    {
+      "id": "asia-sri-lanka",
+      "nameRu": "Шри-Ланка",
+      "nameEn": "Sri Lanka",
+      "themeId": "asian-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/asia-sri-lanka.png",
+      "sortOrder": 19
+    },
+    {
+      "id": "asia-mongolia",
+      "nameRu": "Монголия",
+      "nameEn": "Mongolia",
+      "themeId": "asian-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/asia-mongolia.png",
+      "sortOrder": 20
+    },
+    {
+      "id": "asia-iran",
+      "nameRu": "Иран",
+      "nameEn": "Iran",
+      "themeId": "asian-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/asia-iran.png",
+      "sortOrder": 21
+    },
+    {
+      "id": "asia-jordan",
+      "nameRu": "Иордания",
+      "nameEn": "Jordan",
+      "themeId": "asian-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/asia-jordan.png",
+      "sortOrder": 22
+    },
+    {
+      "id": "asia-saudi-arabia",
+      "nameRu": "Саудовская Аравия",
+      "nameEn": "Saudi Arabia",
+      "themeId": "asian-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/asia-saudi-arabia.png",
+      "sortOrder": 23
+    },
+    {
+      "id": "asia-china",
+      "nameRu": "Китай",
+      "nameEn": "China",
+      "themeId": "asian-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/asia-china.png",
+      "sortOrder": 24
+    },
+    {
+      "id": "asia-india",
+      "nameRu": "Индия",
+      "nameEn": "India",
+      "themeId": "asian-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/asia-india.png",
+      "sortOrder": 25
+    },
+    {
+      "id": "asia-australia",
+      "nameRu": "Австралия",
+      "nameEn": "Australia",
+      "themeId": "asian-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/asia-australia.png",
+      "sortOrder": 26
+    },
+    {
+      "id": "asia-indonesia",
+      "nameRu": "Индонезия",
+      "nameEn": "Indonesia",
+      "themeId": "asian-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/asia-indonesia.png",
+      "sortOrder": 27
+    },
+    {
+      "id": "asia-myanmar",
+      "nameRu": "Мьянма",
+      "nameEn": "Myanmar",
+      "themeId": "asian-cats",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/asia-myanmar.png",
+      "sortOrder": 28
+    },
+    {
+      "id": "asia-japan",
+      "nameRu": "Япония",
+      "nameEn": "Japan",
+      "themeId": "asian-cats",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/asia-japan.png",
+      "sortOrder": 29
+    },
+    {
+      "id": "africa-ghana",
+      "nameRu": "Гана",
+      "nameEn": "Ghana",
+      "themeId": "african-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/africa-ghana.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "africa-uganda",
+      "nameRu": "Уганда",
+      "nameEn": "Uganda",
+      "themeId": "african-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/africa-uganda.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "africa-rwanda",
+      "nameRu": "Руанда",
+      "nameEn": "Rwanda",
+      "themeId": "african-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/africa-rwanda.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "africa-malawi",
+      "nameRu": "Малави",
+      "nameEn": "Malawi",
+      "themeId": "african-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/africa-malawi.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "africa-zambia",
+      "nameRu": "Замбия",
+      "nameEn": "Zambia",
+      "themeId": "african-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/africa-zambia.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "africa-senegal",
+      "nameRu": "Сенегал",
+      "nameEn": "Senegal",
+      "themeId": "african-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/africa-senegal.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "africa-cameroon",
+      "nameRu": "Камерун",
+      "nameEn": "Cameroon",
+      "themeId": "african-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/africa-cameroon.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "africa-gabon",
+      "nameRu": "Габон",
+      "nameEn": "Gabon",
+      "themeId": "african-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/africa-gabon.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "africa-cape-verde",
+      "nameRu": "Кабо-Верде",
+      "nameEn": "Cape Verde",
+      "themeId": "african-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/africa-cape-verde.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "africa-algeria",
+      "nameRu": "Алжир",
+      "nameEn": "Algeria",
+      "themeId": "african-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/africa-algeria.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "africa-tunisia",
+      "nameRu": "Тунис",
+      "nameEn": "Tunisia",
+      "themeId": "african-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/africa-tunisia.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "africa-nigeria",
+      "nameRu": "Нигерия",
+      "nameEn": "Nigeria",
+      "themeId": "african-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/africa-nigeria.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "africa-botswana",
+      "nameRu": "Ботсвана",
+      "nameEn": "Botswana",
+      "themeId": "african-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/africa-botswana.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "africa-zimbabwe",
+      "nameRu": "Зимбабве",
+      "nameEn": "Zimbabwe",
+      "themeId": "african-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/africa-zimbabwe.png",
+      "sortOrder": 13
+    },
+    {
+      "id": "africa-mozambique",
+      "nameRu": "Мозамбик",
+      "nameEn": "Mozambique",
+      "themeId": "african-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/africa-mozambique.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "africa-angola",
+      "nameRu": "Ангола",
+      "nameEn": "Angola",
+      "themeId": "african-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/africa-angola.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "africa-cote-divoire",
+      "nameRu": "Кот-д’Ивуар",
+      "nameEn": "Côte d'Ivoire",
+      "themeId": "african-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/africa-cote-divoire.png",
+      "sortOrder": 16
+    },
+    {
+      "id": "africa-ethiopia",
+      "nameRu": "Эфиопия",
+      "nameEn": "Ethiopia",
+      "themeId": "african-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/africa-ethiopia.png",
+      "sortOrder": 17
+    },
+    {
+      "id": "africa-kenya",
+      "nameRu": "Кения",
+      "nameEn": "Kenya",
+      "themeId": "african-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/africa-kenya.png",
+      "sortOrder": 18
+    },
+    {
+      "id": "africa-tanzania",
+      "nameRu": "Танзания",
+      "nameEn": "Tanzania",
+      "themeId": "african-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/africa-tanzania.png",
+      "sortOrder": 19
+    },
+    {
+      "id": "africa-namibia",
+      "nameRu": "Намибия",
+      "nameEn": "Namibia",
+      "themeId": "african-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/africa-namibia.png",
+      "sortOrder": 20
+    },
+    {
+      "id": "africa-mauritius",
+      "nameRu": "Маврикий",
+      "nameEn": "Mauritius",
+      "themeId": "african-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/africa-mauritius.png",
+      "sortOrder": 21
+    },
+    {
+      "id": "africa-seychelles",
+      "nameRu": "Сейшелы",
+      "nameEn": "Seychelles",
+      "themeId": "african-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/africa-seychelles.png",
+      "sortOrder": 22
+    },
+    {
+      "id": "africa-sudan",
+      "nameRu": "Судан",
+      "nameEn": "Sudan",
+      "themeId": "african-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/africa-sudan.png",
+      "sortOrder": 23
+    },
+    {
+      "id": "africa-morocco",
+      "nameRu": "Марокко",
+      "nameEn": "Morocco",
+      "themeId": "african-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/africa-morocco.png",
+      "sortOrder": 24
+    },
+    {
+      "id": "africa-south-africa",
+      "nameRu": "ЮАР",
+      "nameEn": "South Africa",
+      "themeId": "african-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/africa-south-africa.png",
+      "sortOrder": 25
+    },
+    {
+      "id": "africa-madagascar",
+      "nameRu": "Мадагаскар",
+      "nameEn": "Madagascar",
+      "themeId": "african-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/africa-madagascar.png",
+      "sortOrder": 26
+    },
+    {
+      "id": "africa-dr-congo",
+      "nameRu": "ДР Конго",
+      "nameEn": "DR Congo",
+      "themeId": "african-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/africa-dr-congo.png",
+      "sortOrder": 27
+    },
+    {
+      "id": "africa-mali",
+      "nameRu": "Мали",
+      "nameEn": "Mali",
+      "themeId": "african-cats",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/africa-mali.png",
+      "sortOrder": 28
+    },
+    {
+      "id": "africa-egypt",
+      "nameRu": "Египет",
+      "nameEn": "Egypt",
+      "themeId": "african-cats",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/africa-egypt.png",
+      "sortOrder": 29
+    },
+    {
+      "id": "americas-belize",
+      "nameRu": "Белиз",
+      "nameEn": "Belize",
+      "themeId": "american-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/americas-belize.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "americas-honduras",
+      "nameRu": "Гондурас",
+      "nameEn": "Honduras",
+      "themeId": "american-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/americas-honduras.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "americas-el-salvador",
+      "nameRu": "Сальвадор",
+      "nameEn": "El Salvador",
+      "themeId": "american-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/americas-el-salvador.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "americas-nicaragua",
+      "nameRu": "Никарагуа",
+      "nameEn": "Nicaragua",
+      "themeId": "american-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/americas-nicaragua.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "americas-bahamas",
+      "nameRu": "Багамы",
+      "nameEn": "Bahamas",
+      "themeId": "american-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/americas-bahamas.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "americas-barbados",
+      "nameRu": "Барбадос",
+      "nameEn": "Barbados",
+      "themeId": "american-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/americas-barbados.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "americas-guyana",
+      "nameRu": "Гайана",
+      "nameEn": "Guyana",
+      "themeId": "american-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/americas-guyana.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "americas-suriname",
+      "nameRu": "Суринам",
+      "nameEn": "Suriname",
+      "themeId": "american-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/americas-suriname.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "americas-uruguay",
+      "nameRu": "Уругвай",
+      "nameEn": "Uruguay",
+      "themeId": "american-cats",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/americas-uruguay.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "americas-guatemala",
+      "nameRu": "Гватемала",
+      "nameEn": "Guatemala",
+      "themeId": "american-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/americas-guatemala.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "americas-costa-rica",
+      "nameRu": "Коста-Рика",
+      "nameEn": "Costa Rica",
+      "themeId": "american-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/americas-costa-rica.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "americas-panama",
+      "nameRu": "Панама",
+      "nameEn": "Panama",
+      "themeId": "american-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/americas-panama.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "americas-dominican-republic",
+      "nameRu": "Доминиканская Республика",
+      "nameEn": "Dominican Republic",
+      "themeId": "american-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/americas-dominican-republic.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "americas-jamaica",
+      "nameRu": "Ямайка",
+      "nameEn": "Jamaica",
+      "themeId": "american-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/americas-jamaica.png",
+      "sortOrder": 13
+    },
+    {
+      "id": "americas-haiti",
+      "nameRu": "Гаити",
+      "nameEn": "Haiti",
+      "themeId": "american-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/americas-haiti.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "americas-trinidad-and-tobago",
+      "nameRu": "Тринидад и Тобаго",
+      "nameEn": "Trinidad and Tobago",
+      "themeId": "american-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/americas-trinidad-and-tobago.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "americas-paraguay",
+      "nameRu": "Парагвай",
+      "nameEn": "Paraguay",
+      "themeId": "american-cats",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/americas-paraguay.png",
+      "sortOrder": 16
+    },
+    {
+      "id": "americas-canada",
+      "nameRu": "Канада",
+      "nameEn": "Canada",
+      "themeId": "american-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/americas-canada.png",
+      "sortOrder": 17
+    },
+    {
+      "id": "americas-colombia",
+      "nameRu": "Колумбия",
+      "nameEn": "Colombia",
+      "themeId": "american-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/americas-colombia.png",
+      "sortOrder": 18
+    },
+    {
+      "id": "americas-venezuela",
+      "nameRu": "Венесуэла",
+      "nameEn": "Venezuela",
+      "themeId": "american-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/americas-venezuela.png",
+      "sortOrder": 19
+    },
+    {
+      "id": "americas-ecuador",
+      "nameRu": "Эквадор",
+      "nameEn": "Ecuador",
+      "themeId": "american-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/americas-ecuador.png",
+      "sortOrder": 20
+    },
+    {
+      "id": "americas-bolivia",
+      "nameRu": "Боливия",
+      "nameEn": "Bolivia",
+      "themeId": "american-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/americas-bolivia.png",
+      "sortOrder": 21
+    },
+    {
+      "id": "americas-cuba",
+      "nameRu": "Куба",
+      "nameEn": "Cuba",
+      "themeId": "american-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/americas-cuba.png",
+      "sortOrder": 22
+    },
+    {
+      "id": "americas-grenada",
+      "nameRu": "Гренада",
+      "nameEn": "Grenada",
+      "themeId": "american-cats",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/americas-grenada.png",
+      "sortOrder": 23
+    },
+    {
+      "id": "americas-united-states",
+      "nameRu": "США",
+      "nameEn": "United States",
+      "themeId": "american-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/americas-united-states.png",
+      "sortOrder": 24
+    },
+    {
+      "id": "americas-mexico",
+      "nameRu": "Мексика",
+      "nameEn": "Mexico",
+      "themeId": "american-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/americas-mexico.png",
+      "sortOrder": 25
+    },
+    {
+      "id": "americas-peru",
+      "nameRu": "Перу",
+      "nameEn": "Peru",
+      "themeId": "american-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/americas-peru.png",
+      "sortOrder": 26
+    },
+    {
+      "id": "americas-chile",
+      "nameRu": "Чили",
+      "nameEn": "Chile",
+      "themeId": "american-cats",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/americas-chile.png",
+      "sortOrder": 27
+    },
+    {
+      "id": "americas-argentina",
+      "nameRu": "Аргентина",
+      "nameEn": "Argentina",
+      "themeId": "american-cats",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/americas-argentina.png",
+      "sortOrder": 28
+    },
+    {
+      "id": "americas-brazil",
+      "nameRu": "Бразилия",
+      "nameEn": "Brazil",
+      "themeId": "american-cats",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/americas-brazil.png",
+      "sortOrder": 29
     }
   ]
 }

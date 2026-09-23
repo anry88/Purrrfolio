@@ -11,7 +11,7 @@ class CardCatalogTest {
 
     @Test
     fun loadsStarterCardsAndCollections() {
-        assertEquals(165, catalog.cards.size)
+        assertEquals(285, catalog.cards.size)
         assertTrue(catalog.collections.isNotEmpty())
         assertEquals("Соня", catalog.card("sleepy").nameRu)
         assertEquals(CardRarity.LEGENDARY, catalog.card("baker").rarity)
@@ -24,6 +24,34 @@ class CardCatalogTest {
         assertEquals("Транспорт", catalog.collection("transport").nameRu)
         assertEquals(14, catalog.cardsByCollection("transport").size)
         assertEquals(CardRarity.MYTHIC, catalog.card("starship-ark").rarity)
+        assertEquals("Европейские котики", catalog.collection("european-cats").nameRu)
+        assertEquals(30, catalog.cardsByCollection("european-cats").size)
+        assertEquals(CardRarity.MYTHIC, catalog.card("europe-turkey").rarity)
+        assertEquals("Азиатские котики", catalog.collection("asian-cats").nameRu)
+        assertEquals(30, catalog.cardsByCollection("asian-cats").size)
+        assertEquals("asian-cats", catalog.card("asia-australia").themeId)
+        assertEquals(CardRarity.MYTHIC, catalog.card("asia-japan").rarity)
+        assertTrue(
+            catalog.cardsByCollection("asian-cats").map { it.id }.containsAll(
+                setOf(
+                    "asia-kazakhstan",
+                    "asia-uzbekistan",
+                    "asia-kyrgyzstan",
+                    "asia-tajikistan",
+                    "asia-united-arab-emirates",
+                    "asia-indonesia",
+                    "asia-thailand",
+                    "asia-vietnam",
+                    "asia-australia",
+                ),
+            ),
+        )
+        assertEquals("Африканские котики", catalog.collection("african-cats").nameRu)
+        assertEquals(30, catalog.cardsByCollection("african-cats").size)
+        assertEquals(CardRarity.MYTHIC, catalog.card("africa-egypt").rarity)
+        assertEquals("Американские котики", catalog.collection("american-cats").nameRu)
+        assertEquals(30, catalog.cardsByCollection("american-cats").size)
+        assertEquals(CardRarity.MYTHIC, catalog.card("americas-brazil").rarity)
         assertEquals(
             5,
             catalog.cardsByCollection("sports").count {
