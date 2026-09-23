@@ -54,6 +54,8 @@ data class TelegramUser(
     val firstName: String? = null,
     @JsonProperty("language_code")
     val languageCode: String? = null,
+    @JsonProperty("is_bot")
+    val isBot: Boolean? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

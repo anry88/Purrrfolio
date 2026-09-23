@@ -339,6 +339,9 @@ class GameService(
     private fun handleMessage(message: TelegramMessage) {
         val chatId = message.chat?.id ?: return
         val telegramId = message.from?.id ?: return
+        // Never serve bots (e.g. anonymous-admin posts via GroupAnonymousBot):
+        // no registration, no commands, no raffle tracking for them.
+        if (message.from?.isBot == true) return
         val fromGroupChat = isGroupChat(message.chat?.type)
         val text = message.text?.trim().orEmpty()
 
@@ -354,13 +357,25 @@ class GameService(
         val existingUser = userRepository.findByTelegramUserId(telegramId)
         val action = resolveAction(text, existingUser?.let(::gameLocale) ?: GameLocale.EN) ?: return
 
+        // Auto-register with English default so even a first touch
+        // (e.g. "кот" in a group chat) is processed instead of gated
+        // behind language selection. /language still switches any time.
         val user = existingUser ?: run {
-            // First touch: remember the /start payload for attribution, if any.
             val payload = if (text.startsWith("/start")) text.substringAfter(' ', "").trim() else ""
-            pendingSources[telegramId] = GameMetrics.normalizeRegistrationSource(payload.ifEmpty { null })
-            // First time user - show language selection
-            handleLanguageSelection(chatId, telegramId)
-            return
+            val source = pendingSources.remove(telegramId)
+                ?: GameMetrics.normalizeRegistrationSource(payload.ifEmpty { null })
+            val (created, isNew) = try {
+                userRepository.create(telegramId, GameLocale.EN.code, source) to true
+            } catch (e: DuplicateKeyException) {
+                // Lost a concurrent first-touch race: reuse the winner's row
+                // without granting starter packs twice.
+                (userRepository.findByTelegramUserId(telegramId) ?: throw e) to false
+            }
+            if (isNew) {
+                gameMetrics.registration(source)
+                grantStarterPacks(created.id)
+            }
+            created
         }
 
         gameMetrics.command(action.name.lowercase(), if (text.startsWith("/")) "command" else "keyboard")
@@ -388,10 +403,6 @@ class GameService(
         if (fromGroupChat) {
             maybeGroupRaffle(chatId, user)
         }
-    }
-
-    private fun handleLanguageSelection(chatId: Long, telegramId: Long) {
-        telegramClient.sendMessage(chatId, Messages.t("language.title", GameLocale.EN), languageKeyboard())
     }
 
     private fun handleLanguage(chatId: Long, user: User) {
@@ -682,7 +693,28 @@ class GameService(
             gameMetrics.craftPackBuilt(result.packs)
             lines.add(Messages.t("craft.crafted", locale, result.packs))
         }
-        telegramClient.sendMessage(chatId, lines.joinToString("\n\n"), openPackKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(fresh.id)))
+        val availablePacks = packLedgerRepository.getTotalAvailablePacks(fresh.id)
+        val remaining = userCardRepository.findByUserId(fresh.id)
+            .filter { TradePolicy.canOfferDuplicate(it.quantity) }
+        val inlineButtons = remaining.take(10).mapNotNull { uc ->
+            runCatching { cardCatalog.card(uc.cardId) }.getOrNull()?.let { dup ->
+                val pts = CraftPolicy.pointsFor(dup.rarity)
+                listOf(TelegramInlineButton(Messages.t("craft.addButton", locale, pts, dup.nameFor(locale)), "craft:add:${dup.id}"))
+            }
+        }.toMutableList()
+        if (remaining.isNotEmpty()) {
+            lines.add(Messages.t("craft.title", locale, result.leftover, CraftPolicy.POINTS_PER_PACK))
+            lines.add(Messages.t("craft.pickCard", locale))
+        }
+        if (result.packs > 0) {
+            inlineButtons.add(listOf(TelegramInlineButton(packButtonLabel(locale, availablePacks), "menu:open-pack")))
+        }
+        val replyMarkup = if (inlineButtons.isEmpty()) {
+            mainMenuKeyboard(locale, availablePacks)
+        } else {
+            TelegramReplyMarkup(inlineKeyboard = inlineButtons)
+        }
+        telegramClient.sendMessage(chatId, lines.joinToString("\n\n"), replyMarkup)
     }
 
     // ---- Stars shop ----

@@ -37,6 +37,30 @@ class TelegramModelsTest {
     }
 
     @Test
+    fun `deserializes sender bot flag`() {
+        val payload =
+            """
+            {
+              "update_id": 918273647,
+              "message": {
+                "message_id": 44,
+                "text": "кот",
+                "chat": {"id": -100, "type": "supergroup"},
+                "from": {
+                  "id": 1087968824,
+                  "first_name": "GroupAnonymousBot",
+                  "is_bot": true
+                }
+              }
+            }
+            """.trimIndent()
+
+        val update = objectMapper.readValue(payload, TelegramUpdate::class.java)
+
+        assertThat(update.message?.from?.isBot).isTrue()
+    }
+
+    @Test
     fun `deserializes callback query`() {
         val payload =
             """
