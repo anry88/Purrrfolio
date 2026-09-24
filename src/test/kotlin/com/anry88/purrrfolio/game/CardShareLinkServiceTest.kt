@@ -29,13 +29,17 @@ class CardShareLinkServiceTest {
 
         val query = service.inlineQuery(card, ownerUserId = 42)
         val caption = service.sharedCaption(card, ownerUserId = 42, locale = GameLocale.RU)
+        val captionEn = service.sharedCaption(card, ownerUserId = 42, locale = GameLocale.EN)
         val richMessage = service.sharedRichMessageHtml(card, ownerUserId = 42, locale = GameLocale.RU)
 
         assertThat(query).isEqualTo("share:42:sleepy")
         assertThat(service.parseInlineQuery(query)).isEqualTo(CardShareRequest(42, "sleepy"))
         assertThat(service.thumbnailUrl(card)).isEqualTo("https://purrrfolio.example/assets/cards/sleepy.png")
         assertThat(caption).contains("Мне выпал котик <b>Соня</b>")
-        assertThat(caption).contains("<a href=\"https://t.me/PurrrfolioBot?start=ref_42\">")
+        assertThat(caption).contains("<a href=\"https://t.me/PurrrfolioBot?start=ref_42\">🐾 Начни свою коллекцию</a>")
+        assertThat(caption).doesNotContain("8 наборов")
+        assertThat(captionEn).contains("<a href=\"https://t.me/PurrrfolioBot?start=ref_42\">🐾 Start your collection</a>")
+        assertThat(captionEn).doesNotContain("8 packs")
         assertThat(caption).doesNotContain("/assets/cards/")
         assertThat(caption).doesNotContain("https://purrrfolio.example")
         assertThat(richMessage).startsWith("<img src=\"tg://photo?id=card\"/>")

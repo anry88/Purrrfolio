@@ -137,8 +137,8 @@ object Messages {
         "card.share" to ("📤 Share card" to "📤 Поделиться карточкой"),
         "card.shareResult" to ("👆 Tap to send %s" to "👆 Нажми, чтобы отправить: %s"),
         "card.shareCaption" to (
-            "I found <b>%s</b> (%s) in Purrrfolio!\n\n<a href=\"%s\">🐾 Start your collection and get 8 packs</a>" to
-                "Мне выпал котик <b>%s</b> (%s) в Purrrfolio!\n\n<a href=\"%s\">🐾 Начни свою коллекцию и получи 8 наборов</a>"
+            "I found <b>%s</b> (%s) in Purrrfolio!\n\n<a href=\"%s\">🐾 Start your collection</a>" to
+                "Мне выпал котик <b>%s</b> (%s) в Purrrfolio!\n\n<a href=\"%s\">🐾 Начни свою коллекцию</a>"
             ),
         "card.startCollection" to ("🐾 Start collecting" to "🐾 Начать коллекцию"),
         "card.specialTag" to ("✨ SPECIAL" to "✨ СПЕШЛ"),
