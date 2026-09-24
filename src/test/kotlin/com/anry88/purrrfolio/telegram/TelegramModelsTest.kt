@@ -145,4 +145,17 @@ class TelegramModelsTest {
         assertThat(json).contains("\"command\":\"pack\"")
         assertThat(json).contains("\"description\":\"Открыть набор\"")
     }
+
+    @Test
+    fun `serializes URL inline button without callback data`() {
+        val button = TelegramInlineButton(
+            text = "📤 Поделиться карточкой",
+            url = "https://t.me/share/url?url=https%3A%2F%2Fexample.com%2Fcat.png",
+        )
+
+        val json = objectMapper.writeValueAsString(button)
+
+        assertThat(json).contains("\"url\":\"https://t.me/share/url?")
+        assertThat(json).doesNotContain("callback_data")
+    }
 }

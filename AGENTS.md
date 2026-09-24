@@ -14,9 +14,9 @@ AI-oriented repository guide for coding assistants and code-review tools.
 ## Current State
 
 - This repository contains a working command-only Telegram collectible card bot backend.
-- Implemented today: JDBC persistence, Flyway migrations, update deduplication, automatic registration and locale detection, starter packs, weighted pack openings, free cards, photo reveals and galleries, collection progress and versioned completion rewards, crafting, random-trade matching, marketplace settlement, Telegram Stars purchases/refunds, payment support, group raffles, campaign-source attribution, and metrics.
+- Implemented today: JDBC persistence, Flyway migrations, retryable update claims, atomic registration/starter grants, concurrency-safe transactional pack openings, idempotent pack-opening receipts, free cards, photo reveals and galleries, collection progress and versioned completion rewards, card-share links, crafting, random-trade matching, marketplace settlement, Telegram Stars purchases/refunds, payment support, group raffles, campaign/referral-source attribution, and metrics.
 - The JSON catalog currently contains 285 cards in 16 collections, including Calendar and group-only Friends special collections; standalone card art is mirrored into the runtime resources.
-- Known gaps: pack debit and inventory credit are not yet one transaction; normal Telegram updates are claimed before all game-side effects complete; PostgreSQL end-to-end integration coverage is still missing; share buttons and player-to-player referral rewards are not implemented.
+- Known gaps: Telegram delivery is at-least-once (a crash between Telegram accepting a message and the local acknowledgement can duplicate that message); PostgreSQL integration coverage does not yet cover every trade/payment/raffle path; player-to-player referral rewards are not implemented.
 - Do not describe planned behavior as shipped until code and tests support the claim.
 
 ## Repository Map

@@ -20,12 +20,13 @@ The command-only backend currently supports:
 - Telegram Stars pack purchases, payment support, and admin-approved refunds
 - Daily group-chat pack raffles and group-only Friends cards
 - RU/EN localization, campaign-source attribution, and gameplay metrics
+- Compact first-run welcome, affected-collection progress after opening, and card sharing with referral-source attribution
 
 The concept art in `docs/source/game-concept.png` also shows a decorated home, Mini App UI, and animated pack openings. Those are **not** part of the MVP and remain future ideas.
 
 ## Core Loop
 
-1. Player runs `/start`; the bot detects RU from Telegram's language code or defaults to EN, registers the player, and grants 3 starter packs.
+1. Player runs `/start`; the bot detects RU from Telegram's language code or defaults to EN, atomically registers the player with 3 starter packs, and shows a dedicated open-pack button.
 2. Player opens a fluffy pack with `/pack` and receives three cards.
 3. New cards expand themed collection progress shown in `/collection`.
 4. Duplicate cards become tradable through `/trade` or `/market`.
@@ -35,8 +36,8 @@ The concept art in `docs/source/game-concept.png` also shows a decorated home, M
 
 - The player surface is Telegram commands, reply keyboards, inline callbacks, and photo messages; there is no Mini App.
 - The catalog currently contains 285 cards across 16 collections. The larger 1000-card content target remains future work.
-- Deep-link campaign attribution is implemented, but share buttons and player-to-player referral rewards are not.
-- Pack opening and initial registration still need stronger transaction boundaries and PostgreSQL integration coverage before broad production growth.
+- Card share buttons open Telegram's recipient chooser and include a `ref_<internal user id>` bot deep link. Referral rewards are not implemented.
+- Registration and pack opening use PostgreSQL transaction boundaries and Testcontainers coverage. Telegram message delivery remains at-least-once, so a rare retry can duplicate a reveal even though the receipt prevents a second pack debit or card grant.
 
 ## Engagement Systems
 

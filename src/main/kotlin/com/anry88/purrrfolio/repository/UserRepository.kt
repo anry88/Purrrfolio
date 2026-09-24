@@ -47,6 +47,22 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
         return results.first()
     }
 
+    fun createIfAbsent(telegramUserId: Long, language: String, registrationSource: String = "direct"): User? {
+        val sql = """
+            INSERT INTO users (telegram_user_id, language, registration_source, available_packs)
+            VALUES (?, ?, ?, 0)
+            ON CONFLICT (telegram_user_id) DO NOTHING
+            RETURNING *
+        """.trimIndent()
+        return jdbcTemplate.query(sql, userRowMapper, telegramUserId, language, registrationSource).firstOrNull()
+    }
+
+    /** Must be called inside the transaction that mutates this player's pack balance. */
+    fun lockById(userId: Long): Boolean {
+        val sql = "SELECT id FROM users WHERE id = ? FOR UPDATE"
+        return jdbcTemplate.query(sql, { rs, _ -> rs.getLong("id") }, userId).isNotEmpty()
+    }
+
     fun updateLanguage(userId: Long, language: String) {
         val sql = "UPDATE users SET language = ?, updated_at = NOW() WHERE id = ?"
         jdbcTemplate.update(sql, language, userId)

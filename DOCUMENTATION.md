@@ -35,22 +35,24 @@ Core business logic is split into small packages:
 ### Registration
 
 1. Telegram update arrives at `/bot`.
-2. Webhook validates secret token and deduplicates by `update_id`.
+2. Webhook validates the secret token and claims `update_id` as `PROCESSING`; failures release the claim and successful handlers mark it `PROCESSED`.
 3. The first supported command or text alias creates `users` by `telegram_user_id`.
 4. Russian Telegram language codes select RU; all others select EN. `/language` can change the stored language later.
-5. The service grants 3 starter packs through `pack_ledger` and stores a normalized `/start <source>` campaign code in `users.registration_source`.
+5. User creation and the 3-pack starter `pack_ledger` grant commit in one transaction; a normalized `/start <source>` code is stored in `users.registration_source`.
+6. A new `/start` receives a short welcome followed by a dedicated inline button for opening the starter packs.
 
 ### Pack opening
 
-1. `/pack` opens a pack only: negative `pack_ledger` row, roll via `PackOpeningService`.
+1. `/pack` locks the player's `users` row and rechecks the ledger balance, preventing two concurrent taps from spending the same pack.
 2. Empty stash → `/buy` prompt. Free single cards are fully separate: `/freecard`
    immediately grants the card when due (first card immediately, then every 3h via
    `users.last_free_card_at`) and shows an hours/minutes countdown otherwise.
-3. Inventory upsert into `user_cards` (TEXT card ids matching `catalog/cards.json`).
-4. Bot sends card PNGs from `/static/assets/cards/{id}.png`.
-5. Calendar special cards are filtered by the configured game-timezone month after
+3. The negative `pack_ledger` row, weighted roll, `user_cards` upserts, completion rewards, and `pack_opening_receipts` row commit in one transaction.
+4. `pack_opening_receipts.update_id` stores the exact rolled/new card ids. A webhook retry restores that result rather than consuming another pack.
+5. Bot sends card PNGs from `/static/assets/cards/{id}.png`, each with a share button, then sends a new-card count and progress for the affected collections. Text fallback is used if photo delivery fails.
+6. Calendar special cards are filtered by the configured game-timezone month after
    rarity is selected, so their normal rarity weights remain unchanged.
-6. Friends special cards are included only when the Telegram update comes from a
+7. Friends special cards are included only when the Telegram update comes from a
    `group` or `supergroup`; private-chat rolls exclude them after rarity selection.
 
 ### Stars purchase
@@ -104,7 +106,7 @@ All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strin
 
 ## Persistence
 
-PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V11). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, and group raffles.
+PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V13). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, and idempotent pack-opening receipts.
 
 Main tables:
 
@@ -118,6 +120,7 @@ Main tables:
 - `payments`
 - `payment_support_requests`
 - `processed_telegram_updates`
+- `pack_opening_receipts`
 - `group_chat_members`
 - `group_raffles`
 - `group_raffle_winners`
@@ -165,8 +168,6 @@ Local overrides: copy `application-local.example.yml` to `application-local.yml`
 
 ## Known Reliability Boundaries and Next Engineering Steps
 
-1. Make pack balance validation, the negative `opened` ledger row, inventory upsert, and completion-reward evaluation one database transaction with concurrency-safe balance enforcement.
-2. Make normal Telegram update deduplication failure-safe so an update is not permanently claimed before its game-side effects complete.
-3. Grant a newly created user's starter packs in the same transaction as registration.
-4. Add Testcontainers PostgreSQL coverage for registration, pack opening, crafting, random trades, marketplace settlement, payments, completion rewards, and group raffles.
-5. Add the player-facing card-sharing and referral-reward flows if they enter MVP scope; current deep links provide campaign attribution only.
+1. Telegram delivery remains at-least-once: the pack receipt prevents another debit or card grant, but a process crash after Telegram accepts a message and before local completion can duplicate a reveal on retry.
+2. Extend Testcontainers PostgreSQL coverage beyond registration and pack opening to crafting, random trades, marketplace settlement, payments, completion rewards, and group raffles.
+3. Add referral rewards if they enter MVP scope. Share links currently attribute a registration as `ref_<users.id>` but do not grant either player a reward.

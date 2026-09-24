@@ -1,33 +1,34 @@
 package com.anry88.purrrfolio.repository
 
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
-import org.springframework.dao.DataAccessResourceFailureException
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.JdbcTemplate
 
 class ProcessedUpdateRepositoryTest {
 
     @Test
-    fun `duplicate update is the only suppressed database error`() {
+    fun `processing claim is marked complete only once`() {
         val jdbc = mock(JdbcTemplate::class.java)
-        `when`(jdbc.update("INSERT INTO processed_telegram_updates (update_id) VALUES (?)", 10L))
-            .thenThrow(DuplicateKeyException("duplicate"))
+        `when`(jdbc.update(anyString(), eq(10L))).thenReturn(1, 0)
+        val repository = ProcessedUpdateRepository(jdbc)
 
-        assertFalse(ProcessedUpdateRepository(jdbc).recordUpdate(10L))
+        assertTrue(repository.markProcessed(10L))
+        assertFalse(repository.markProcessed(10L))
     }
 
     @Test
-    fun `database outage is not misclassified as a duplicate`() {
+    fun `failed processing releases only an active claim`() {
         val jdbc = mock(JdbcTemplate::class.java)
-        `when`(jdbc.update("INSERT INTO processed_telegram_updates (update_id) VALUES (?)", 10L))
-            .thenThrow(DataAccessResourceFailureException("offline"))
+        val repository = ProcessedUpdateRepository(jdbc)
 
-        assertThrows(DataAccessResourceFailureException::class.java) {
-            ProcessedUpdateRepository(jdbc).recordUpdate(10L)
-        }
+        repository.releaseClaim(10L)
+
+        verify(jdbc).update(anyString(), eq(10L))
     }
 }

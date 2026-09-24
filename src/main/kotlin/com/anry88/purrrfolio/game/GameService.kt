@@ -62,6 +62,9 @@ class GameService(
     private val collectionService: CollectionService,
     private val collectionCompletionRewardService: CollectionCompletionRewardService,
     private val packOpeningService: PackOpeningService,
+    private val packOpeningTransactionService: PackOpeningTransactionService,
+    private val playerRegistrationService: PlayerRegistrationService,
+    private val cardShareLinkService: CardShareLinkService,
     private val userRepository: UserRepository,
     private val userCardRepository: UserCardRepository,
     private val packLedgerRepository: PackLedgerRepository,
@@ -94,8 +97,6 @@ class GameService(
 
     private val chatGalleries = ConcurrentHashMap<Long, ChatGallery>()
     private val knownFileIds = ConcurrentHashMap<String, String>()
-    /** telegramId -> normalized /start payload, consumed when the language is chosen. */
-    private val pendingSources = ConcurrentHashMap<Long, String>()
     /** chatId -> target market listing the user is picking an offer for (keeps callbacks <= 64 bytes). */
     private val pendingMarketOffers = ConcurrentHashMap<Long, UUID>()
 
@@ -303,19 +304,27 @@ class GameService(
         }
 
         val updateId = update.updateId
-        if (updateId != null) {
-            if (!processedUpdateRepository.recordUpdate(updateId)) {
-                logger.warn("Skipping already processed update {}", updateId)
-                return
-            }
-        }
-        update.callbackQuery?.let {
-            it.data?.let { data -> gameMetrics.callback(data) }
-            handleCallback(it)
+        if (updateId != null && !processedUpdateRepository.claimUpdate(updateId)) {
+            logger.warn("Skipping processed or currently claimed update {}", updateId)
             return
         }
-        update.message?.let {
-            handleMessage(it)
+
+        try {
+            update.callbackQuery?.let {
+                it.data?.let { data -> gameMetrics.callback(data) }
+                handleCallback(it, updateId)
+            } ?: update.message?.let { handleMessage(it, updateId) }
+
+            if (updateId != null && !processedUpdateRepository.markProcessed(updateId)) {
+                error("Telegram update $updateId lost its processing claim")
+            }
+        } catch (e: Exception) {
+            if (updateId != null) {
+                runCatching { processedUpdateRepository.releaseClaim(updateId) }
+                    .onFailure { logger.error("Failed to release Telegram update claim {}", updateId, it) }
+            }
+            if (e is RetryableTelegramUpdateException) throw e
+            throw RetryableTelegramUpdateException(e)
         }
     }
 
@@ -336,7 +345,7 @@ class GameService(
         }
     }
 
-    private fun handleMessage(message: TelegramMessage) {
+    private fun handleMessage(message: TelegramMessage, updateId: Long? = null) {
         val chatId = message.chat?.id ?: return
         val telegramId = message.from?.id ?: return
         val fromGroupChat = isGroupChat(message.chat?.type)
@@ -357,24 +366,17 @@ class GameService(
         // Auto-register so even a first touch (e.g. "кот" in a group chat)
         // is processed instead of gated behind language selection.
         // Telegram Russian -> RU, anything else -> EN. /language switches any time.
-        val user = existingUser ?: run {
+        val registration = existingUser?.let { PlayerRegistrationResult(it, created = false) } ?: run {
             val payload = if (text.startsWith("/start")) text.substringAfter(' ', "").trim() else ""
-            val source = pendingSources.remove(telegramId)
-                ?: GameMetrics.normalizeRegistrationSource(payload.ifEmpty { null })
+            val source = GameMetrics.normalizeRegistrationSource(payload.ifEmpty { null })
             val initialLocale = GameLocale.fromTelegramLanguageCode(message.from?.languageCode)
-            val (created, isNew) = try {
-                userRepository.create(telegramId, initialLocale.code, source) to true
-            } catch (e: DuplicateKeyException) {
-                // Lost a concurrent first-touch race: reuse the winner's row
-                // without granting starter packs twice.
-                (userRepository.findByTelegramUserId(telegramId) ?: throw e) to false
+            playerRegistrationService.registerIfMissing(telegramId, initialLocale.code, source).also {
+                if (it.created) {
+                    gameMetrics.registration(source)
+                }
             }
-            if (isNew) {
-                gameMetrics.registration(source)
-                grantStarterPacks(created.id)
-            }
-            created
         }
+        val user = registration.user
 
         gameMetrics.command(action.name.lowercase(), if (text.startsWith("/")) "command" else "keyboard")
 
@@ -383,11 +385,26 @@ class GameService(
         }
 
         when (action) {
-            Action.START -> telegramClient.sendMessage(chatId, Messages.t("welcome", gameLocale(user)), mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
+            Action.START -> {
+                if (registration.created) {
+                    telegramClient.sendMessage(
+                        chatId,
+                        Messages.t("welcome.new", gameLocale(user)),
+                        mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)),
+                    )
+                    telegramClient.sendMessage(
+                        chatId,
+                        Messages.t("pack.starter", gameLocale(user), properties.economy.starterPacks),
+                        openPackKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)),
+                    )
+                } else {
+                    telegramClient.sendMessage(chatId, Messages.t("welcome", gameLocale(user)), mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
+                }
+            }
             Action.HELP -> telegramClient.sendMessage(chatId, Messages.t("help", gameLocale(user)), helpKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
             Action.LANGUAGE -> handleLanguage(chatId, user)
             Action.COLLECTION -> sendCollectionView(chatId, user, page = 0)
-            Action.PACK -> handlePackOpening(chatId, user, fromGroupChat)
+            Action.PACK -> handlePackOpening(chatId, user, fromGroupChat, updateId)
             Action.FREECARD -> handleFreeCard(chatId, user, fromGroupChat)
             Action.CRAFT -> handleCraft(chatId, user)
             Action.BUY -> handleBuy(chatId, user)
@@ -410,45 +427,40 @@ class GameService(
 
     // ---- Packs ----
 
-    private fun handlePackOpening(chatId: Long, user: User, fromGroupChat: Boolean = false) {
+    private fun handlePackOpening(chatId: Long, user: User, fromGroupChat: Boolean = false, updateId: Long? = null) {
         val locale = gameLocale(user)
-        val availablePacks = packLedgerRepository.getTotalAvailablePacks(user.id)
-        if (availablePacks <= 0) {
-            // Packs come only from the 3 starter grants and Stars purchases.
-            // Free single cards live separately: /freecard.
-            telegramClient.sendMessage(
-                chatId,
-                Messages.t("pack.noPacks", locale),
-                buyPromptKeyboard(locale),
-            )
-            return
+        when (val attempt = packOpeningTransactionService.open(user.id, currentGameMonth(), fromGroupChat, updateId)) {
+            PackOpeningAttempt.NoPacks -> {
+                telegramClient.sendMessage(
+                    chatId,
+                    Messages.t("pack.noPacks", locale),
+                    buyPromptKeyboard(locale),
+                )
+            }
+            is PackOpeningAttempt.Opened -> {
+                gameMetrics.packOpened()
+                telegramClient.sendMessage(chatId, Messages.t("pack.opening", locale))
+                attempt.cards.forEach { card -> gameMetrics.cardOpened(card.rarity.name, "pack") }
+
+                val seenCardIds = userCardRepository.findByUserId(user.id)
+                    .mapTo(mutableSetOf()) { it.cardId }
+                    .apply { removeAll(attempt.newCardIds) }
+                for (card in attempt.cards) {
+                    val isNew = seenCardIds.add(card.id)
+                    sendCardReveal(chatId, user.id, card, isNew, locale, logContext = "pack card")
+                }
+
+                val progress = attempt.affectedProgress.joinToString("\n") {
+                    collectionService.formatThemeLine(it, locale)
+                }
+                telegramClient.sendMessage(
+                    chatId,
+                    Messages.t("pack.summary", locale, attempt.newCardIds.size, attempt.cards.size, progress),
+                    mainMenuKeyboard(locale, attempt.remainingPacks),
+                )
+                sendCollectionCompletionRewards(chatId, user, attempt.completedCollections)
+            }
         }
-
-        // Open pack
-        packLedgerRepository.addPacks(user.id, "opened", -1)
-        gameMetrics.packOpened()
-        telegramClient.sendMessage(chatId, Messages.t("pack.opening", locale))
-
-        // Roll cards
-        val currentInventory = userCardRepository.findByUserId(user.id).map { it.cardId }.toSet()
-        val rolledCards = packOpeningService.rollCards(
-            properties.economy.cardsPerPack,
-            currentInventory,
-            currentGameMonth(),
-            fromGroupChat,
-        )
-
-        // Save cards
-        userCardRepository.addCards(user.id, rolledCards.map { it.id })
-        val completedCollections = claimCollectionCompletionRewards(user.id)
-        rolledCards.forEach { card -> gameMetrics.cardOpened(card.rarity.name, "pack") }
-
-        for (card in rolledCards) {
-            val isNew = !currentInventory.contains(card.id)
-            sendCardReveal(chatId, card, isNew, locale, logContext = "pack card")
-        }
-        telegramClient.sendMessage(chatId, Messages.t("pack.opened", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
-        sendCollectionCompletionRewards(chatId, user, completedCollections)
     }
 
     // ---- Free single card (one card every 3h, first one immediately) ----
@@ -490,7 +502,7 @@ class GameService(
         } else {
             null
         }
-        sendCardReveal(chatId, card, isNew, locale, revealKeyboard, logContext = "free card")
+        sendCardReveal(chatId, fresh.id, card, isNew, locale, revealKeyboard, logContext = "free card")
         sendCollectionCompletionRewards(chatId, fresh, completedCollections)
         sendFreeCardWait(chatId, locale, properties.economy.freeCardIntervalHours * 60L, availablePacks)
     }
@@ -603,10 +615,10 @@ class GameService(
         val header = Messages.t(headerKey, locale, card.nameFor(locale))
         sendCardReveal(
             chatId = chatId,
+            ownerUserId = userId,
             card = card,
             isNew = isNew,
             locale = locale,
-            replyMarkup = mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(userId)),
             header = header,
             logContext = "trade result card",
         )
@@ -614,6 +626,7 @@ class GameService(
 
     private fun sendCardReveal(
         chatId: Long,
+        ownerUserId: Long,
         card: CardDefinition,
         isNew: Boolean,
         locale: GameLocale,
@@ -624,16 +637,37 @@ class GameService(
         val reveal = packOpeningService.formatReveal(card, isNew, locale)
         val caption = listOfNotNull(header, reveal).joinToString("\n\n")
         val resource = ClassPathResource("static/assets/cards/${card.id}.png")
+        val cardKeyboard = withShareButton(replyMarkup, card, ownerUserId, locale)
         try {
             if (resource.exists()) {
-                telegramClient.sendPhoto(chatId, resource, caption, replyMarkup)
+                telegramClient.sendPhoto(chatId, resource, caption, cardKeyboard)
             } else {
-                telegramClient.sendMessage(chatId, caption, replyMarkup)
+                telegramClient.sendMessage(chatId, caption, cardKeyboard)
             }
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
             logger.warn("Failed to send {} photo for {}", logContext, card.id, e)
-            runCatching { telegramClient.sendMessage(chatId, caption, replyMarkup) }
+            telegramClient.sendMessage(chatId, caption, cardKeyboard)
         }
+    }
+
+    private fun withShareButton(
+        replyMarkup: TelegramReplyMarkup?,
+        card: CardDefinition,
+        ownerUserId: Long,
+        locale: GameLocale,
+    ): TelegramReplyMarkup {
+        val shareRow = listOf(
+            TelegramInlineButton(
+                text = Messages.t("card.share", locale),
+                url = cardShareLinkService.shareUrl(card, ownerUserId, locale),
+            ),
+        )
+        // Telegram does not allow reply and inline keyboards in one markup.
+        // Reply keyboards persist, so card messages carry the share action and
+        // any existing inline actions only.
+        return TelegramReplyMarkup(
+            inlineKeyboard = listOf(shareRow) + replyMarkup?.inlineKeyboard.orEmpty(),
+        )
     }
 
     private fun currentGameMonth(): Int =
@@ -1665,7 +1699,7 @@ class GameService(
         START, HELP, LANGUAGE, COLLECTION, PACK, FREECARD, CRAFT, BUY, PAYSUPPORT, ANSWER, TRADE, MARKET
     }
 
-    private fun handleCallback(callback: TelegramCallbackQuery) {
+    private fun handleCallback(callback: TelegramCallbackQuery, updateId: Long? = null) {
         val chatId = callback.message?.chat?.id ?: return
         val telegramId = callback.from?.id ?: return
         val fromGroupChat = isGroupChat(callback.message?.chat?.type)
@@ -1674,18 +1708,16 @@ class GameService(
             callback.id?.let { telegramClient.answerCallbackQuery(it) }
             when (callback.data) {
                 "lang:en" -> {
-                    val source = pendingSources.remove(telegramId) ?: "direct"
-                    val newUser = userRepository.create(telegramId, GameLocale.EN.code, source)
-                    gameMetrics.registration(source)
-                    grantStarterPacks(newUser.id)
+                    val registration = playerRegistrationService.registerIfMissing(telegramId, GameLocale.EN.code, "direct")
+                    val newUser = registration.user
+                    if (registration.created) gameMetrics.registration("direct")
                     telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.EN), mainMenuKeyboard(GameLocale.EN, packLedgerRepository.getTotalAvailablePacks(newUser.id)))
                     telegramClient.sendMessage(chatId, Messages.t("pack.starter", GameLocale.EN, properties.economy.starterPacks), openPackKeyboard(GameLocale.EN, packLedgerRepository.getTotalAvailablePacks(newUser.id)))
                 }
                 "lang:ru" -> {
-                    val source = pendingSources.remove(telegramId) ?: "direct"
-                    val newUser = userRepository.create(telegramId, GameLocale.RU.code, source)
-                    gameMetrics.registration(source)
-                    grantStarterPacks(newUser.id)
+                    val registration = playerRegistrationService.registerIfMissing(telegramId, GameLocale.RU.code, "direct")
+                    val newUser = registration.user
+                    if (registration.created) gameMetrics.registration("direct")
                     telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.RU), mainMenuKeyboard(GameLocale.RU, packLedgerRepository.getTotalAvailablePacks(newUser.id)))
                     telegramClient.sendMessage(chatId, Messages.t("pack.starter", GameLocale.RU, properties.economy.starterPacks), openPackKeyboard(GameLocale.RU, packLedgerRepository.getTotalAvailablePacks(newUser.id)))
                 }
@@ -1713,7 +1745,7 @@ class GameService(
                 telegramClient.sendMessage(chatId, Messages.t("language.changed", GameLocale.RU), mainMenuKeyboard(GameLocale.RU, packLedgerRepository.getTotalAvailablePacks(user.id)))
             }
             "menu:collection" -> sendCollectionView(chatId, user, page = 0)
-            "menu:pack", "menu:open-pack" -> handlePackOpening(chatId, user, fromGroupChat)
+            "menu:pack", "menu:open-pack" -> handlePackOpening(chatId, user, fromGroupChat, updateId)
             "menu:freecard" -> handleFreeCard(chatId, user, fromGroupChat)
             "menu:craft" -> handleCraft(chatId, user)
             "menu:market" -> handleMarket(chatId, user)
@@ -1735,12 +1767,6 @@ class GameService(
                 }
             }
         }
-    }
-
-    private fun grantStarterPacks(userId: Long) {
-        // Exactly 3 starter packs; the first free single card is due immediately
-        // (last_free_card_at stays NULL until the first claim), then every 3h.
-        packLedgerRepository.addPacks(userId, "starter", properties.economy.starterPacks)
     }
 
     private fun sendThemesAlias(chatId: Long, user: User) = sendThemesView(chatId, user)
@@ -1960,7 +1986,7 @@ class GameService(
     ) {
         val locale = gameLocale(user)
         val caption = galleryCaption(card, theme, ownedCount, locale, index + 1, total)
-        val keyboard = galleryKeyboard(locale, actionForIndex, index, total, card, ownedCount)
+        val keyboard = galleryKeyboard(locale, user.id, actionForIndex, index, total, card, ownedCount)
         val resource = ClassPathResource("static/assets/cards/${card.id}.png")
 
         val existing = chatGalleries[chatId]
@@ -2003,6 +2029,7 @@ class GameService(
 
     private fun galleryKeyboard(
         locale: GameLocale,
+        ownerUserId: Long,
         actionForIndex: (Int) -> String,
         index: Int,
         total: Int,
@@ -2020,6 +2047,15 @@ class GameService(
                 ),
             )
         }
+
+        buttons.add(
+            listOf(
+                TelegramInlineButton(
+                    text = Messages.t("card.share", locale),
+                    url = cardShareLinkService.shareUrl(card, ownerUserId, locale),
+                ),
+            ),
+        )
 
         // Navigation
         val navButtons = mutableListOf<TelegramInlineButton>()

@@ -52,11 +52,18 @@ The bot is English by default; players whose Telegram language is Russian see Ru
 
 ## Current Engineering Status
 
-The gameplay above is implemented and backed by PostgreSQL. Remaining hardening
-work includes making pack debit and inventory credit one transaction, improving
-failure-safe Telegram update processing, and adding PostgreSQL integration tests.
-Deep-link campaign attribution is implemented through `/start <source>`; player
-referral rewards and a card-sharing button are not implemented yet.
+The gameplay above is implemented and backed by PostgreSQL. Player creation and
+starter packs commit atomically. Pack balance validation, debit, card upserts,
+and completion rewards also commit in one transaction while a per-player row
+lock prevents double spending from concurrent taps. Pack results are recorded by
+Telegram `update_id`, so a delivery retry restores the same cards without another
+debit. PostgreSQL Testcontainers coverage exercises registration, concurrency,
+persistence, and the photo-send flow.
+
+New players receive a short welcome plus a prominent starter-pack button. Every
+card reveal and collection gallery includes a share button; its deep link records
+`ref_<internal user id>` as the new player's registration source. Referral rewards
+are not implemented yet.
 
 ## Product Principles
 

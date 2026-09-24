@@ -47,8 +47,9 @@ class WebhookController(
             logger.error("Retryable Telegram webhook failure for update {}", update.updateId, e)
             throw e
         } catch (e: Throwable) {
-            // Legacy game actions are still claim-before-effect. Preserve their existing
-            // at-most-once behavior; payment/support paths use the retryable exception above.
+            // Unexpected terminal failures are acknowledged only when GameService did
+            // not classify them as retryable. Normal update claims are released before
+            // RetryableTelegramUpdateException reaches this boundary.
             logger.error("Failed to process Telegram webhook update {}", update.updateId, e)
         }
     }

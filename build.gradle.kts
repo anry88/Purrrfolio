@@ -10,6 +10,8 @@ plugins {
 group = "com.anry88"
 version = "0.1.0"
 
+extra["testcontainers.version"] = "2.0.5"
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
@@ -36,6 +38,9 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.5"))
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
     runtimeOnly("com.h2database:h2")
     testRuntimeOnly("com.h2database:h2")
 }

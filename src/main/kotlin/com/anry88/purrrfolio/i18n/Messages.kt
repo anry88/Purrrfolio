@@ -34,6 +34,10 @@ object Messages {
                 "🇷🇺 Русский канал: [Purrrfolio RU](https://t.me/Purrrfolio_Ru)\n" +
                 "🇬🇧 Английский канал: [Purrrfolio EN](https://t.me/Purrrfolio_En)"
             ),
+        "welcome.new" to (
+            "🐾 *Welcome to Purrrfolio!*\n\nYour cozy cat collection starts now." to
+                "🐾 *Добро пожаловать в Purrrfolio!*\n\nТвоя уютная коллекция котиков начинается прямо сейчас."
+            ),
         "help" to (
             "*Purrrfolio commands*\n\n" +
                 "/start — register and choose language\n" +
@@ -108,12 +112,21 @@ object Messages {
                 "Открываю набор..."
             ),
         "pack.opened" to ("Pack opened!" to "Набор открыт!"),
+        "pack.summary" to (
+            "🎉 *Pack opened:* %s new of %s.\n\n*Collection progress:*\n%s" to
+                "🎉 *Набор открыт:* новых карточек — %s из %s.\n\n*Прогресс коллекций:*\n%s"
+            ),
         "pack.newCard" to (" ✨ NEW" to " ✨ НОВАЯ"),
         "pack.starter" to (
             "🎁 You received %s starter packs! Open them to begin your collection." to
                 "🎁 Ты получил %s стартовых наборов! Открой их, чтобы начать коллекцию."
             ),
         "card.special" to ("✨ *SPECIAL CARD*" to "✨ *СПЕШЛ-КАРТОЧКА*"),
+        "card.share" to ("📤 Share card" to "📤 Поделиться карточкой"),
+        "card.shareText" to (
+            "I found %s (%s) in Purrrfolio! Start your own collection: %s" to
+                "Мне выпал котик %s (%s) в Purrrfolio! Начни свою коллекцию: %s"
+            ),
         "card.specialTag" to ("✨ SPECIAL" to "✨ СПЕШЛ"),
         "card.nextFreeIn" to (
             "Next free card in %s h %s min." to
