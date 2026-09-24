@@ -121,6 +121,14 @@ object Messages {
             "🎁 You received %s starter packs! Open them to begin your collection." to
                 "🎁 Ты получил %s стартовых наборов! Открой их, чтобы начать коллекцию."
             ),
+        "referral.joinerReward" to (
+            "🎉 Referral bonus: you and the player who invited you received %s extra packs each!" to
+                "🎉 Реферальный бонус: ты и пригласивший тебя игрок получили ещё по %s наборов!"
+            ),
+        "referral.referrerReward" to (
+            "🐾 A new player joined through your card! You both received %s extra packs." to
+                "🐾 Новый игрок пришёл по твоей карточке! Вы оба получили ещё по %s наборов."
+            ),
         "card.special" to ("✨ *SPECIAL CARD*" to "✨ *СПЕШЛ-КАРТОЧКА*"),
         "card.share" to ("📤 Share card" to "📤 Поделиться карточкой"),
         "card.shareText" to (

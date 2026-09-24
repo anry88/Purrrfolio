@@ -16,7 +16,7 @@ class PackLedgerRepository(private val jdbcTemplate: JdbcTemplate) {
             userId = rs.getLong("user_id"),
             source = rs.getString("source"),
             quantity = rs.getInt("quantity"),
-            starsPaid = rs.getObject("stars_paid", Int::class.java),
+            starsPaid = (rs.getObject("stars_paid") as? Number)?.toInt(),
             paymentId = rs.getString("payment_id"),
             createdAt = rs.getObject("created_at", OffsetDateTime::class.java),
         )

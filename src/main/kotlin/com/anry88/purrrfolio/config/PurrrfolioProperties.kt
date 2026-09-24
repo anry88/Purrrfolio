@@ -21,6 +21,7 @@ data class TelegramProperties(
 
 data class EconomyProperties(
     val starterPacks: Int = 3,
+    val referralBonusPacks: Int = 5,
     val freePackIntervalHours: Int = 23,
     val freeCardIntervalHours: Int = 3,
     val cardsPerPack: Int = 3,

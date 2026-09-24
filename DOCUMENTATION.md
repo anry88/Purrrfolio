@@ -39,7 +39,8 @@ Core business logic is split into small packages:
 3. The first supported command or text alias creates `users` by `telegram_user_id`.
 4. Russian Telegram language codes select RU; all others select EN. `/language` can change the stored language later.
 5. User creation and the 3-pack starter `pack_ledger` grant commit in one transaction; a normalized `/start <source>` code is stored in `users.registration_source`.
-6. A new `/start` receives a short welcome followed by a dedicated inline button for opening the starter packs.
+6. For a valid `ref_<users.id>` source, the transaction also claims one `referral_rewards` row and grants 5 packs to both the new player and the referrer. The new player therefore starts with 8 packs. Existing accounts, missing referrers, self-referrals, and retries do not receive another grant.
+7. A new `/start` receives a short welcome followed by a dedicated inline button for opening the starter packs; both players receive localized referral-reward messages when applicable.
 
 ### Pack opening
 
@@ -106,7 +107,7 @@ All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strin
 
 ## Persistence
 
-PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V13). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, and idempotent pack-opening receipts.
+PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V14). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, and referral rewards.
 
 Main tables:
 
@@ -121,6 +122,7 @@ Main tables:
 - `payment_support_requests`
 - `processed_telegram_updates`
 - `pack_opening_receipts`
+- `referral_rewards` (one immutable reward claim per referred user)
 - `group_chat_members`
 - `group_raffles`
 - `group_raffle_winners`
@@ -147,7 +149,7 @@ Application settings are in `src/main/resources/application.yml` under the `purr
 - `purrrfolio.telegram.*` — bot token, webhook secret, username
 - `purrrfolio.telegram.admin-tg-id` / `ADMIN_TG_ID` — private admin identity for payment refunds
 - `purrrfolio.telegram.payment-payload-secret` / `PAYMENT_PAYLOAD_SECRET` — HMAC key for Stars orders; a blank value falls back to the webhook secret
-- `purrrfolio.economy.*` — starter packs, free-card interval, cards per pack, and Stars bundle prices
+- `purrrfolio.economy.*` — starter packs, referral bonus packs (`REFERRAL_BONUS_PACKS`, default 5), free-card interval, cards per pack, and Stars bundle prices
 
 Local overrides: copy `application-local.example.yml` to `application-local.yml` (gitignored).
 
@@ -170,4 +172,3 @@ Local overrides: copy `application-local.example.yml` to `application-local.yml`
 
 1. Telegram delivery remains at-least-once: the pack receipt prevents another debit or card grant, but a process crash after Telegram accepts a message and before local completion can duplicate a reveal on retry.
 2. Extend Testcontainers PostgreSQL coverage beyond registration and pack opening to crafting, random trades, marketplace settlement, payments, completion rewards, and group raffles.
-3. Add referral rewards if they enter MVP scope. Share links currently attribute a registration as `ref_<users.id>` but do not grant either player a reward.

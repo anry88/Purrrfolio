@@ -397,6 +397,9 @@ class GameService(
                         Messages.t("pack.starter", gameLocale(user), properties.economy.starterPacks),
                         openPackKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)),
                     )
+                    registration.referralReward?.let { reward ->
+                        sendReferralRewardMessages(chatId, user, reward)
+                    }
                 } else {
                     telegramClient.sendMessage(chatId, Messages.t("welcome", gameLocale(user)), mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
                 }
@@ -417,6 +420,27 @@ class GameService(
         // Automatic daily pack raffle: runs after any processed command in a group chat.
         if (fromGroupChat) {
             maybeGroupRaffle(chatId, user)
+        }
+    }
+
+    private fun sendReferralRewardMessages(chatId: Long, user: User, reward: ReferralRewardResult) {
+        telegramClient.sendMessage(
+            chatId,
+            Messages.t("referral.joinerReward", gameLocale(user), reward.packsEach),
+            openPackKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)),
+        )
+
+        runCatching {
+            telegramClient.sendMessage(
+                reward.referrer.telegramUserId,
+                Messages.t("referral.referrerReward", gameLocale(reward.referrer), reward.packsEach),
+                openPackKeyboard(
+                    gameLocale(reward.referrer),
+                    packLedgerRepository.getTotalAvailablePacks(reward.referrer.id),
+                ),
+            )
+        }.onFailure { error ->
+            logger.warn("Could not notify referrer {} about reward", reward.referrer.id, error)
         }
     }
 

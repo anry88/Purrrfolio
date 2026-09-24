@@ -3,6 +3,7 @@ package com.anry88.purrrfolio.game
 import com.anry88.purrrfolio.config.PurrrfolioProperties
 import com.anry88.purrrfolio.models.User
 import com.anry88.purrrfolio.repository.PackLedgerRepository
+import com.anry88.purrrfolio.repository.ReferralRewardRepository
 import com.anry88.purrrfolio.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
@@ -11,6 +12,12 @@ import org.springframework.transaction.support.TransactionTemplate
 data class PlayerRegistrationResult(
     val user: User,
     val created: Boolean,
+    val referralReward: ReferralRewardResult? = null,
+)
+
+data class ReferralRewardResult(
+    val referrer: User,
+    val packsEach: Int,
 )
 
 @Service
@@ -18,6 +25,7 @@ class PlayerRegistrationService(
     private val properties: PurrrfolioProperties,
     private val userRepository: UserRepository,
     private val packLedgerRepository: PackLedgerRepository,
+    private val referralRewardRepository: ReferralRewardRepository,
     transactionManager: PlatformTransactionManager,
 ) {
     private val transactionTemplate = TransactionTemplate(transactionManager)
@@ -32,7 +40,11 @@ class PlayerRegistrationService(
                     STARTER_PACK_SOURCE,
                     properties.economy.starterPacks,
                 )
-                PlayerRegistrationResult(created, created = true)
+                PlayerRegistrationResult(
+                    user = created,
+                    created = true,
+                    referralReward = grantReferralReward(created, registrationSource),
+                )
             } else {
                 val existing = checkNotNull(userRepository.findByTelegramUserId(telegramUserId)) {
                     "Conflicting player registration was not visible after INSERT conflict"
@@ -41,7 +53,32 @@ class PlayerRegistrationService(
             }
         } ?: error("Player registration transaction returned no result")
 
+    private fun grantReferralReward(created: User, registrationSource: String): ReferralRewardResult? {
+        val packsEach = properties.economy.referralBonusPacks
+        if (packsEach <= 0) return null
+
+        val referrerId = registrationSource
+            .takeIf { it.startsWith(REFERRAL_PREFIX) }
+            ?.removePrefix(REFERRAL_PREFIX)
+            ?.takeIf { it.isNotEmpty() && it.all(Char::isDigit) }
+            ?.toLongOrNull()
+            ?.takeIf { it > 0 && it != created.id }
+            ?: return null
+
+        val referrer = userRepository.findById(referrerId) ?: return null
+        check(userRepository.lockById(referrer.id)) { "Referrer disappeared during registration" }
+
+        if (!referralRewardRepository.claim(created.id, referrer.id, packsEach)) return null
+
+        packLedgerRepository.addPacks(created.id, REFERRAL_JOINER_PACK_SOURCE, packsEach)
+        packLedgerRepository.addPacks(referrer.id, REFERRAL_REFERRER_PACK_SOURCE, packsEach)
+        return ReferralRewardResult(referrer = referrer, packsEach = packsEach)
+    }
+
     companion object {
         const val STARTER_PACK_SOURCE = "starter"
+        const val REFERRAL_JOINER_PACK_SOURCE = "referral_joiner"
+        const val REFERRAL_REFERRER_PACK_SOURCE = "referral_referrer"
+        private const val REFERRAL_PREFIX = "ref_"
     }
 }

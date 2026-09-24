@@ -195,7 +195,17 @@ class GameMetrics(
     companion object {
         private val PERIODS = listOf("day", "week", "month", "total")
         private val PAYMENT_STATES = listOf("PENDING", "COMPLETED", "FAILED", "REFUNDED")
-        private val PACK_SOURCES = listOf("starter", "stars", "craft", "collection_completion", "raffle", "opened", "refund")
+        private val PACK_SOURCES = listOf(
+            "starter",
+            "referral_joiner",
+            "referral_referrer",
+            "stars",
+            "craft",
+            "collection_completion",
+            "raffle",
+            "opened",
+            "refund",
+        )
 
         fun packSourceGaugeValue(source: String, ledgerTotal: Long): Long =
             if (source == "opened" || source == "refund") -ledgerTotal else ledgerTotal

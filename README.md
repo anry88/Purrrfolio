@@ -62,8 +62,9 @@ persistence, and the photo-send flow.
 
 New players receive a short welcome plus a prominent starter-pack button. Every
 card reveal and collection gallery includes a share button; its deep link records
-`ref_<internal user id>` as the new player's registration source. Referral rewards
-are not implemented yet.
+`ref_<internal user id>` as the new player's registration source. When a genuinely
+new player joins through that link, both players receive 5 extra packs; the new
+player keeps the normal 3 starter packs as well, for 8 packs total.
 
 ## Product Principles
 

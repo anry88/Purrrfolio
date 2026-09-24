@@ -70,6 +70,7 @@ class MessagesTest {
             "menu.collection", "menu.pack", "menu.packCount", "menu.buy", "menu.freecard", "menu.craft", "menu.trade", "menu.market", "menu.language",
             "language.title", "language.changed",
             "pack.noPacks", "pack.opening", "pack.opened", "pack.summary", "pack.newCard", "pack.starter",
+            "referral.joinerReward", "referral.referrerReward",
             "card.special", "card.share", "card.shareText", "card.nextFreeIn",
             "craft.title", "craft.pickCard", "craft.addButton", "craft.added", "craft.crafted", "craft.noDuplicates",
             "buy.title", "buy.option1", "buy.option3", "buy.option5", "buy.option10",

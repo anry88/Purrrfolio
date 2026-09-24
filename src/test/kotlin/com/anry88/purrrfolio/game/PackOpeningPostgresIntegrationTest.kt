@@ -17,6 +17,7 @@ import com.anry88.purrrfolio.repository.PaymentRepository
 import com.anry88.purrrfolio.repository.PaymentSupportRepository
 import com.anry88.purrrfolio.repository.ProcessedUpdateRepository
 import com.anry88.purrrfolio.repository.RandomTradeRepository
+import com.anry88.purrrfolio.repository.ReferralRewardRepository
 import com.anry88.purrrfolio.repository.UserCardRepository
 import com.anry88.purrrfolio.repository.UserRepository
 import com.anry88.purrrfolio.telegram.TelegramChat
@@ -57,6 +58,7 @@ class PackOpeningPostgresIntegrationTest {
     private lateinit var userCardRepository: UserCardRepository
     private lateinit var packLedgerRepository: PackLedgerRepository
     private lateinit var packOpeningReceiptRepository: PackOpeningReceiptRepository
+    private lateinit var referralRewardRepository: ReferralRewardRepository
     private lateinit var completionRewardService: CollectionCompletionRewardService
     private lateinit var processedUpdateRepository: ProcessedUpdateRepository
 
@@ -79,6 +81,7 @@ class PackOpeningPostgresIntegrationTest {
         userCardRepository = UserCardRepository(jdbc)
         packLedgerRepository = PackLedgerRepository(jdbc)
         packOpeningReceiptRepository = PackOpeningReceiptRepository(jdbc)
+        referralRewardRepository = ReferralRewardRepository(jdbc)
         processedUpdateRepository = ProcessedUpdateRepository(jdbc)
         completionRewardService = CollectionCompletionRewardService(
             catalog,
@@ -91,6 +94,7 @@ class PackOpeningPostgresIntegrationTest {
             properties,
             userRepository,
             packLedgerRepository,
+            referralRewardRepository,
             transactionManager,
         )
         openingService = PackOpeningTransactionService(
@@ -128,6 +132,59 @@ class PackOpeningPostgresIntegrationTest {
         } finally {
             executor.shutdownNow()
         }
+    }
+
+    @Test
+    fun `referral registration keeps three starter packs and grants five extra packs to both players once`() {
+        val referralProperties = properties.copy(
+            economy = EconomyProperties(starterPacks = 3, referralBonusPacks = 5, cardsPerPack = 3),
+        )
+        val referralRegistrationService = PlayerRegistrationService(
+            referralProperties,
+            userRepository,
+            packLedgerRepository,
+            referralRewardRepository,
+            transactionManager,
+        )
+        val referrer = referralRegistrationService.registerIfMissing(7101, "en", "direct").user
+
+        val first = referralRegistrationService.registerIfMissing(7102, "ru", "ref_${referrer.id}")
+        val retry = referralRegistrationService.registerIfMissing(7102, "ru", "ref_${referrer.id}")
+
+        assertThat(first.created).isTrue()
+        assertThat(first.referralReward?.referrer?.id).isEqualTo(referrer.id)
+        assertThat(first.referralReward?.packsEach).isEqualTo(5)
+        assertThat(retry.created).isFalse()
+        assertThat(retry.referralReward).isNull()
+        assertThat(packLedgerRepository.getTotalAvailablePacks(first.user.id)).isEqualTo(8)
+        assertThat(packLedgerRepository.getTotalAvailablePacks(referrer.id)).isEqualTo(8)
+        assertThat(packLedgerRepository.findByUserId(first.user.id).associate { it.source to it.quantity })
+            .containsEntry("starter", 3)
+            .containsEntry("referral_joiner", 5)
+        assertThat(packLedgerRepository.findByUserId(referrer.id).associate { it.source to it.quantity })
+            .containsEntry("starter", 3)
+            .containsEntry("referral_referrer", 5)
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM referral_rewards", Int::class.java)).isEqualTo(1)
+    }
+
+    @Test
+    fun `unknown referral keeps starter packs without granting a bonus`() {
+        val referralProperties = properties.copy(
+            economy = EconomyProperties(starterPacks = 3, referralBonusPacks = 5, cardsPerPack = 3),
+        )
+        val referralRegistrationService = PlayerRegistrationService(
+            referralProperties,
+            userRepository,
+            packLedgerRepository,
+            referralRewardRepository,
+            transactionManager,
+        )
+
+        val registration = referralRegistrationService.registerIfMissing(7103, "en", "ref_999999")
+
+        assertThat(registration.referralReward).isNull()
+        assertThat(packLedgerRepository.getTotalAvailablePacks(registration.user.id)).isEqualTo(3)
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM referral_rewards", Int::class.java)).isZero()
     }
 
     @Test
@@ -235,6 +292,39 @@ class PackOpeningPostgresIntegrationTest {
         val starterKeyboard = messages[1].arguments[2] as TelegramReplyMarkup
         assertThat(starterKeyboard.inlineKeyboard.orEmpty().flatten().single().callbackData)
             .isEqualTo("menu:open-pack")
+    }
+
+    @Test
+    fun `first start through referral notifies both players and shows full pack balance`() {
+        val referrer = registrationService.registerIfMissing(7006, "ru", "direct").user
+        val telegramClient = mock(TelegramClient::class.java)
+        val gameService = createGameService(telegramClient)
+
+        gameService.handle(
+            TelegramUpdate(
+                updateId = 9003,
+                message = TelegramMessage(
+                    messageId = 3,
+                    text = "/start ref_${referrer.id}",
+                    chat = TelegramChat(id = 7007, type = "private"),
+                    from = TelegramUser(id = 7007, languageCode = "en"),
+                ),
+            ),
+        )
+
+        val joiner = checkNotNull(userRepository.findByTelegramUserId(7007))
+        assertThat(packLedgerRepository.getTotalAvailablePacks(joiner.id)).isEqualTo(6)
+        assertThat(packLedgerRepository.getTotalAvailablePacks(referrer.id)).isEqualTo(6)
+
+        val messages = mockingDetails(telegramClient).invocations.filter { it.method.name == "sendMessage" }
+        val joinerMessages = messages.filter { it.arguments[0] == 7007L }
+        val referrerMessages = messages.filter { it.arguments[0] == 7006L }
+        assertThat(joinerMessages).hasSize(3)
+        assertThat(joinerMessages.last().arguments[1] as String).contains("Referral bonus").contains("5")
+        val joinerKeyboard = joinerMessages.last().arguments[2] as TelegramReplyMarkup
+        assertThat(joinerKeyboard.inlineKeyboard.orEmpty().flatten().single().text).contains("6")
+        assertThat(referrerMessages).hasSize(1)
+        assertThat(referrerMessages.single().arguments[1] as String).contains("Новый игрок").contains("5")
     }
 
     private fun createGameService(telegramClient: TelegramClient) =
