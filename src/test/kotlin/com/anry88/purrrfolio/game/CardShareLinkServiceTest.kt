@@ -7,19 +7,17 @@ import com.anry88.purrrfolio.config.TelegramProperties
 import com.anry88.purrrfolio.i18n.GameLocale
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 
 class CardShareLinkServiceTest {
     private val service = CardShareLinkService(
         PurrrfolioProperties(
             publicBaseUrl = "https://purrrfolio.example/",
-            telegram = TelegramProperties(botUsername = "purrrfolio_bot"),
+            telegram = TelegramProperties(botUsername = "PurrrfolioBot"),
         ),
     )
 
     @Test
-    fun `share link uses public card image and internal player referral id`() {
+    fun `inline share hides referral URL under localized caption text`() {
         val card = CardDefinition(
             id = "sleepy",
             nameEn = "Sleepy",
@@ -29,12 +27,21 @@ class CardShareLinkServiceTest {
             imagePath = "/assets/cards/sleepy.png",
         )
 
-        val url = service.shareUrl(card, ownerUserId = 42, locale = GameLocale.RU)
-        val decoded = URLDecoder.decode(url, StandardCharsets.UTF_8)
+        val query = service.inlineQuery(card, ownerUserId = 42)
+        val caption = service.sharedCaption(card, ownerUserId = 42, locale = GameLocale.RU)
 
-        assertThat(url).startsWith("https://t.me/share/url?")
-        assertThat(decoded).contains("https://purrrfolio.example/assets/cards/sleepy.png")
-        assertThat(decoded).contains("https://t.me/purrrfolio_bot?start=ref_42")
-        assertThat(decoded).doesNotContain("start=share_sleepy")
+        assertThat(query).isEqualTo("share:42:sleepy")
+        assertThat(service.parseInlineQuery(query)).isEqualTo(CardShareRequest(42, "sleepy"))
+        assertThat(caption).contains("Мне выпал котик <b>Соня</b>")
+        assertThat(caption).contains("<a href=\"https://t.me/PurrrfolioBot?start=ref_42\">")
+        assertThat(caption).doesNotContain("/assets/cards/")
+        assertThat(caption).doesNotContain("https://purrrfolio.example")
+    }
+
+    @Test
+    fun `invalid or edited inline share query is rejected`() {
+        assertThat(service.parseInlineQuery("share:42:sleepy extra")).isNull()
+        assertThat(service.parseInlineQuery("share:-1:sleepy")).isNull()
+        assertThat(service.parseInlineQuery("other:42:sleepy")).isNull()
     }
 }

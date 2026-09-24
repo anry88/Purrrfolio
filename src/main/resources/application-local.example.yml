@@ -11,7 +11,7 @@ purrrfolio:
   telegram:
     bot-token: replace-me
     webhook-secret: replace-me
-    bot-username: purrrfolio_bot
+    bot-username: PurrrfolioBot
     polling-enabled: true
     admin-tg-id: 0
     payment-payload-secret: replace-me

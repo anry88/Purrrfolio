@@ -20,7 +20,7 @@ The command-only backend currently supports:
 - Telegram Stars pack purchases, payment support, and admin-approved refunds
 - Daily group-chat pack raffles and group-only Friends cards
 - RU/EN localization, campaign-source attribution, and gameplay metrics
-- Compact first-run welcome, affected-collection progress after opening, and card sharing with a 5-pack reward for both players after a successful referral
+- Compact first-run welcome, affected-collection progress after opening, and inline card sharing with referral rewards
 
 The concept art in `docs/source/game-concept.png` also shows a decorated home, Mini App UI, and animated pack openings. Those are **not** part of the MVP and remain future ideas.
 
@@ -36,7 +36,7 @@ The concept art in `docs/source/game-concept.png` also shows a decorated home, M
 
 - The player surface is Telegram commands, reply keyboards, inline callbacks, and photo messages; there is no Mini App.
 - The catalog currently contains 285 cards across 16 collections. The larger 1000-card content target remains future work.
-- Card share buttons open Telegram's recipient chooser and include a `ref_<internal user id>` bot deep link. A new player who starts through it receives the normal 3 starter packs plus 5 referral packs; the referrer receives 5 packs. Existing accounts and repeated starts do not grant another reward.
+- Card share buttons open Telegram's recipient chooser and publish a cached Telegram photo with a named `ref_<internal user id>` bot link, without printing the image or referral URL. A new player who starts through it receives the normal 3 starter packs plus 5 referral packs. The referrer receives 5 packs for the first 10 referred registrations per calendar month; newcomers after the cap still receive their full 8 packs. Existing accounts and repeated starts do not grant another reward.
 - Registration and pack opening use PostgreSQL transaction boundaries and Testcontainers coverage. Telegram message delivery remains at-least-once, so a rare retry can duplicate a reveal even though the receipt prevents a second pack debit or card grant.
 
 ## Engagement Systems
@@ -47,7 +47,7 @@ The concept art in `docs/source/game-concept.png` also shows a decorated home, M
 - **Free-card loop** — a single card every 3 hours plus Stars bundles bring the player back.
 - **Seasonal specials** — calendar cards enter the normal rarity pools only during their matching month or season.
 - **Social specials** — Friends cards enter the normal rarity pools only when a pack or free card is requested from a group chat.
-- **Referral loop** — a shared card can bring a new player into the bot and reward both players with 5 packs.
+- **Referral loop** — a shared card always gives a genuinely new referred player 5 extra packs; the referrer is rewarded for the first 10 successful registrations each calendar month.
 
 ## Monetization
 

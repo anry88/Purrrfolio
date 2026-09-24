@@ -8,6 +8,8 @@ import com.anry88.purrrfolio.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
+import java.time.OffsetDateTime
+import java.time.ZoneId
 
 data class PlayerRegistrationResult(
     val user: User,
@@ -18,6 +20,7 @@ data class PlayerRegistrationResult(
 data class ReferralRewardResult(
     val referrer: User,
     val packsEach: Int,
+    val referrerRewarded: Boolean,
 )
 
 @Service
@@ -68,11 +71,26 @@ class PlayerRegistrationService(
         val referrer = userRepository.findById(referrerId) ?: return null
         check(userRepository.lockById(referrer.id)) { "Referrer disappeared during registration" }
 
-        if (!referralRewardRepository.claim(created.id, referrer.id, packsEach)) return null
+        val monthlyLimit = properties.economy.referralMonthlyLimit
+        val monthStart = OffsetDateTime.now(ZoneId.of(properties.gameTimezone))
+            .withDayOfMonth(1)
+            .toLocalDate()
+            .atStartOfDay(ZoneId.of(properties.gameTimezone))
+            .toOffsetDateTime()
+        val referrerRewarded = monthlyLimit > 0 &&
+            referralRewardRepository.countForReferrerSince(referrer.id, monthStart) < monthlyLimit
+
+        if (!referralRewardRepository.claim(created.id, referrer.id, packsEach, referrerRewarded)) return null
 
         packLedgerRepository.addPacks(created.id, REFERRAL_JOINER_PACK_SOURCE, packsEach)
-        packLedgerRepository.addPacks(referrer.id, REFERRAL_REFERRER_PACK_SOURCE, packsEach)
-        return ReferralRewardResult(referrer = referrer, packsEach = packsEach)
+        if (referrerRewarded) {
+            packLedgerRepository.addPacks(referrer.id, REFERRAL_REFERRER_PACK_SOURCE, packsEach)
+        }
+        return ReferralRewardResult(
+            referrer = referrer,
+            packsEach = packsEach,
+            referrerRewarded = referrerRewarded,
+        )
     }
 
     companion object {

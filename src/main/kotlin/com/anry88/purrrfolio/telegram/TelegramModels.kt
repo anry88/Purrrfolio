@@ -11,6 +11,8 @@ data class TelegramUpdate(
     val message: TelegramMessage? = null,
     @JsonProperty("callback_query")
     val callbackQuery: TelegramCallbackQuery? = null,
+    @JsonProperty("inline_query")
+    val inlineQuery: TelegramInlineQuery? = null,
     @JsonProperty("pre_checkout_query")
     val preCheckoutQuery: TelegramPreCheckoutQuery? = null,
 )
@@ -39,6 +41,14 @@ data class TelegramCallbackQuery(
     val data: String? = null,
     val from: TelegramUser? = null,
     val message: TelegramMessage? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramInlineQuery(
+    val id: String? = null,
+    val from: TelegramUser? = null,
+    val query: String = "",
+    val offset: String = "",
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -71,15 +81,16 @@ data class TelegramSendMessageRequest(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class TelegramReplyMarkup(
     @JsonProperty("inline_keyboard")
     val inlineKeyboard: List<List<TelegramInlineButton>>? = null,
     @JsonProperty("keyboard")
     val keyboard: List<List<TelegramKeyboardButton>>? = null,
     @JsonProperty("resize_keyboard")
-    val resizeKeyboard: Boolean? = true,
+    val resizeKeyboard: Boolean? = null,
     @JsonProperty("one_time_keyboard")
-    val oneTimeKeyboard: Boolean? = false,
+    val oneTimeKeyboard: Boolean? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -89,6 +100,33 @@ data class TelegramInlineButton(
     @JsonProperty("callback_data")
     val callbackData: String? = null,
     val url: String? = null,
+    @JsonProperty("switch_inline_query")
+    val switchInlineQuery: String? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramAnswerInlineQueryRequest(
+    @JsonProperty("inline_query_id")
+    val inlineQueryId: String,
+    val results: List<TelegramInlineQueryResultCachedPhoto>,
+    @JsonProperty("cache_time")
+    val cacheTime: Int = 0,
+    @JsonProperty("is_personal")
+    val isPersonal: Boolean = true,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramInlineQueryResultCachedPhoto(
+    val type: String = "photo",
+    val id: String,
+    @JsonProperty("photo_file_id")
+    val photoFileId: String,
+    val title: String? = null,
+    val caption: String,
+    @JsonProperty("parse_mode")
+    val parseMode: String = "HTML",
+    @JsonProperty("reply_markup")
+    val replyMarkup: TelegramReplyMarkup? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

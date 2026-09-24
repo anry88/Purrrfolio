@@ -125,16 +125,22 @@ object Messages {
             "🎉 Referral bonus: you and the player who invited you received %s extra packs each!" to
                 "🎉 Реферальный бонус: ты и пригласивший тебя игрок получили ещё по %s наборов!"
             ),
+        "referral.joinerOnlyReward" to (
+            "🎉 Referral bonus: you received %s extra packs!" to
+                "🎉 Реферальный бонус: ты получил ещё %s наборов!"
+            ),
         "referral.referrerReward" to (
             "🐾 A new player joined through your card! You both received %s extra packs." to
                 "🐾 Новый игрок пришёл по твоей карточке! Вы оба получили ещё по %s наборов."
             ),
         "card.special" to ("✨ *SPECIAL CARD*" to "✨ *СПЕШЛ-КАРТОЧКА*"),
         "card.share" to ("📤 Share card" to "📤 Поделиться карточкой"),
-        "card.shareText" to (
-            "I found %s (%s) in Purrrfolio! Start your own collection: %s" to
-                "Мне выпал котик %s (%s) в Purrrfolio! Начни свою коллекцию: %s"
+        "card.shareResult" to ("Share %s" to "Поделиться: %s"),
+        "card.shareCaption" to (
+            "I found <b>%s</b> (%s) in Purrrfolio!\n\n<a href=\"%s\">🐾 Start your collection and get 8 packs</a>" to
+                "Мне выпал котик <b>%s</b> (%s) в Purrrfolio!\n\n<a href=\"%s\">🐾 Начни свою коллекцию и получи 8 наборов</a>"
             ),
+        "card.startCollection" to ("🐾 Start collecting" to "🐾 Начать коллекцию"),
         "card.specialTag" to ("✨ SPECIAL" to "✨ СПЕШЛ"),
         "card.nextFreeIn" to (
             "Next free card in %s h %s min." to

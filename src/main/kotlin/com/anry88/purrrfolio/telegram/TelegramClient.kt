@@ -93,6 +93,18 @@ class TelegramClient(
             .toBodilessEntity()
     }
 
+    fun answerInlineQuery(queryId: String, results: List<TelegramInlineQueryResultCachedPhoto>) {
+        if (!isConfigured()) {
+            logger.warn("Telegram bot token is not configured; skipping answerInlineQuery")
+            return
+        }
+        restClient.post()
+            .uri("answerInlineQuery")
+            .body(TelegramAnswerInlineQueryRequest(queryId, results))
+            .retrieve()
+            .toBodilessEntity()
+    }
+
     fun sendInvoice(
         chatId: Long,
         title: String,
@@ -285,4 +297,6 @@ data class TelegramBotIdentity(
     val firstName: String? = null,
     @JsonProperty("is_bot")
     val isBot: Boolean? = null,
+    @JsonProperty("supports_inline_queries")
+    val supportsInlineQueries: Boolean? = null,
 )

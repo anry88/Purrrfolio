@@ -32,13 +32,14 @@ purrrfolio:
   telegram:
     bot-token: ${TELEGRAM_BOT_TOKEN:}
     webhook-secret: ${TELEGRAM_WEBHOOK_SECRET:}
-    bot-username: ${TELEGRAM_BOT_USERNAME:purrrfolio_bot}
+    bot-username: ${TELEGRAM_BOT_USERNAME:PurrrfolioBot}
     polling-enabled: ${TELEGRAM_POLLING_ENABLED:false}
     admin-tg-id: ${ADMIN_TG_ID:0}
     payment-payload-secret: ${PAYMENT_PAYLOAD_SECRET:}
   economy:
     starter-packs: ${STARTER_PACKS:3}
     referral-bonus-packs: ${REFERRAL_BONUS_PACKS:5}
+    referral-monthly-limit: ${REFERRAL_MONTHLY_LIMIT:10}
     free-pack-interval-hours: ${FREE_PACK_INTERVAL_HOURS:23}
     free-card-interval-hours: ${FREE_CARD_INTERVAL_HOURS:3}
     cards-per-pack: ${CARDS_PER_PACK:3}

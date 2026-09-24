@@ -39,8 +39,15 @@ Core business logic is split into small packages:
 3. The first supported command or text alias creates `users` by `telegram_user_id`.
 4. Russian Telegram language codes select RU; all others select EN. `/language` can change the stored language later.
 5. User creation and the 3-pack starter `pack_ledger` grant commit in one transaction; a normalized `/start <source>` code is stored in `users.registration_source`.
-6. For a valid `ref_<users.id>` source, the transaction also claims one `referral_rewards` row and grants 5 packs to both the new player and the referrer. The new player therefore starts with 8 packs. Existing accounts, missing referrers, self-referrals, and retries do not receive another grant.
-7. A new `/start` receives a short welcome followed by a dedicated inline button for opening the starter packs; both players receive localized referral-reward messages when applicable.
+6. For a valid `ref_<users.id>` source, the transaction claims one `referral_rewards` row and always grants 5 packs to the new player, who therefore starts with 8 packs. The referrer receives 5 packs for their first 10 referred registrations in each calendar month; later newcomers still receive their bonus, while `referrer_rewarded=false` records that the monthly referrer grant was skipped. The referrer row lock makes the cap safe under concurrent registrations. Existing accounts, missing referrers, self-referrals, and retries do not receive another grant.
+7. A new `/start` receives a short welcome followed by a dedicated inline button for opening the starter packs. The newcomer always receives the applicable localized referral message; the referrer is notified only when their grant was made.
+
+### Card sharing
+
+1. Reveal and gallery messages use an inline button with `switch_inline_query`, which opens Telegram's recipient chooser with an opaque `share:<owner>:<card>` query.
+2. The resulting `inline_query` is accepted only when the Telegram sender owns both the internal player id and the card, preventing query tampering.
+3. Telegram's reusable photo `file_id` is captured after normal photo delivery and persisted in `telegram_card_files`.
+4. The bot answers with an `InlineQueryResultCachedPhoto`: the shared post contains the card photo, an HTML caption with a named referral link, and a start button. Neither the public asset URL nor a raw referral URL is printed in the message.
 
 ### Pack opening
 
@@ -107,7 +114,7 @@ All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strin
 
 ## Persistence
 
-PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V14). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, and referral rewards.
+PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V16). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, referral rewards, persisted Telegram card file ids, and the capped-referrer reward flag.
 
 Main tables:
 
@@ -122,7 +129,8 @@ Main tables:
 - `payment_support_requests`
 - `processed_telegram_updates`
 - `pack_opening_receipts`
-- `referral_rewards` (one immutable reward claim per referred user)
+- `referral_rewards` (one immutable reward claim per referred user, including whether the referrer was inside the monthly cap)
+- `telegram_card_files` (reusable Telegram `file_id` per catalog card for inline sharing)
 - `group_chat_members`
 - `group_raffles`
 - `group_raffle_winners`
@@ -149,7 +157,7 @@ Application settings are in `src/main/resources/application.yml` under the `purr
 - `purrrfolio.telegram.*` — bot token, webhook secret, username
 - `purrrfolio.telegram.admin-tg-id` / `ADMIN_TG_ID` — private admin identity for payment refunds
 - `purrrfolio.telegram.payment-payload-secret` / `PAYMENT_PAYLOAD_SECRET` — HMAC key for Stars orders; a blank value falls back to the webhook secret
-- `purrrfolio.economy.*` — starter packs, referral bonus packs (`REFERRAL_BONUS_PACKS`, default 5), free-card interval, cards per pack, and Stars bundle prices
+- `purrrfolio.economy.*` — starter packs, referral bonus packs (`REFERRAL_BONUS_PACKS`, default 5), monthly rewarded-referral cap (`REFERRAL_MONTHLY_LIMIT`, default 10), free-card interval, cards per pack, and Stars bundle prices
 
 Local overrides: copy `application-local.example.yml` to `application-local.yml` (gitignored).
 

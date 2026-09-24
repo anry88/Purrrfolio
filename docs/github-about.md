@@ -16,4 +16,4 @@ Suggested topics:
 
 Website:
 
-- `https://t.me/purrrfolio_bot` (placeholder until the bot is deployed)
+- `https://t.me/PurrrfolioBot`

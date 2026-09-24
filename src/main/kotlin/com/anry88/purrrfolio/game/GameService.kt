@@ -26,11 +26,14 @@ import com.anry88.purrrfolio.repository.PaymentRepository
 import com.anry88.purrrfolio.repository.PaymentSupportRepository
 import com.anry88.purrrfolio.repository.ProcessedUpdateRepository
 import com.anry88.purrrfolio.repository.RandomTradeRepository
+import com.anry88.purrrfolio.repository.TelegramCardFileRepository
 import com.anry88.purrrfolio.repository.UserCardRepository
 import com.anry88.purrrfolio.repository.UserRepository
 import com.anry88.purrrfolio.telegram.TelegramCallbackQuery
 import com.anry88.purrrfolio.telegram.TelegramClient
 import com.anry88.purrrfolio.telegram.TelegramInlineButton
+import com.anry88.purrrfolio.telegram.TelegramInlineQuery
+import com.anry88.purrrfolio.telegram.TelegramInlineQueryResultCachedPhoto
 import com.anry88.purrrfolio.telegram.TelegramKeyboardButton
 import com.anry88.purrrfolio.telegram.TelegramLabeledPrice
 import com.anry88.purrrfolio.telegram.TelegramMessage
@@ -68,6 +71,7 @@ class GameService(
     private val userRepository: UserRepository,
     private val userCardRepository: UserCardRepository,
     private val packLedgerRepository: PackLedgerRepository,
+    private val telegramCardFileRepository: TelegramCardFileRepository,
     private val marketRepository: MarketRepository,
     private val randomTradeRepository: RandomTradeRepository,
     private val groupRaffleRepository: GroupRaffleRepository,
@@ -313,7 +317,8 @@ class GameService(
             update.callbackQuery?.let {
                 it.data?.let { data -> gameMetrics.callback(data) }
                 handleCallback(it, updateId)
-            } ?: update.message?.let { handleMessage(it, updateId) }
+            } ?: update.inlineQuery?.let(::handleInlineQuery)
+                ?: update.message?.let { handleMessage(it, updateId) }
 
             if (updateId != null && !processedUpdateRepository.markProcessed(updateId)) {
                 error("Telegram update $updateId lost its processing claim")
@@ -326,6 +331,43 @@ class GameService(
             if (e is RetryableTelegramUpdateException) throw e
             throw RetryableTelegramUpdateException(e)
         }
+    }
+
+    private fun handleInlineQuery(inlineQuery: TelegramInlineQuery) {
+        val queryId = inlineQuery.id ?: return
+        val request = cardShareLinkService.parseInlineQuery(inlineQuery.query)
+        val telegramUserId = inlineQuery.from?.id
+        val user = telegramUserId?.let(userRepository::findByTelegramUserId)
+        val result = if (request != null && user?.id == request.ownerUserId) {
+            val owned = userCardRepository.findByUserIdAndCardId(user.id, request.cardId)
+            val card = owned?.takeIf { it.quantity > 0 }
+                ?.let { runCatching { cardCatalog.card(request.cardId) }.getOrNull() }
+            val fileId = card?.let { knownTelegramFileId(it.id) }
+            if (card != null && fileId != null) {
+                val locale = gameLocale(user)
+                TelegramInlineQueryResultCachedPhoto(
+                    id = cardShareLinkService.inlineResultId(card.id),
+                    photoFileId = fileId,
+                    title = Messages.t("card.shareResult", locale, card.nameFor(locale)),
+                    caption = cardShareLinkService.sharedCaption(card, user.id, locale),
+                    replyMarkup = TelegramReplyMarkup(
+                        inlineKeyboard = listOf(
+                            listOf(
+                                TelegramInlineButton(
+                                    text = Messages.t("card.startCollection", locale),
+                                    url = cardShareLinkService.referralUrl(user.id),
+                                ),
+                            ),
+                        ),
+                    ),
+                )
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+        telegramClient.answerInlineQuery(queryId, listOfNotNull(result))
     }
 
     private fun runRetryable(action: () -> Unit) {
@@ -426,10 +468,15 @@ class GameService(
     private fun sendReferralRewardMessages(chatId: Long, user: User, reward: ReferralRewardResult) {
         telegramClient.sendMessage(
             chatId,
-            Messages.t("referral.joinerReward", gameLocale(user), reward.packsEach),
+            Messages.t(
+                if (reward.referrerRewarded) "referral.joinerReward" else "referral.joinerOnlyReward",
+                gameLocale(user),
+                reward.packsEach,
+            ),
             openPackKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)),
         )
 
+        if (!reward.referrerRewarded) return
         runCatching {
             telegramClient.sendMessage(
                 reward.referrer.telegramUserId,
@@ -664,7 +711,8 @@ class GameService(
         val cardKeyboard = withShareButton(replyMarkup, card, ownerUserId, locale)
         try {
             if (resource.exists()) {
-                telegramClient.sendPhoto(chatId, resource, caption, cardKeyboard)
+                val sent = telegramClient.sendPhoto(chatId, resource, caption, cardKeyboard)
+                rememberTelegramFileId(card.id, sent)
             } else {
                 telegramClient.sendMessage(chatId, caption, cardKeyboard)
             }
@@ -683,7 +731,7 @@ class GameService(
         val shareRow = listOf(
             TelegramInlineButton(
                 text = Messages.t("card.share", locale),
-                url = cardShareLinkService.shareUrl(card, ownerUserId, locale),
+                switchInlineQuery = cardShareLinkService.inlineQuery(card, ownerUserId),
             ),
         )
         // Telegram does not allow reply and inline keyboards in one markup.
@@ -696,6 +744,19 @@ class GameService(
 
     private fun currentGameMonth(): Int =
         OffsetDateTime.now(ZoneId.of(properties.gameTimezone)).monthValue
+
+    private fun knownTelegramFileId(cardId: String): String? = knownFileIds[cardId]
+        ?: runCatching { telegramCardFileRepository.findFileId(cardId) }
+            .onFailure { logger.warn("Could not load Telegram file_id for card {}", cardId, it) }
+            .getOrNull()
+            ?.also { knownFileIds[cardId] = it }
+
+    private fun rememberTelegramFileId(cardId: String, message: TelegramMessage?) {
+        val fileId = message?.photo?.lastOrNull()?.fileId ?: return
+        knownFileIds[cardId] = fileId
+        runCatching { telegramCardFileRepository.upsert(cardId, fileId) }
+            .onFailure { logger.warn("Could not persist Telegram file_id for card {}", cardId, it) }
+    }
 
     // ---- Pack crafter (duplicates -> points, 15 pts = 1 pack) ----
 
@@ -2014,7 +2075,7 @@ class GameService(
         val resource = ClassPathResource("static/assets/cards/${card.id}.png")
 
         val existing = chatGalleries[chatId]
-        val cachedFileId = knownFileIds[card.id]
+        val cachedFileId = knownTelegramFileId(card.id)
 
         if (existing != null && existing.messageId == tappedMessageId && existing.key == key && cachedFileId != null) {
             try {
@@ -2036,7 +2097,7 @@ class GameService(
             val messageId = sent?.messageId
             val fileId = sent?.photo?.lastOrNull()?.fileId
             if (messageId != null && fileId != null) {
-                if (cachedFileId == null) knownFileIds[card.id] = fileId
+                rememberTelegramFileId(card.id, sent)
                 if (existing != null && existing.key == key) {
                     runCatching { telegramClient.deleteMessage(chatId, existing.messageId) }
                 }
@@ -2076,7 +2137,7 @@ class GameService(
             listOf(
                 TelegramInlineButton(
                     text = Messages.t("card.share", locale),
-                    url = cardShareLinkService.shareUrl(card, ownerUserId, locale),
+                    switchInlineQuery = cardShareLinkService.inlineQuery(card, ownerUserId),
                 ),
             ),
         )

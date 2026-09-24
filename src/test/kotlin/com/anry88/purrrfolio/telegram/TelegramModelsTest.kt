@@ -86,6 +86,28 @@ class TelegramModelsTest {
     }
 
     @Test
+    fun `deserializes inline query`() {
+        val payload =
+            """
+            {
+              "update_id": 918273648,
+              "inline_query": {
+                "id": "inline-1",
+                "from": {"id": 456, "first_name": "Cat"},
+                "query": "share:42:sleepy",
+                "offset": ""
+              }
+            }
+            """.trimIndent()
+
+        val update = objectMapper.readValue(payload, TelegramUpdate::class.java)
+
+        assertThat(update.inlineQuery?.id).isEqualTo("inline-1")
+        assertThat(update.inlineQuery?.from?.id).isEqualTo(456)
+        assertThat(update.inlineQuery?.query).isEqualTo("share:42:sleepy")
+    }
+
+    @Test
     fun `deserializes sendPhoto response with photo file ids`() {
         val payload =
             """
@@ -147,15 +169,44 @@ class TelegramModelsTest {
     }
 
     @Test
-    fun `serializes URL inline button without callback data`() {
+    fun `serializes switch inline query button without visible URL`() {
         val button = TelegramInlineButton(
             text = "📤 Поделиться карточкой",
-            url = "https://t.me/share/url?url=https%3A%2F%2Fexample.com%2Fcat.png",
+            switchInlineQuery = "share:42:sleepy",
         )
 
         val json = objectMapper.writeValueAsString(button)
 
-        assertThat(json).contains("\"url\":\"https://t.me/share/url?")
+        assertThat(json).contains("\"switch_inline_query\":\"share:42:sleepy\"")
+        assertThat(json).doesNotContain("\"url\"")
         assertThat(json).doesNotContain("callback_data")
+    }
+
+    @Test
+    fun `serializes cached photo inline answer with HTML caption`() {
+        val request = TelegramAnswerInlineQueryRequest(
+            inlineQueryId = "inline-1",
+            results = listOf(
+                TelegramInlineQueryResultCachedPhoto(
+                    id = "share-sleepy",
+                    photoFileId = "telegram-file-id",
+                    caption = "<a href=\"https://t.me/PurrrfolioBot?start=ref_42\">Start</a>",
+                    replyMarkup = TelegramReplyMarkup(
+                        inlineKeyboard = listOf(
+                            listOf(TelegramInlineButton("Start", url = "https://t.me/PurrrfolioBot?start=ref_42")),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        val json = objectMapper.writeValueAsString(request)
+
+        assertThat(json).contains("\"inline_query_id\":\"inline-1\"")
+        assertThat(json).contains("\"photo_file_id\":\"telegram-file-id\"")
+        assertThat(json).contains("\"parse_mode\":\"HTML\"")
+        assertThat(json).contains("\"is_personal\":true")
+        assertThat(json).doesNotContain("resize_keyboard")
+        assertThat(json).doesNotContain("one_time_keyboard")
     }
 }

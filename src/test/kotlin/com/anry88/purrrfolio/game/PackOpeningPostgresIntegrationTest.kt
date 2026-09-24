@@ -18,11 +18,14 @@ import com.anry88.purrrfolio.repository.PaymentSupportRepository
 import com.anry88.purrrfolio.repository.ProcessedUpdateRepository
 import com.anry88.purrrfolio.repository.RandomTradeRepository
 import com.anry88.purrrfolio.repository.ReferralRewardRepository
+import com.anry88.purrrfolio.repository.TelegramCardFileRepository
 import com.anry88.purrrfolio.repository.UserCardRepository
 import com.anry88.purrrfolio.repository.UserRepository
 import com.anry88.purrrfolio.telegram.TelegramChat
 import com.anry88.purrrfolio.telegram.TelegramClient
 import com.anry88.purrrfolio.telegram.TelegramMessage
+import com.anry88.purrrfolio.telegram.TelegramInlineQuery
+import com.anry88.purrrfolio.telegram.TelegramInlineQueryResultCachedPhoto
 import com.anry88.purrrfolio.telegram.TelegramReplyMarkup
 import com.anry88.purrrfolio.telegram.TelegramUpdate
 import com.anry88.purrrfolio.telegram.TelegramUser
@@ -59,6 +62,7 @@ class PackOpeningPostgresIntegrationTest {
     private lateinit var packLedgerRepository: PackLedgerRepository
     private lateinit var packOpeningReceiptRepository: PackOpeningReceiptRepository
     private lateinit var referralRewardRepository: ReferralRewardRepository
+    private lateinit var telegramCardFileRepository: TelegramCardFileRepository
     private lateinit var completionRewardService: CollectionCompletionRewardService
     private lateinit var processedUpdateRepository: ProcessedUpdateRepository
 
@@ -71,7 +75,7 @@ class PackOpeningPostgresIntegrationTest {
         transactionManager = DataSourceTransactionManager(dataSource)
         properties = PurrrfolioProperties(
             publicBaseUrl = "https://purrrfolio.example",
-            telegram = TelegramProperties(botToken = "test", botUsername = "purrrfolio_bot"),
+            telegram = TelegramProperties(botToken = "test", botUsername = "PurrrfolioBot"),
             economy = EconomyProperties(starterPacks = 1, cardsPerPack = 3),
         )
         catalog = CardCatalog(ObjectMapper().registerModule(kotlinModule()))
@@ -82,6 +86,7 @@ class PackOpeningPostgresIntegrationTest {
         packLedgerRepository = PackLedgerRepository(jdbc)
         packOpeningReceiptRepository = PackOpeningReceiptRepository(jdbc)
         referralRewardRepository = ReferralRewardRepository(jdbc)
+        telegramCardFileRepository = TelegramCardFileRepository(jdbc)
         processedUpdateRepository = ProcessedUpdateRepository(jdbc)
         completionRewardService = CollectionCompletionRewardService(
             catalog,
@@ -154,6 +159,7 @@ class PackOpeningPostgresIntegrationTest {
         assertThat(first.created).isTrue()
         assertThat(first.referralReward?.referrer?.id).isEqualTo(referrer.id)
         assertThat(first.referralReward?.packsEach).isEqualTo(5)
+        assertThat(first.referralReward?.referrerRewarded).isTrue()
         assertThat(retry.created).isFalse()
         assertThat(retry.referralReward).isNull()
         assertThat(packLedgerRepository.getTotalAvailablePacks(first.user.id)).isEqualTo(8)
@@ -185,6 +191,46 @@ class PackOpeningPostgresIntegrationTest {
         assertThat(registration.referralReward).isNull()
         assertThat(packLedgerRepository.getTotalAvailablePacks(registration.user.id)).isEqualTo(3)
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM referral_rewards", Int::class.java)).isZero()
+    }
+
+    @Test
+    fun `one referrer rewards at most ten newcomers per calendar month`() {
+        val referralProperties = properties.copy(
+            economy = EconomyProperties(
+                starterPacks = 3,
+                referralBonusPacks = 5,
+                referralMonthlyLimit = 10,
+                cardsPerPack = 3,
+            ),
+        )
+        val referralRegistrationService = PlayerRegistrationService(
+            referralProperties,
+            userRepository,
+            packLedgerRepository,
+            referralRewardRepository,
+            transactionManager,
+        )
+        val referrer = referralRegistrationService.registerIfMissing(7200, "en", "direct").user
+
+        val newcomers = (1L..11L).map { index ->
+            referralRegistrationService.registerIfMissing(7200 + index, "en", "ref_${referrer.id}")
+        }
+
+        assertThat(newcomers.take(10)).allSatisfy { registration ->
+            assertThat(registration.referralReward).isNotNull()
+            assertThat(packLedgerRepository.getTotalAvailablePacks(registration.user.id)).isEqualTo(8)
+        }
+        assertThat(newcomers.last().referralReward).isNotNull()
+        assertThat(newcomers.last().referralReward?.referrerRewarded).isFalse()
+        assertThat(packLedgerRepository.getTotalAvailablePacks(newcomers.last().user.id)).isEqualTo(8)
+        assertThat(packLedgerRepository.getTotalAvailablePacks(referrer.id)).isEqualTo(53)
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM referral_rewards", Int::class.java)).isEqualTo(11)
+        assertThat(
+            jdbc.queryForObject(
+                "SELECT COUNT(*) FROM referral_rewards WHERE referrer_rewarded",
+                Int::class.java,
+            ),
+        ).isEqualTo(10)
     }
 
     @Test
@@ -253,13 +299,47 @@ class PackOpeningPostgresIntegrationTest {
         assertThat(photoCalls).hasSize(3)
         val keyboards = photoCalls.mapNotNull { it.arguments[3] as? TelegramReplyMarkup }
         assertThat(keyboards).allSatisfy { keyboard ->
-            assertThat(keyboard.inlineKeyboard.orEmpty().flatten().single().url).contains("ref_${user.id}")
+            val shareButton = keyboard.inlineKeyboard.orEmpty().flatten().single()
+            assertThat(shareButton.url).isNull()
+            assertThat(shareButton.switchInlineQuery).startsWith("share:${user.id}:")
         }
 
         val sentTexts = mockingDetails(telegramClient).invocations
             .filter { it.method.name == "sendMessage" }
             .mapNotNull { it.arguments.getOrNull(1) as? String }
         assertThat(sentTexts).anyMatch { it.contains("Pack opened") && it.contains("Collection progress") }
+    }
+
+    @Test
+    fun `inline share sends cached card with hidden referral link and start button`() {
+        val user = registrationService.registerIfMissing(7010, "ru", "direct").user
+        userCardRepository.addCards(user.id, listOf("tennis-kitty"))
+        telegramCardFileRepository.upsert("tennis-kitty", "telegram-photo-file-id")
+        val telegramClient = mock(TelegramClient::class.java)
+        val gameService = createGameService(telegramClient)
+
+        gameService.handle(
+            TelegramUpdate(
+                updateId = 9004,
+                inlineQuery = TelegramInlineQuery(
+                    id = "inline-1",
+                    from = TelegramUser(id = 7010, languageCode = "ru"),
+                    query = "share:${user.id}:tennis-kitty",
+                ),
+            ),
+        )
+
+        val call = mockingDetails(telegramClient).invocations
+            .single { it.method.name == "answerInlineQuery" }
+        assertThat(call.arguments[0]).isEqualTo("inline-1")
+        val results = call.arguments[1] as List<*>
+        val result = results.single() as TelegramInlineQueryResultCachedPhoto
+        assertThat(result.photoFileId).isEqualTo("telegram-photo-file-id")
+        assertThat(result.caption).contains("Мне выпал котик").contains("<a href=\"https://t.me/PurrrfolioBot?start=ref_${user.id}\"")
+        assertThat(result.caption).doesNotContain("/assets/cards/")
+        assertThat(result.replyMarkup?.inlineKeyboard.orEmpty().flatten().single().url)
+            .isEqualTo("https://t.me/PurrrfolioBot?start=ref_${user.id}")
+        assertThat(processedUpdateRepository.isProcessed(9004)).isTrue()
     }
 
     @Test
@@ -340,6 +420,7 @@ class PackOpeningPostgresIntegrationTest {
             userRepository = userRepository,
             userCardRepository = userCardRepository,
             packLedgerRepository = packLedgerRepository,
+            telegramCardFileRepository = telegramCardFileRepository,
             marketRepository = mock(MarketRepository::class.java),
             randomTradeRepository = mock(RandomTradeRepository::class.java),
             groupRaffleRepository = mock(GroupRaffleRepository::class.java),

@@ -12,7 +12,7 @@ and Prometheus metrics. The JSON catalog currently contains 285 cards across
 
 ## Gameplay
 
-Open `@purrrfolio_bot` and use:
+Open [`@PurrrfolioBot`](https://t.me/PurrrfolioBot) and use:
 
 - `/start` — register and open the main menu
 - `/collection` — inspect owned cards and duplicates (10 collections per page)
@@ -61,10 +61,12 @@ debit. PostgreSQL Testcontainers coverage exercises registration, concurrency,
 persistence, and the photo-send flow.
 
 New players receive a short welcome plus a prominent starter-pack button. Every
-card reveal and collection gallery includes a share button; its deep link records
-`ref_<internal user id>` as the new player's registration source. When a genuinely
-new player joins through that link, both players receive 5 extra packs; the new
-player keeps the normal 3 starter packs as well, for 8 packs total.
+card reveal and collection gallery includes a share button that opens Telegram's
+recipient chooser. The shared post contains the card photo and a named referral
+link without exposing the image URL or a raw referral URL. A genuinely new player
+joining through it receives 5 referral packs in addition to the normal 3 starter
+packs, for 8 total. The referrer receives 5 packs for each of the first 10 such
+registrations in a calendar month; later newcomers still receive all 8 packs.
 
 ## Product Principles
 

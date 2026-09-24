@@ -13,7 +13,7 @@ data class PurrrfolioProperties(
 data class TelegramProperties(
     val botToken: String = "",
     val webhookSecret: String = "",
-    val botUsername: String = "purrrfolio_bot",
+    val botUsername: String = "PurrrfolioBot",
     val pollingEnabled: Boolean = false,
     val adminTgId: Long = 0,
     val paymentPayloadSecret: String = "",
@@ -22,6 +22,7 @@ data class TelegramProperties(
 data class EconomyProperties(
     val starterPacks: Int = 3,
     val referralBonusPacks: Int = 5,
+    val referralMonthlyLimit: Int = 10,
     val freePackIntervalHours: Int = 23,
     val freeCardIntervalHours: Int = 3,
     val cardsPerPack: Int = 3,
