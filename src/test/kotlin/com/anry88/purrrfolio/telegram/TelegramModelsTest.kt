@@ -190,6 +190,8 @@ class TelegramModelsTest {
                 TelegramInlineQueryResultCachedPhoto(
                     id = "share-sleepy",
                     photoFileId = "telegram-file-id",
+                    title = "👆 Tap to send Sleepy",
+                    description = "The preview itself is the send button",
                     caption = "<a href=\"https://t.me/PurrrfolioBot?start=ref_42\">Start</a>",
                     replyMarkup = TelegramReplyMarkup(
                         inlineKeyboard = listOf(
@@ -204,6 +206,8 @@ class TelegramModelsTest {
 
         assertThat(json).contains("\"inline_query_id\":\"inline-1\"")
         assertThat(json).contains("\"photo_file_id\":\"telegram-file-id\"")
+        assertThat(json).contains("\"title\":\"👆 Tap to send Sleepy\"")
+        assertThat(json).contains("\"description\":\"The preview itself is the send button\"")
         assertThat(json).contains("\"parse_mode\":\"HTML\"")
         assertThat(json).contains("\"is_personal\":true")
         assertThat(json).doesNotContain("resize_keyboard")

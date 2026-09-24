@@ -122,6 +122,7 @@ data class TelegramInlineQueryResultCachedPhoto(
     @JsonProperty("photo_file_id")
     val photoFileId: String,
     val title: String? = null,
+    val description: String? = null,
     val caption: String,
     @JsonProperty("parse_mode")
     val parseMode: String = "HTML",

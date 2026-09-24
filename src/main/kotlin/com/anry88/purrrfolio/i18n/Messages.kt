@@ -134,8 +134,15 @@ object Messages {
                 "🐾 Новый игрок пришёл по твоей карточке! Вы оба получили ещё по %s наборов."
             ),
         "card.special" to ("✨ *SPECIAL CARD*" to "✨ *СПЕШЛ-КАРТОЧКА*"),
-        "card.share" to ("📤 Share card" to "📤 Поделиться карточкой"),
-        "card.shareResult" to ("Share %s" to "Поделиться: %s"),
+        "card.share" to (
+            "📤 Share: choose a chat → tap the preview" to
+                "📤 Поделиться: выбери чат → нажми превью"
+            ),
+        "card.shareResult" to ("👆 Tap to send %s" to "👆 Нажми, чтобы отправить: %s"),
+        "card.shareResultHint" to (
+            "The preview itself is the send button" to
+                "Само превью — это кнопка отправки"
+            ),
         "card.shareCaption" to (
             "I found <b>%s</b> (%s) in Purrrfolio!\n\n<a href=\"%s\">🐾 Start your collection and get 8 packs</a>" to
                 "Мне выпал котик <b>%s</b> (%s) в Purrrfolio!\n\n<a href=\"%s\">🐾 Начни свою коллекцию и получи 8 наборов</a>"

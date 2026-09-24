@@ -349,6 +349,7 @@ class GameService(
                     id = cardShareLinkService.inlineResultId(card.id),
                     photoFileId = fileId,
                     title = Messages.t("card.shareResult", locale, card.nameFor(locale)),
+                    description = Messages.t("card.shareResultHint", locale),
                     caption = cardShareLinkService.sharedCaption(card, user.id, locale),
                     replyMarkup = TelegramReplyMarkup(
                         inlineKeyboard = listOf(
