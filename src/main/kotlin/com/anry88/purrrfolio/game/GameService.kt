@@ -33,7 +33,11 @@ import com.anry88.purrrfolio.telegram.TelegramCallbackQuery
 import com.anry88.purrrfolio.telegram.TelegramClient
 import com.anry88.purrrfolio.telegram.TelegramInlineButton
 import com.anry88.purrrfolio.telegram.TelegramInlineQuery
-import com.anry88.purrrfolio.telegram.TelegramInlineQueryResultCachedPhoto
+import com.anry88.purrrfolio.telegram.TelegramInlineQueryResultArticle
+import com.anry88.purrrfolio.telegram.TelegramInputMediaPhoto
+import com.anry88.purrrfolio.telegram.TelegramInputRichMessage
+import com.anry88.purrrfolio.telegram.TelegramInputRichMessageContent
+import com.anry88.purrrfolio.telegram.TelegramInputRichMessageMedia
 import com.anry88.purrrfolio.telegram.TelegramKeyboardButton
 import com.anry88.purrrfolio.telegram.TelegramLabeledPrice
 import com.anry88.purrrfolio.telegram.TelegramMessage
@@ -345,12 +349,21 @@ class GameService(
             val fileId = card?.let { knownTelegramFileId(it.id) }
             if (card != null && fileId != null) {
                 val locale = gameLocale(user)
-                TelegramInlineQueryResultCachedPhoto(
+                TelegramInlineQueryResultArticle(
                     id = cardShareLinkService.inlineResultId(card.id),
-                    photoFileId = fileId,
                     title = Messages.t("card.shareResult", locale, card.nameFor(locale)),
                     description = Messages.t("card.shareResultHint", locale),
-                    caption = cardShareLinkService.sharedCaption(card, user.id, locale),
+                    inputMessageContent = TelegramInputRichMessageContent(
+                        richMessage = TelegramInputRichMessage(
+                            html = cardShareLinkService.sharedRichMessageHtml(card, user.id, locale),
+                            media = listOf(
+                                TelegramInputRichMessageMedia(
+                                    id = "card",
+                                    media = TelegramInputMediaPhoto(media = fileId),
+                                ),
+                            ),
+                        ),
+                    ),
                     replyMarkup = TelegramReplyMarkup(
                         inlineKeyboard = listOf(
                             listOf(

@@ -25,7 +25,7 @@ import com.anry88.purrrfolio.telegram.TelegramChat
 import com.anry88.purrrfolio.telegram.TelegramClient
 import com.anry88.purrrfolio.telegram.TelegramMessage
 import com.anry88.purrrfolio.telegram.TelegramInlineQuery
-import com.anry88.purrrfolio.telegram.TelegramInlineQueryResultCachedPhoto
+import com.anry88.purrrfolio.telegram.TelegramInlineQueryResultArticle
 import com.anry88.purrrfolio.telegram.TelegramReplyMarkup
 import com.anry88.purrrfolio.telegram.TelegramUpdate
 import com.anry88.purrrfolio.telegram.TelegramUser
@@ -333,12 +333,15 @@ class PackOpeningPostgresIntegrationTest {
             .single { it.method.name == "answerInlineQuery" }
         assertThat(call.arguments[0]).isEqualTo("inline-1")
         val results = call.arguments[1] as List<*>
-        val result = results.single() as TelegramInlineQueryResultCachedPhoto
-        assertThat(result.photoFileId).isEqualTo("telegram-photo-file-id")
+        val result = results.single() as TelegramInlineQueryResultArticle
         assertThat(result.title).isEqualTo("👆 Нажми, чтобы отправить: Теннисист")
         assertThat(result.description).isEqualTo("Само превью — это кнопка отправки")
-        assertThat(result.caption).contains("Мне выпал котик").contains("<a href=\"https://t.me/PurrrfolioBot?start=ref_${user.id}\"")
-        assertThat(result.caption).doesNotContain("/assets/cards/")
+        val richMessage = result.inputMessageContent.richMessage
+        assertThat(richMessage.html).contains("tg://photo?id=card")
+            .contains("Мне выпал котик")
+            .contains("<a href=\"https://t.me/PurrrfolioBot?start=ref_${user.id}\"")
+            .doesNotContain("/assets/cards/")
+        assertThat(richMessage.media.single().media.media).isEqualTo("telegram-photo-file-id")
         assertThat(result.replyMarkup?.inlineKeyboard.orEmpty().flatten().single().url)
             .isEqualTo("https://t.me/PurrrfolioBot?start=ref_${user.id}")
         assertThat(processedUpdateRepository.isProcessed(9004)).isTrue()

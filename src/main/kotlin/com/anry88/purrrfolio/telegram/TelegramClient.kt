@@ -93,7 +93,7 @@ class TelegramClient(
             .toBodilessEntity()
     }
 
-    fun answerInlineQuery(queryId: String, results: List<TelegramInlineQueryResultCachedPhoto>) {
+    fun answerInlineQuery(queryId: String, results: List<TelegramInlineQueryResult>) {
         if (!isConfigured()) {
             logger.warn("Telegram bot token is not configured; skipping answerInlineQuery")
             return

@@ -42,6 +42,13 @@ class CardShareLinkService(
         )
     }
 
+    fun sharedRichMessageHtml(card: CardDefinition, ownerUserId: Long, locale: GameLocale): String {
+        val paragraphs = sharedCaption(card, ownerUserId, locale)
+            .split("\n\n")
+            .joinToString("") { "<p>${it.replace("\n", "<br>")}</p>" }
+        return "<img src=\"tg://photo?id=card\"/>$paragraphs"
+    }
+
     fun inlineResultId(cardId: String): String = "share-$cardId".take(64)
 
     private fun escapeHtml(value: String): String = value

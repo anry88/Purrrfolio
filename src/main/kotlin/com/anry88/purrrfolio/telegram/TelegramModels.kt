@@ -108,12 +108,14 @@ data class TelegramInlineButton(
 data class TelegramAnswerInlineQueryRequest(
     @JsonProperty("inline_query_id")
     val inlineQueryId: String,
-    val results: List<TelegramInlineQueryResultCachedPhoto>,
+    val results: List<TelegramInlineQueryResult>,
     @JsonProperty("cache_time")
     val cacheTime: Int = 0,
     @JsonProperty("is_personal")
     val isPersonal: Boolean = true,
 )
+
+sealed interface TelegramInlineQueryResult
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TelegramInlineQueryResultCachedPhoto(
@@ -128,6 +130,42 @@ data class TelegramInlineQueryResultCachedPhoto(
     val parseMode: String = "HTML",
     @JsonProperty("reply_markup")
     val replyMarkup: TelegramReplyMarkup? = null,
+) : TelegramInlineQueryResult
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramInlineQueryResultArticle(
+    val type: String = "article",
+    val id: String,
+    val title: String,
+    val description: String? = null,
+    @JsonProperty("input_message_content")
+    val inputMessageContent: TelegramInputRichMessageContent,
+    @JsonProperty("reply_markup")
+    val replyMarkup: TelegramReplyMarkup? = null,
+) : TelegramInlineQueryResult
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramInputRichMessageContent(
+    @JsonProperty("rich_message")
+    val richMessage: TelegramInputRichMessage,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramInputRichMessage(
+    val html: String,
+    val media: List<TelegramInputRichMessageMedia>,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramInputRichMessageMedia(
+    val id: String,
+    val media: TelegramInputMediaPhoto,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramInputMediaPhoto(
+    val type: String = "photo",
+    val media: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

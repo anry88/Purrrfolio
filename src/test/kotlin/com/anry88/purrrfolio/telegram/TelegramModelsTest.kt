@@ -183,16 +183,25 @@ class TelegramModelsTest {
     }
 
     @Test
-    fun `serializes cached photo inline answer with HTML caption`() {
+    fun `serializes text-only article preview that sends a rich photo message`() {
         val request = TelegramAnswerInlineQueryRequest(
             inlineQueryId = "inline-1",
             results = listOf(
-                TelegramInlineQueryResultCachedPhoto(
+                TelegramInlineQueryResultArticle(
                     id = "share-sleepy",
-                    photoFileId = "telegram-file-id",
                     title = "👆 Tap to send Sleepy",
                     description = "The preview itself is the send button",
-                    caption = "<a href=\"https://t.me/PurrrfolioBot?start=ref_42\">Start</a>",
+                    inputMessageContent = TelegramInputRichMessageContent(
+                        TelegramInputRichMessage(
+                            html = "<img src=\"tg://photo?id=card\"/><p>Start</p>",
+                            media = listOf(
+                                TelegramInputRichMessageMedia(
+                                    id = "card",
+                                    media = TelegramInputMediaPhoto(media = "telegram-file-id"),
+                                ),
+                            ),
+                        ),
+                    ),
                     replyMarkup = TelegramReplyMarkup(
                         inlineKeyboard = listOf(
                             listOf(TelegramInlineButton("Start", url = "https://t.me/PurrrfolioBot?start=ref_42")),
@@ -205,10 +214,15 @@ class TelegramModelsTest {
         val json = objectMapper.writeValueAsString(request)
 
         assertThat(json).contains("\"inline_query_id\":\"inline-1\"")
-        assertThat(json).contains("\"photo_file_id\":\"telegram-file-id\"")
+        assertThat(json).contains("\"type\":\"article\"")
         assertThat(json).contains("\"title\":\"👆 Tap to send Sleepy\"")
         assertThat(json).contains("\"description\":\"The preview itself is the send button\"")
-        assertThat(json).contains("\"parse_mode\":\"HTML\"")
+        assertThat(json).contains("\"input_message_content\"")
+        assertThat(json).contains("\"rich_message\"")
+        assertThat(json).contains("tg://photo?id=card")
+        assertThat(json).contains("\"media\":\"telegram-file-id\"")
+        assertThat(json).doesNotContain("photo_file_id")
+        assertThat(json).doesNotContain("thumbnail_url")
         assertThat(json).contains("\"is_personal\":true")
         assertThat(json).doesNotContain("resize_keyboard")
         assertThat(json).doesNotContain("one_time_keyboard")
