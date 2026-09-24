@@ -33,6 +33,7 @@ class CardShareLinkServiceTest {
 
         assertThat(query).isEqualTo("share:42:sleepy")
         assertThat(service.parseInlineQuery(query)).isEqualTo(CardShareRequest(42, "sleepy"))
+        assertThat(service.thumbnailUrl(card)).isEqualTo("https://purrrfolio.example/assets/cards/sleepy.png")
         assertThat(caption).contains("Мне выпал котик <b>Соня</b>")
         assertThat(caption).contains("<a href=\"https://t.me/PurrrfolioBot?start=ref_42\">")
         assertThat(caption).doesNotContain("/assets/cards/")

@@ -352,7 +352,7 @@ class GameService(
                 TelegramInlineQueryResultArticle(
                     id = cardShareLinkService.inlineResultId(card.id),
                     title = Messages.t("card.shareResult", locale, card.nameFor(locale)),
-                    description = Messages.t("card.shareResultHint", locale),
+                    thumbnailUrl = cardShareLinkService.thumbnailUrl(card),
                     inputMessageContent = TelegramInputRichMessageContent(
                         richMessage = TelegramInputRichMessage(
                             html = cardShareLinkService.sharedRichMessageHtml(card, user.id, locale),

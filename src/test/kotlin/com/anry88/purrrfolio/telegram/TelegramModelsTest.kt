@@ -190,7 +190,7 @@ class TelegramModelsTest {
                 TelegramInlineQueryResultArticle(
                     id = "share-sleepy",
                     title = "👆 Tap to send Sleepy",
-                    description = "The preview itself is the send button",
+                    thumbnailUrl = "https://purrrfolio.example/assets/cards/sleepy.png",
                     inputMessageContent = TelegramInputRichMessageContent(
                         TelegramInputRichMessage(
                             html = "<img src=\"tg://photo?id=card\"/><p>Start</p>",
@@ -216,13 +216,13 @@ class TelegramModelsTest {
         assertThat(json).contains("\"inline_query_id\":\"inline-1\"")
         assertThat(json).contains("\"type\":\"article\"")
         assertThat(json).contains("\"title\":\"👆 Tap to send Sleepy\"")
-        assertThat(json).contains("\"description\":\"The preview itself is the send button\"")
+        assertThat(json).contains("\"thumbnail_url\":\"https://purrrfolio.example/assets/cards/sleepy.png\"")
+        assertThat(json).doesNotContain("\"description\"")
         assertThat(json).contains("\"input_message_content\"")
         assertThat(json).contains("\"rich_message\"")
         assertThat(json).contains("tg://photo?id=card")
         assertThat(json).contains("\"media\":\"telegram-file-id\"")
         assertThat(json).doesNotContain("photo_file_id")
-        assertThat(json).doesNotContain("thumbnail_url")
         assertThat(json).contains("\"is_personal\":true")
         assertThat(json).doesNotContain("resize_keyboard")
         assertThat(json).doesNotContain("one_time_keyboard")

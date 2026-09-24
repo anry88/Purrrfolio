@@ -335,7 +335,7 @@ class PackOpeningPostgresIntegrationTest {
         val results = call.arguments[1] as List<*>
         val result = results.single() as TelegramInlineQueryResultArticle
         assertThat(result.title).isEqualTo("👆 Нажми, чтобы отправить: Теннисист")
-        assertThat(result.description).isEqualTo("Само превью — это кнопка отправки")
+        assertThat(result.thumbnailUrl).isEqualTo("https://purrrfolio.example/assets/cards/tennis-kitty.png")
         val richMessage = result.inputMessageContent.richMessage
         assertThat(richMessage.html).contains("tg://photo?id=card")
             .contains("Мне выпал котик")

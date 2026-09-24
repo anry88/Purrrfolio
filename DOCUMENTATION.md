@@ -47,7 +47,7 @@ Core business logic is split into small packages:
 1. Reveal and gallery messages use an inline button with `switch_inline_query`, which opens Telegram's recipient chooser with an opaque `share:<owner>:<card>` query.
 2. The resulting `inline_query` is accepted only when the Telegram sender owns both the internal player id and the card, preventing query tampering.
 3. Telegram's reusable photo `file_id` is captured after normal photo delivery and persisted in `telegram_card_files`.
-4. The bot answers with a text-only `InlineQueryResultArticle`, so the chooser shows a clear tappable title instead of a tiny photo tile. Its `InputRichMessageContent` reuses the saved Telegram `file_id`, so the shared post still contains the card photo, a named referral link, and a start button. Neither the public asset URL nor a raw referral URL is printed in the message.
+4. The bot answers with an `InlineQueryResultArticle`, so the chooser shows one clear tappable title and the card thumbnail without extra metadata. Its `InputRichMessageContent` reuses the saved Telegram `file_id`, so the shared post contains the full card photo, a named referral link, and a start button. The public asset URL is used only for the chooser thumbnail; neither it nor the raw referral URL is printed in the shared message.
 
 ### Pack opening
 

@@ -71,7 +71,7 @@ class MessagesTest {
             "language.title", "language.changed",
             "pack.noPacks", "pack.opening", "pack.opened", "pack.summary", "pack.newCard", "pack.starter",
             "referral.joinerReward", "referral.joinerOnlyReward", "referral.referrerReward",
-            "card.special", "card.share", "card.shareResult", "card.shareResultHint", "card.shareCaption", "card.startCollection", "card.nextFreeIn",
+            "card.special", "card.share", "card.shareResult", "card.shareCaption", "card.startCollection", "card.nextFreeIn",
             "craft.title", "craft.pickCard", "craft.addButton", "craft.added", "craft.crafted", "craft.noDuplicates",
             "buy.title", "buy.option1", "buy.option3", "buy.option5", "buy.option10",
             "buy.invoiceTitle", "buy.invoiceDesc", "buy.success",

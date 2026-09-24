@@ -28,6 +28,9 @@ class CardShareLinkService(
     fun referralUrl(ownerUserId: Long): String =
         "https://t.me/${properties.telegram.botUsername}?start=ref_$ownerUserId"
 
+    fun thumbnailUrl(card: CardDefinition): String =
+        properties.publicBaseUrl.trimEnd('/') + card.imagePath
+
     fun sharedCaption(card: CardDefinition, ownerUserId: Long, locale: GameLocale): String {
         val rarity = when (locale) {
             GameLocale.RU -> card.rarity.labelRu

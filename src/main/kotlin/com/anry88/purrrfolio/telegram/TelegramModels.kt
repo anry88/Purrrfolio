@@ -137,7 +137,8 @@ data class TelegramInlineQueryResultArticle(
     val type: String = "article",
     val id: String,
     val title: String,
-    val description: String? = null,
+    @JsonProperty("thumbnail_url")
+    val thumbnailUrl: String? = null,
     @JsonProperty("input_message_content")
     val inputMessageContent: TelegramInputRichMessageContent,
     @JsonProperty("reply_markup")
