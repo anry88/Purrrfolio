@@ -4,9 +4,9 @@
 
 The repository is intentionally scoped as a command-only MVP before any richer client surfaces are considered.
 
-## Product Scope
+## Implemented Product Scope
 
-The target MVP includes:
+The command-only backend currently supports:
 
 - Telegram bot registration and persistent player profiles
 - No in-game currency: 3 starter packs of 3 cards, 1 free single card every 3 hours, extra packs via Telegram Stars
@@ -16,16 +16,27 @@ The target MVP includes:
 - Duplicate trading between players via a shared random-trade pool
 - Simple card-for-card marketplace (list duplicates, offer listed cards, accept/reject)
 - Static card art served from the backend and sent as Telegram photos
+- Duplicate crafting into pack progress
+- Telegram Stars pack purchases, payment support, and admin-approved refunds
+- Daily group-chat pack raffles and group-only Friends cards
+- RU/EN localization, campaign-source attribution, and gameplay metrics
 
 The concept art in `docs/source/game-concept.png` also shows a decorated home, Mini App UI, and animated pack openings. Those are **not** part of the MVP and remain future ideas.
 
 ## Core Loop
 
-1. Player runs `/start`, picks a language and receives 3 starter packs.
+1. Player runs `/start`; the bot detects RU from Telegram's language code or defaults to EN, registers the player, and grants 3 starter packs.
 2. Player opens a fluffy pack with `/pack` and receives three cards.
 3. New cards expand themed collection progress shown in `/collection`.
 4. Duplicate cards become tradable through `/trade` or `/market`.
 5. `/buy` adds more packs with Telegram Stars; a free single card drops every 3 hours.
+
+## Current Boundaries
+
+- The player surface is Telegram commands, reply keyboards, inline callbacks, and photo messages; there is no Mini App.
+- The catalog currently contains 285 cards across 16 collections. The larger 1000-card content target remains future work.
+- Deep-link campaign attribution is implemented, but share buttons and player-to-player referral rewards are not.
+- Pack opening and initial registration still need stronger transaction boundaries and PostgreSQL integration coverage before broad production growth.
 
 ## Engagement Systems
 

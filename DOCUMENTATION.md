@@ -13,28 +13,34 @@ Core business logic is split into small packages:
 - `i18n/` — localized player copy (EN/RU) and locale helpers
 - `pack/` — weighted random pack openings
 - `trade/` — trade and marketplace rules
-- `game/` — command routing (persistence to be added)
+- `craft/` — duplicate-to-pack crafting policy
+- `repository/` — JDBC persistence for players, inventory, economy, trades, payments, rewards, and raffles
+- `game/` — command routing and gameplay orchestration
 - `telegram/` — Telegram API integration
+- `observability/` — Micrometer counters and database gauges
 - `web/` — HTTP entrypoints
 
 ## Runtime Surfaces
 
 | Surface | Status |
 | --- | --- |
-| Telegram bot commands | Scaffold (`GameService`) |
+| Telegram bot commands | Implemented (`GameService`) |
 | Telegram webhook | Implemented (`WebhookController`) |
+| Telegram long polling | Implemented for local/optional runtime use (`TelegramPollingRunner`) |
 | Mini App | Out of scope |
 | Admin UI | Out of scope for MVP |
 
 ## Data Flow
 
-### Registration (planned)
+### Registration
 
 1. Telegram update arrives at `/bot`.
 2. Webhook validates secret token and deduplicates by `update_id`.
-3. Service upserts `users` by `telegram_user_id`, grants 3 starter packs via `pack_ledger`.
+3. The first supported command or text alias creates `users` by `telegram_user_id`.
+4. Russian Telegram language codes select RU; all others select EN. `/language` can change the stored language later.
+5. The service grants 3 starter packs through `pack_ledger` and stores a normalized `/start <source>` campaign code in `users.registration_source`.
 
-### Pack opening (planned)
+### Pack opening
 
 1. `/pack` opens a pack only: negative `pack_ledger` row, roll via `PackOpeningService`.
 2. Empty stash → `/buy` prompt. Free single cards are fully separate: `/freecard`
@@ -56,10 +62,12 @@ Core business logic is split into small packages:
 5. The private `ADMIN_TG_ID` can `/refund`, `/reject`, or `/ask`; users answer requests for information with `/answer`.
 6. A confirmed refund calls Telegram first, then atomically marks the payment/request refunded and writes one negative `pack_ledger` reversal. If purchased packs were already opened, the ledger may become negative so future grants repay the refunded entitlement.
 
-### Theme completion (planned)
+### Theme completion
 
 1. `/collection` reads owned unique cards per theme from `user_cards` (10 collections per page).
 2. Gallery navigation shows only opened cards; duplicates expose trade/market buttons.
+3. Receiving cards and opening `/collection` both check for newly completed collections.
+4. A successful claim and its one-pack `collection_completion` ledger grant commit atomically for the current catalog-card-set hash.
 
 ### Pack crafter
 
@@ -67,14 +75,14 @@ Core business logic is split into small packages:
 2. Each tap burns one duplicate copy and adds points via `CraftPolicy.addPoints`.
 3. Every 15 points → 1 pack into `pack_ledger` (source=craft), overflow carries over.
 
-### Trading (planned)
+### Trading
 
 1. Seller must own at least two copies (`TradePolicy.MIN_DUPLICATES_TO_TRADE`).
 2. Card copy leaves inventory into `random_trade_pool` with WAITING status.
 3. First waiting card of another player with a different card id matches → both cards dealt out, MATCHED.
 4. Waiting entries return via «↩️ Return» (CANCELLED + inventory credit).
 
-### Marketplace (planned)
+### Marketplace
 
 1. Seller lists duplicate → `market_listings` row, one copy removed from inventory.
 2. Seller can return the card (`CANCELLED` + inventory credit).
@@ -87,8 +95,8 @@ Core business logic is split into small packages:
 
 All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strings, resolved through `Messages.t(key, locale, vararg args)`.
 
-- New players default to English; the stored `players.locale` is set to Russian only when their Telegram `language_code` starts with `ru`.
-- `/language` opens an inline keyboard (`lang:en` / `lang:ru` callbacks) that persists the choice via `PlayerRepository.updateLocale`.
+- New players default to English; `users.language` is set to Russian only when their Telegram `language_code` starts with `ru`.
+- `/language` opens an inline keyboard (`lang:en` / `lang:ru` callbacks) that persists the choice via `UserRepository.updateLanguage`.
 - Card, theme, and pack display names are localized via the `nameFor(locale)` extensions in `i18n/LocalizedNames.kt`; rarity labels via `CardRarity.labelEn`/`labelRu`.
 - Common actions can be routed from slash commands, reply/inline buttons, or exact
   plain-word aliases in Russian and English. Free-card aliases include the common
@@ -96,7 +104,7 @@ All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strin
 
 ## Persistence
 
-PostgreSQL schema is defined in `src/main/resources/db/migration/` (`V1` legacy fish schema, `V3` Stars schema per PDF v1.3, `V4` card-id/ledger fixes).
+PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V11). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, and group raffles.
 
 Main tables:
 
@@ -110,6 +118,9 @@ Main tables:
 - `payments`
 - `payment_support_requests`
 - `processed_telegram_updates`
+- `group_chat_members`
+- `group_raffles`
+- `group_raffle_winners`
 
 ## Catalog and Assets
 
@@ -133,7 +144,7 @@ Application settings are in `src/main/resources/application.yml` under the `purr
 - `purrrfolio.telegram.*` — bot token, webhook secret, username
 - `purrrfolio.telegram.admin-tg-id` / `ADMIN_TG_ID` — private admin identity for payment refunds
 - `purrrfolio.telegram.payment-payload-secret` / `PAYMENT_PAYLOAD_SECRET` — HMAC key for Stars orders; a blank value falls back to the webhook secret
-- `purrrfolio.economy.*` — starter fish, daily reward, pack cost, cards per pack
+- `purrrfolio.economy.*` — starter packs, free-card interval, cards per pack, and Stars bundle prices
 
 Local overrides: copy `application-local.example.yml` to `application-local.yml` (gitignored).
 
@@ -152,10 +163,10 @@ Local overrides: copy `application-local.example.yml` to `application-local.yml`
   `docs/grafana/README.md`); registration attribution comes from deep links
   (`t.me/<bot>?start=<source>`) stored in `users.registration_source`
 
-## Next Engineering Steps
+## Known Reliability Boundaries and Next Engineering Steps
 
-1. Add JDBC repositories and wire `GameService` to PostgreSQL.
-2. Implement idempotent webhook processing with `processed_telegram_updates`.
-3. Send card images via Telegram `sendPhoto`.
-4. Implement `/pack`, `/daily`, `/trade`, and `/market` transactions.
-5. Add integration tests with Testcontainers PostgreSQL.
+1. Make pack balance validation, the negative `opened` ledger row, inventory upsert, and completion-reward evaluation one database transaction with concurrency-safe balance enforcement.
+2. Make normal Telegram update deduplication failure-safe so an update is not permanently claimed before its game-side effects complete.
+3. Grant a newly created user's starter packs in the same transaction as registration.
+4. Add Testcontainers PostgreSQL coverage for registration, pack opening, crafting, random trades, marketplace settlement, payments, completion rewards, and group raffles.
+5. Add the player-facing card-sharing and referral-reward flows if they enter MVP scope; current deep links provide campaign attribution only.

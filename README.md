@@ -2,11 +2,15 @@
 
 Purrrfolio (КотоКоллекция) is a Telegram-first collectible card game about cozy kawaii cats. Players open fluffy packs, complete themed sets, and trade duplicates — all through bot commands, without a Mini App or in-game currency. Extra packs are bought with Telegram Stars.
 
-The repository currently contains the project scaffold: Kotlin/Spring Boot backend, PostgreSQL schema, JSON card catalog, extracted starter card art, and implementation documentation derived from the concept images in `docs/source/`.
+The repository contains a working command-only bot backend: JDBC persistence,
+pack and free-card claims, collection galleries, crafting, random trades, a
+card-for-card marketplace, Telegram Stars purchases and refunds, group raffles,
+and Prometheus metrics. The JSON catalog currently contains 285 cards across
+16 collections.
 
 ![Starter cards](assets/cards/sleepy.png)
 
-## Play (planned)
+## Gameplay
 
 Open `@purrrfolio_bot` and use:
 
@@ -40,7 +44,19 @@ Completing a themed collection grants one free pack. The reward is tracked per
 catalog version: if new cards are later added to that collection, completing
 the expanded set grants another pack.
 
+In eligible groups with at least 10 members, the bot can also run one automatic
+pack raffle per 24 hours after a supported command. Registered players seen in
+that group form the winner pool.
+
 The bot is English by default; players whose Telegram language is Russian see Russian copy automatically. Use `/language` at any time to switch.
+
+## Current Engineering Status
+
+The gameplay above is implemented and backed by PostgreSQL. Remaining hardening
+work includes making pack debit and inventory credit one transaction, improving
+failure-safe Telegram update processing, and adding PostgreSQL integration tests.
+Deep-link campaign attribution is implemented through `/start <source>`; player
+referral rewards and a card-sharing button are not implemented yet.
 
 ## Product Principles
 
@@ -90,12 +106,16 @@ Card art (`assets/cards/`, mirrored to `src/main/resources/static/assets/cards/`
 src/main/kotlin/com/anry88/purrrfolio/
   catalog/     JSON-driven card and theme definitions
   collection/  themed set progress helpers
+  craft/       duplicate-to-pack crafting policy
+  i18n/        English/Russian player-facing copy
   pack/        weighted pack opening logic
   trade/       trade and marketplace policies
+  repository/  JDBC repositories for players, inventory, economy, and trades
   telegram/    Telegram API client and update models
   game/        command routing and player-facing copy
+  observability/ Micrometer metrics and database gauges
   web/         health checks and bot webhook
-assets/cards/  extracted card PNGs (source of truth for art pipeline)
+assets/cards/  generated card PNGs (source of truth for art pipeline)
 docs/source/   original concept and sprite sheet images
 ```
 

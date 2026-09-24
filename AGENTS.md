@@ -13,20 +13,24 @@ AI-oriented repository guide for coding assistants and code-review tools.
 
 ## Current State
 
-- This repository contains a **scaffold** for a command-only Telegram collectible card bot.
-- Implemented today: project structure, card catalog, pack-opening weights, collection helpers, trade policy, webhook shell, Flyway schema, extracted starter card art, and documentation.
-- **Not yet implemented**: JDBC persistence, real pack debits, photo sending, trade/market settlement, daily rewards, event cards.
+- This repository contains a working command-only Telegram collectible card bot backend.
+- Implemented today: JDBC persistence, Flyway migrations, update deduplication, automatic registration and locale detection, starter packs, weighted pack openings, free cards, photo reveals and galleries, collection progress and versioned completion rewards, crafting, random-trade matching, marketplace settlement, Telegram Stars purchases/refunds, payment support, group raffles, campaign-source attribution, and metrics.
+- The JSON catalog currently contains 285 cards in 16 collections, including Calendar and group-only Friends special collections; standalone card art is mirrored into the runtime resources.
+- Known gaps: pack debit and inventory credit are not yet one transaction; normal Telegram updates are claimed before all game-side effects complete; PostgreSQL end-to-end integration coverage is still missing; share buttons and player-to-player referral rewards are not implemented.
 - Do not describe planned behavior as shipped until code and tests support the claim.
 
 ## Repository Map
 
 - `src/main/kotlin/com/anry88/purrrfolio/catalog/`: JSON card/theme catalog and rarity weights.
 - `src/main/kotlin/com/anry88/purrrfolio/collection/`: themed set progress formatting.
+- `src/main/kotlin/com/anry88/purrrfolio/craft/`: duplicate-to-pack crafting policy.
 - `src/main/kotlin/com/anry88/purrrfolio/i18n/`: localized player copy (EN/RU) and locale helpers.
 - `src/main/kotlin/com/anry88/purrrfolio/pack/`: weighted pack roll logic.
+- `src/main/kotlin/com/anry88/purrrfolio/repository/`: JDBC repositories for players, cards, packs, trades, payments, rewards, and raffles.
 - `src/main/kotlin/com/anry88/purrrfolio/trade/`: trade/market models and policy constants.
 - `src/main/kotlin/com/anry88/purrrfolio/telegram/`: Telegram client and update DTOs.
 - `src/main/kotlin/com/anry88/purrrfolio/game/`: command routing and player-facing copy.
+- `src/main/kotlin/com/anry88/purrrfolio/observability/`: Micrometer counters and database gauges.
 - `src/main/kotlin/com/anry88/purrrfolio/web/`: health endpoints and webhook controller.
 - `src/main/kotlin/com/anry88/purrrfolio/config/`: Spring configuration properties.
 - `src/main/resources/catalog/cards.json`: starter cards, themes, and pack definitions.
@@ -34,14 +38,13 @@ AI-oriented repository guide for coding assistants and code-review tools.
 - `src/main/resources/static/assets/cards/`: card PNGs served to Telegram.
 - `assets/cards/`: model-generated card art, one standalone 1024×1536 PNG per card (prompts in `docs/source/card-art-prompts.md`).
 - `docs/source/`: original concept art and sprite sheet (legacy reference).
-- `scripts/extract-cards.py`: crops the 2×5 sprite sheet into individual PNGs.
 
 ## Key Runtime Facts
 
 - Runtime stack: Kotlin + Spring Boot + JDBC + Flyway + PostgreSQL.
 - Player surface in MVP: Telegram bot commands, reply keyboard, inline callbacks only. **No Mini App.**
-- Economy currency: fish tokens (`fish_balance` on `players`).
-- Card content is data-driven through `cards.json`; balance changes should stay in JSON/catalog tests where possible.
+- There is no in-game currency. Pack availability is derived from positive and negative rows in `pack_ledger`; duplicate crafting uses `users.craft_points`.
+- Card definitions, collection metadata, pack definitions, and rarity weights are data-driven through `cards.json`; economy timing and Stars prices live under `purrrfolio.economy.*` in application configuration.
 - Webhook endpoint: `POST /bot` with `X-Telegram-Bot-Api-Secret-Token`.
 - Actuator/prometheus on `${MANAGEMENT_PORT:9090}`.
 - Secrets and privileged identifiers (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `PAYMENT_PAYLOAD_SECRET`, `ADMIN_TG_ID`, DB credentials) belong in environment or local profile files only.
@@ -70,11 +73,11 @@ You usually need to touch:
 
 - `src/main/kotlin/com/anry88/purrrfolio/game/GameService.kt`
 - `src/main/kotlin/com/anry88/purrrfolio/i18n/Messages.kt` (player-facing copy lives here, not in GameService)
-- persistence layer once JDBC repositories exist
+- the relevant repository when persistence behavior changes
 
 ### Language and copy
 
-New players default to English. Russian is auto-selected when the Telegram `language_code` starts with `ru`; `/language` switches at any time. The locale is stored on `players.locale`. To change any player-facing text, edit `src/main/kotlin/com/anry88/purrrfolio/i18n/Messages.kt`. Menu button labels are matched case- and space-insensitively in both languages, so new button labels must stay emoji-prefixed (e.g. `🎁 Набор` / `🎁 Pack`).
+New players default to English. Russian is auto-selected when the Telegram `language_code` starts with `ru`; `/language` switches at any time. The locale is stored in `users.language`. To change any player-facing text, edit `src/main/kotlin/com/anry88/purrrfolio/i18n/Messages.kt`. Menu button labels are matched case- and space-insensitively in both languages, so new button labels must stay emoji-prefixed (e.g. `🎁 Набор` / `🎁 Pack`).
 
 ### Economy or rarity
 
