@@ -134,10 +134,7 @@ object Messages {
                 "🐾 Новый игрок пришёл по твоей карточке! Вы оба получили ещё по %s наборов."
             ),
         "card.special" to ("✨ *SPECIAL CARD*" to "✨ *СПЕШЛ-КАРТОЧКА*"),
-        "card.share" to (
-            "📤 Share: choose a chat → tap the preview" to
-                "📤 Поделиться: выбери чат → нажми превью"
-            ),
+        "card.share" to ("📤 Share card" to "📤 Поделиться карточкой"),
         "card.shareResult" to ("👆 Tap to send %s" to "👆 Нажми, чтобы отправить: %s"),
         "card.shareResultHint" to (
             "The preview itself is the send button" to
