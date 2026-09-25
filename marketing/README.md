@@ -105,16 +105,18 @@ Purrrfolio stores a normalized Telegram `/start` payload as
 https://t.me/PurrrfolioBot?start=yt_short_20260925_sleepy
 ```
 
-Do not put this URL in the Shorts description: YouTube documents external URLs
-there as non-clickable, and Studio may request one-time advanced-feature
-verification. Public copy should say:
+Do not put this URL or its campaign code in future Shorts descriptions: YouTube
+documents external URLs there as non-clickable, and Studio may request
+one-time advanced-feature verification. Public copy should say:
 
 ```text
-Open Telegram, find @PurrrfolioBot, and send /start yt_short_20260925_sleepy
+Play Purrrfolio in Telegram: find @PurrrfolioBot.
 ```
 
-Use one stable source per creative or campaign. Never put a player referral id
-in a public campaign template.
+Do not present the default three starter packs as a promotional offer. Use one
+stable internal source per run for history and receipts, but never put that
+source or a player referral id in public copy. The first pilot remains an
+unchanged legacy exception.
 
 ## Next increments
 

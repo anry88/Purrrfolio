@@ -21,7 +21,9 @@
     "default_language": "en",
     "self_declared_made_for_kids": false,
     "contains_synthetic_media": false,
-    "external_urls_in_shorts_descriptions": false
+    "external_urls_in_shorts_descriptions": false,
+    "campaign_codes_in_shorts_descriptions": false,
+    "starter_pack_offer_in_shorts_descriptions": false
   },
   "campaign_links": {
     "telegram_bot_url": "https://t.me/PurrrfolioBot",

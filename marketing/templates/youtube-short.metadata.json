@@ -1,6 +1,7 @@
 {
+  "description_policy": "organic_handle_only",
   "title": "{{hook}} | Purrrfolio",
-  "description": "{{search_description}}\n\nOpen Telegram, find @PurrrfolioBot, and send /start {{campaign_source}} to get 3 starter packs.\n\n#Purrrfolio #CatCards #TelegramBot #Shorts",
+  "description": "{{search_description}}\n\nPlay Purrrfolio in Telegram: find @PurrrfolioBot.\n\n#Purrrfolio #CatCards #TelegramBot #Shorts",
   "tags": [
     "Purrrfolio",
     "cat cards",

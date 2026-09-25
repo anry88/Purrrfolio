@@ -70,8 +70,22 @@ def validate_manifest(path: Path) -> tuple[dict[str, Any], Path, list[Path]]:
         raise ValueError(
             "Shorts descriptions must not contain Telegram URLs; use the bot handle and /start payload."
         )
-    if "@PurrrfolioBot" not in description or f"/start {campaign_source}" not in description:
-        raise ValueError("Upload description does not contain the campaign CTA and source.")
+    if "@PurrrfolioBot" not in description:
+        raise ValueError("Upload description does not contain the Telegram bot handle.")
+    description_policy = manifest.get("description_policy", "legacy_pilot")
+    if description_policy == "legacy_pilot":
+        if path.parent.name != "youtube-short-001":
+            raise ValueError("New runs must use description_policy=organic_handle_only.")
+        if f"/start {campaign_source}" not in description:
+            raise ValueError("Legacy pilot description does not contain its campaign source.")
+    elif description_policy == "organic_handle_only":
+        lowered_description = description.lower()
+        if "/start" in lowered_description or campaign_source in description:
+            raise ValueError("Future Shorts descriptions must not expose campaign /start codes.")
+        if "starter pack" in lowered_description:
+            raise ValueError("Future Shorts descriptions must not advertise default starter packs.")
+    else:
+        raise ValueError("Unknown description_policy in upload manifest.")
     if snippet.get("categoryId") != "20":
         raise ValueError("Upload manifest must use YouTube Gaming categoryId=20.")
     if snippet.get("defaultLanguage") != "en":
