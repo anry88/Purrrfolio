@@ -19,7 +19,6 @@ from youtube_api import (
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_RECEIPT = REPOSITORY_ROOT / ".runtime/marketing/youtube-short-001-upload.json"
 DEFAULT_MANIFEST = REPOSITORY_ROOT / "marketing/runs/youtube-short-001/metadata.json"
 DEFAULT_TOKEN = Path(".secrets/youtube-oauth-token.json")
 EXPECTED_CHANNEL_ID = "UCNugnVbVAECNpMc8oWetZOg"
@@ -32,13 +31,23 @@ def main() -> int:
     )
     parser.add_argument("--client-secret", required=True, type=Path)
     parser.add_argument("--token", default=DEFAULT_TOKEN, type=Path)
-    parser.add_argument("--receipt", default=DEFAULT_RECEIPT, type=Path)
+    parser.add_argument("--receipt", type=Path)
     parser.add_argument("--manifest", default=DEFAULT_MANIFEST, type=Path)
     args = parser.parse_args()
 
     try:
-        receipt = load_json(args.receipt, "upload receipt")
-        manifest = load_json(args.manifest, "upload manifest")
+        manifest_path = (
+            args.manifest
+            if args.manifest.is_absolute()
+            else REPOSITORY_ROOT / args.manifest
+        )
+        receipt_path = args.receipt or (
+            REPOSITORY_ROOT
+            / ".runtime/marketing"
+            / f"{manifest_path.parent.name}-upload.json"
+        )
+        receipt = load_json(receipt_path, "upload receipt")
+        manifest = load_json(manifest_path, "upload manifest")
         video_id = receipt["video_id"]
         client = load_installed_client(args.client_secret)
         token = load_token(args.token)
