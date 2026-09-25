@@ -14,12 +14,14 @@
     "caption_upload_scope": "https://www.googleapis.com/auth/youtube.force-ssl"
   },
   "publishing": {
-    "default_test_privacy": "private",
-    "allowed_test_privacy": [
-      "private",
-      "unlisted"
-    ],
-    "public_requires_explicit_approval": true
+    "default_privacy": "public",
+    "public_autopublish_enabled": true,
+    "notify_subscribers": true,
+    "category_id": "20",
+    "default_language": "en",
+    "self_declared_made_for_kids": false,
+    "contains_synthetic_media": false,
+    "external_urls_in_shorts_descriptions": false
   },
   "campaign_links": {
     "telegram_bot_url": "https://t.me/PurrrfolioBot",

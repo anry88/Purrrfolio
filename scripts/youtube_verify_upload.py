@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify a private Purrrfolio upload and its subtitle tracks via YouTube API."""
+"""Verify a public Purrrfolio upload and its subtitle tracks via YouTube API."""
 
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ from youtube_api import (
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RECEIPT = REPOSITORY_ROOT / ".runtime/marketing/youtube-short-001-upload.json"
+DEFAULT_MANIFEST = REPOSITORY_ROOT / "marketing/runs/youtube-short-001/metadata.json"
 DEFAULT_TOKEN = Path(".secrets/youtube-oauth-token.json")
 EXPECTED_CHANNEL_ID = "UCNugnVbVAECNpMc8oWetZOg"
 EXPECTED_CAPTION_LANGUAGES = {"en", "ru", "tr", "id"}
@@ -27,15 +28,17 @@ EXPECTED_CAPTION_LANGUAGES = {"en", "ru", "tr", "id"}
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Verify private video status and EN/RU/TR/ID subtitle tracks."
+        description="Verify public video metadata and EN/RU/TR/ID subtitle tracks."
     )
     parser.add_argument("--client-secret", required=True, type=Path)
     parser.add_argument("--token", default=DEFAULT_TOKEN, type=Path)
     parser.add_argument("--receipt", default=DEFAULT_RECEIPT, type=Path)
+    parser.add_argument("--manifest", default=DEFAULT_MANIFEST, type=Path)
     args = parser.parse_args()
 
     try:
         receipt = load_json(args.receipt, "upload receipt")
+        manifest = load_json(args.manifest, "upload manifest")
         video_id = receipt["video_id"]
         client = load_installed_client(args.client_secret)
         token = load_token(args.token)
@@ -53,8 +56,22 @@ def main() -> int:
     status = video.get("status", {})
     if snippet.get("channelId") != EXPECTED_CHANNEL_ID:
         raise SystemExit("Uploaded video belongs to an unexpected channel.")
-    if status.get("privacyStatus") != "private":
-        raise SystemExit("Uploaded video is not private.")
+    if status.get("privacyStatus") != "public":
+        raise SystemExit("Uploaded video is not public.")
+    if snippet.get("categoryId") != "20":
+        raise SystemExit("Uploaded video is not in the Gaming category.")
+    if status.get("selfDeclaredMadeForKids") is True:
+        raise SystemExit("Uploaded video audience declaration is not set to not made for kids.")
+    if status.get("containsSyntheticMedia") is True:
+        raise SystemExit("Uploaded video synthetic-media disclosure is unexpected.")
+    expected_snippet = manifest.get("snippet", {})
+    for field in ("title", "description", "categoryId", "defaultLanguage"):
+        if snippet.get(field) != expected_snippet.get(field):
+            raise SystemExit(f"Uploaded video {field} does not match the manifest.")
+    if set(snippet.get("tags", [])) != set(expected_snippet.get("tags", [])):
+        raise SystemExit("Uploaded video tags do not match the manifest.")
+    if "https://t.me/" in snippet.get("description", ""):
+        raise SystemExit("Uploaded Shorts description still contains an external Telegram URL.")
 
     captions = caption_response.get("items", [])
     languages = {

@@ -5,10 +5,10 @@
     "url": "https://t.me/PurrrfolioBot?start=yt_short_001_fluffy_pack"
   },
   "video_file": "marketing/video/out/youtube-short-001.mp4",
-  "notify_subscribers": false,
+  "notify_subscribers": true,
   "snippet": {
     "title": "What’s Inside a Fluffy Pack? 🐾 | Purrrfolio #Shorts",
-    "description": "Open a Fluffy Pack and meet Sleepy, Tiny Gardener, and Boxie — three cozy cat cards from Purrrfolio.\n\nStart your collection in Telegram with 3 starter packs: https://t.me/PurrrfolioBot?start=yt_short_001_fluffy_pack\n\n#Purrrfolio #CatCards #TelegramBot #Shorts",
+    "description": "Collect cozy cat cards in Telegram with Purrrfolio. Open a Fluffy Pack and meet Sleepy, Tiny Gardener, and Boxie.\n\nOpen Telegram, find @PurrrfolioBot, and send /start yt_short_001_fluffy_pack to get 3 starter packs.\n\n#Purrrfolio #CatCards #TelegramBot #Shorts",
     "tags": [
       "Purrrfolio",
       "cat cards",
@@ -17,12 +17,16 @@
       "Telegram bot",
       "YouTube Shorts"
     ],
+    "categoryId": "20",
     "defaultLanguage": "en"
   },
   "status": {
-    "privacyStatus": "private",
+    "privacyStatus": "public",
     "embeddable": true,
-    "license": "youtube"
+    "license": "youtube",
+    "publicStatsViewable": true,
+    "selfDeclaredMadeForKids": false,
+    "containsSyntheticMedia": false
   },
   "captions": [
     {

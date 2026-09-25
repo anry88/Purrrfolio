@@ -1,12 +1,16 @@
 {
   "title": "{{hook}} | Purrrfolio",
-  "description": "{{description}}\n\nCollect cozy cat cards in Telegram: {{campaign_url}}\n\n#Purrrfolio #CatCards #Shorts",
+  "description": "{{search_description}}\n\nOpen Telegram, find @PurrrfolioBot, and send /start {{campaign_source}} to get 3 starter packs.\n\n#Purrrfolio #CatCards #TelegramBot #Shorts",
   "tags": [
     "Purrrfolio",
     "cat cards",
     "collectible cards",
     "Telegram bot"
   ],
+  "category_id": "20",
   "language": "{{language}}",
-  "privacy_status": "private"
+  "privacy_status": "public",
+  "notify_subscribers": true,
+  "self_declared_made_for_kids": false,
+  "contains_synthetic_media": false
 }
