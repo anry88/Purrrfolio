@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "timezone": "America/New_York",
-  "visibility": "private",
-  "notify_subscribers": false,
+  "timezone": "Europe/Belgrade",
+  "visibility": "public",
+  "notify_subscribers": true,
   "required_caption_languages": [
     "en",
     "ru",
@@ -12,25 +12,25 @@
   "slots": [
     {
       "day": "monday",
-      "time": "14:00"
+      "time": "20:00"
     },
     {
       "day": "wednesday",
-      "time": "15:00"
+      "time": "21:00"
     },
     {
       "day": "friday",
-      "time": "16:00"
+      "time": "22:00"
     },
     {
       "day": "saturday",
-      "time": "10:00"
+      "time": "16:00"
     },
     {
       "day": "sunday",
-      "time": "11:00"
+      "time": "17:00"
     }
   ],
   "analytics_review_interval_days": 28,
-  "public_autopublish_enabled": false
+  "public_autopublish_enabled": true
 }

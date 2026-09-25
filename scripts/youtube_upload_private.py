@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate or execute one explicitly confirmed private YouTube test upload."""
+"""Validate or execute one authorized Purrrfolio YouTube publication."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ DEFAULT_MANIFEST = Path("marketing/runs/youtube-short-001/metadata.json")
 DEFAULT_TOKEN = Path(".secrets/youtube-oauth-token.json")
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
 CAPTIONS_UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/captions"
-CONFIRMATION_PHRASE = "UPLOAD_PRIVATE_TEST"
+CONFIRMATION_PHRASE = "PUBLISH_PUBLIC"
 
 
 def resolve_repository_path(raw: str) -> Path:
@@ -52,10 +52,10 @@ def validate_manifest(path: Path) -> tuple[dict[str, Any], Path, list[Path]]:
 
     if expected_channel_id != "UCNugnVbVAECNpMc8oWetZOg":
         raise ValueError("Upload manifest targets an unexpected YouTube channel.")
-    if status.get("privacyStatus") != "private":
-        raise ValueError("Trial uploader accepts privacyStatus=private only.")
-    if manifest.get("notify_subscribers") is not False:
-        raise ValueError("Trial uploader requires notify_subscribers=false.")
+    if status.get("privacyStatus") != "public":
+        raise ValueError("Production publisher requires privacyStatus=public.")
+    if manifest.get("notify_subscribers") is not True:
+        raise ValueError("Production publisher requires notify_subscribers=true.")
     if not campaign_source or len(campaign_source) > 64 or any(
         character not in "abcdefghijklmnopqrstuvwxyz0123456789_-"
         for character in campaign_source
@@ -65,8 +65,27 @@ def validate_manifest(path: Path) -> tuple[dict[str, Any], Path, list[Path]]:
         raise ValueError("Campaign URL does not contain the configured source.")
     if not isinstance(snippet.get("title"), str) or not snippet["title"].strip():
         raise ValueError("Upload manifest title is empty.")
-    if campaign_url not in snippet.get("description", ""):
-        raise ValueError("Upload description does not contain the campaign URL.")
+    description = snippet.get("description", "")
+    if campaign_url in description or "https://t.me/" in description:
+        raise ValueError(
+            "Shorts descriptions must not contain Telegram URLs; use the bot handle and /start payload."
+        )
+    if "@PurrrfolioBot" not in description or f"/start {campaign_source}" not in description:
+        raise ValueError("Upload description does not contain the campaign CTA and source.")
+    if snippet.get("categoryId") != "20":
+        raise ValueError("Upload manifest must use YouTube Gaming categoryId=20.")
+    if snippet.get("defaultLanguage") != "en":
+        raise ValueError("Upload manifest must declare English metadata.")
+    required_status = {
+        "embeddable": True,
+        "license": "youtube",
+        "publicStatsViewable": True,
+        "selfDeclaredMadeForKids": False,
+        "containsSyntheticMedia": False,
+    }
+    for key, expected in required_status.items():
+        if status.get(key) != expected:
+            raise ValueError(f"Upload status.{key} must be {expected!r}.")
     if not video_path.is_file():
         raise ValueError(f"Rendered video does not exist: {video_path}")
 
@@ -91,13 +110,15 @@ def begin_resumable_upload(
         {
             "uploadType": "resumable",
             "part": "snippet,status",
-            "notifySubscribers": "false",
+            "notifySubscribers": str(manifest["notify_subscribers"]).lower(),
         }
     )
+    staging_status = dict(manifest["status"])
+    staging_status["privacyStatus"] = "private"
     body = json.dumps(
         {
             "snippet": manifest["snippet"],
-            "status": manifest["status"],
+            "status": staging_status,
         }
     ).encode("utf-8")
     request = urllib.request.Request(
@@ -217,6 +238,47 @@ def upload_caption(
     return result
 
 
+def publish_video(
+    access_token: str,
+    video_id: str,
+    manifest: dict[str, Any],
+) -> dict[str, Any]:
+    """Apply final metadata and make a fully-captioned staged upload public."""
+    query = urllib.parse.urlencode({"part": "snippet,status"})
+    body = json.dumps(
+        {
+            "id": video_id,
+            "snippet": manifest["snippet"],
+            "status": manifest["status"],
+        }
+    ).encode("utf-8")
+    request = urllib.request.Request(
+        f"https://www.googleapis.com/youtube/v3/videos?{query}",
+        data=body,
+        method="PUT",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json; charset=UTF-8",
+            "Content-Length": str(len(body)),
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            result = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as error:
+        raise YouTubeApiError(
+            f"YouTube public publication failed with HTTP {error.code}. "
+            "The Google API project may require a YouTube API compliance audit."
+        ) from error
+    except urllib.error.URLError as error:
+        raise YouTubeApiError("YouTube public publication failed: network unavailable.") from error
+    except (OSError, json.JSONDecodeError) as error:
+        raise YouTubeApiError("YouTube public publication returned an unreadable response.") from error
+    if not isinstance(result, dict) or result.get("id") != video_id:
+        raise YouTubeApiError("YouTube public publication returned an unexpected response.")
+    return result
+
+
 def write_receipt(path: Path, receipt: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -227,7 +289,7 @@ def write_receipt(path: Path, receipt: dict[str, Any]) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Dry-run or execute one private Purrrfolio YouTube test upload."
+        description="Dry-run or execute one public Purrrfolio YouTube publication."
     )
     parser.add_argument("--manifest", default=DEFAULT_MANIFEST, type=Path)
     parser.add_argument("--client-secret", type=Path)
@@ -237,7 +299,7 @@ def main() -> int:
     parser.add_argument(
         "--video-id",
         default="",
-        help="Skip video creation and attach caption tracks to this existing private video.",
+        help="Reuse an existing staged video, synchronize captions/metadata, and publish it.",
     )
     args = parser.parse_args()
 
@@ -305,6 +367,7 @@ def main() -> int:
                     "privacy_status": "private",
                     "video_upload_skipped": True,
                     "caption_ids": {},
+                    "published": False,
                 }
         else:
             if receipt_path.exists():
@@ -319,6 +382,7 @@ def main() -> int:
                 "privacy_status": "private",
                 "video_upload_skipped": False,
                 "caption_ids": {},
+                "published": False,
             }
             write_receipt(receipt_path, receipt)
 
@@ -333,6 +397,11 @@ def main() -> int:
             )
             receipt["caption_ids"][caption["language"]] = caption_result["id"]
             write_receipt(receipt_path, receipt)
+        if not receipt.get("published"):
+            publish_video(access_token, video_id, manifest)
+            receipt["privacy_status"] = "public"
+            receipt["published"] = True
+            write_receipt(receipt_path, receipt)
     except (ValueError, YouTubeApiError) as error:
         raise SystemExit(str(error)) from error
 
@@ -340,7 +409,7 @@ def main() -> int:
         json.dumps(
             {
                 "video_id": video_id,
-                "privacy_status": "private",
+                "privacy_status": receipt["privacy_status"],
                 "caption_tracks_uploaded": len(receipt["caption_ids"]),
                 "caption_languages": sorted(receipt["caption_ids"]),
                 "receipt": str(receipt_path.relative_to(REPOSITORY_ROOT)),
@@ -349,7 +418,7 @@ def main() -> int:
             indent=2,
         )
     )
-    print("Private video and caption tracks uploaded.")
+    print("Public video and caption tracks are ready.")
     return 0
 
 
