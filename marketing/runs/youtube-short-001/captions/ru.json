@@ -1,0 +1,37 @@
+[
+  {
+    "text": "Что внутри пушистого набора?",
+    "startMs": 0,
+    "endMs": 2500,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Знакомьтесь: Sleepy — обычная карта.",
+    "startMs": 3000,
+    "endMs": 5000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Tiny Gardener — эпическая карта.",
+    "startMs": 5600,
+    "endMs": 7600,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Boxie — легендарная карта!",
+    "startMs": 8200,
+    "endMs": 10200,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Собирайте уютные карточки котиков в Telegram. Начните с трёх наборов в @PurrrfolioBot.",
+    "startMs": 10800,
+    "endMs": 14500,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

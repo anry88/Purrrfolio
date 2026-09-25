@@ -15,6 +15,7 @@ Thumbs.db
 .sisyphus/
 
 # Secrets and local configuration
+.secrets/
 .env
 .env.*
 !.env.example
@@ -34,6 +35,8 @@ local.properties
 .gradle/
 .gradle-home/
 .kotlin/
+__pycache__/
+*.py[cod]
 build/
 **/build/
 bin/
@@ -65,3 +68,7 @@ test-results/
 
 # Raw unprocessed assets (local only, never commit)
 raw pictures/
+
+# Local marketing automation artifacts
+marketing/generated/
+marketing/metrics/raw/

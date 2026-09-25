@@ -1,0 +1,19 @@
+1
+00:00:00,000 --> 00:00:02,500
+Fluffy Pack’in içinde ne var?
+
+2
+00:00:03,000 --> 00:00:05,000
+Sleepy ile tanış — Yaygın.
+
+3
+00:00:05,600 --> 00:00:07,600
+Tiny Gardener — Destansı.
+
+4
+00:00:08,200 --> 00:00:10,200
+Boxie — Efsanevi!
+
+5
+00:00:10,800 --> 00:00:14,500
+Telegram’da sevimli kedi kartları biriktir. @PurrrfolioBot’ta üç başlangıç paketiyle başla.

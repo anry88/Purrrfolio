@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "runs": [
+    {
+      "run_id": "youtube-short-001",
+      "campaign_source": "yt_short_001_fluffy_pack",
+      "cards": [
+        "sleepy",
+        "tiny-gardener",
+        "boxie"
+      ],
+      "master_language": "en",
+      "caption_languages": [
+        "en",
+        "ru",
+        "tr",
+        "id"
+      ],
+      "remote_status": "private",
+      "uploaded_at": "2026-09-25"
+    }
+  ]
+}

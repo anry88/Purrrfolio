@@ -1,0 +1,19 @@
+1
+00:00:00,000 --> 00:00:02,500
+What’s inside a Fluffy Pack?
+
+2
+00:00:03,000 --> 00:00:05,000
+Meet Sleepy — Common.
+
+3
+00:00:05,600 --> 00:00:07,600
+Tiny Gardener — Epic.
+
+4
+00:00:08,200 --> 00:00:10,200
+Boxie — Legendary!
+
+5
+00:00:10,800 --> 00:00:14,500
+Collect cozy cat cards in Telegram. Start with three packs at @PurrrfolioBot.

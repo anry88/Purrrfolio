@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "timezone": "America/New_York",
+  "visibility": "private",
+  "notify_subscribers": false,
+  "required_caption_languages": [
+    "en",
+    "ru",
+    "tr",
+    "id"
+  ],
+  "slots": [
+    {
+      "day": "monday",
+      "time": "14:00"
+    },
+    {
+      "day": "wednesday",
+      "time": "15:00"
+    },
+    {
+      "day": "friday",
+      "time": "16:00"
+    },
+    {
+      "day": "saturday",
+      "time": "10:00"
+    },
+    {
+      "day": "sunday",
+      "time": "11:00"
+    }
+  ],
+  "analytics_review_interval_days": 28,
+  "public_autopublish_enabled": false
+}
