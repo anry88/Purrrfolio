@@ -1,88 +1,63 @@
 #!/usr/bin/env python3
+"""Show and validate the YouTube channel owned by the saved OAuth token."""
+
+from __future__ import annotations
+
 import argparse
 import json
-import urllib.parse
-import urllib.request
 from pathlib import Path
 
-
-TOKEN_URL = "https://oauth2.googleapis.com/token"
-CHANNELS_URL = "https://www.googleapis.com/youtube/v3/channels"
-
-
-def load_json(path):
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
-
-
-def refresh_access_token(client, token):
-    payload = urllib.parse.urlencode(
-        {
-            "client_id": client["client_id"],
-            "client_secret": client.get("client_secret", ""),
-            "refresh_token": token["refresh_token"],
-            "grant_type": "refresh_token",
-        }
-    ).encode("utf-8")
-    request = urllib.request.Request(
-        TOKEN_URL,
-        data=payload,
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-        method="POST",
-    )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return json.loads(response.read().decode("utf-8"))["access_token"]
+from youtube_api import (
+    YouTubeApiError,
+    fetch_owned_channels,
+    load_installed_client,
+    load_json,
+    load_token,
+    refresh_access_token,
+)
 
 
-def fetch_channels(access_token):
-    query = urllib.parse.urlencode(
-        {
-            "part": "snippet,statistics,status",
-            "mine": "true",
-        }
-    )
-    request = urllib.request.Request(
-        f"{CHANNELS_URL}?{query}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return json.loads(response.read().decode("utf-8"))
+DEFAULT_CONFIG = Path("marketing/config/youtube.json")
+DEFAULT_TOKEN = Path(".secrets/youtube-oauth-token.json")
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Show which YouTube channel is authorized by the saved OAuth token."
+        description="Show which YouTube channel is authorized by the OAuth token."
     )
     parser.add_argument("--client-secret", required=True, type=Path)
-    parser.add_argument(
-        "--token",
-        default=Path(".secrets/youtube-oauth-token.json"),
-        type=Path,
-    )
+    parser.add_argument("--token", default=DEFAULT_TOKEN, type=Path)
+    parser.add_argument("--config", default=DEFAULT_CONFIG, type=Path)
     args = parser.parse_args()
 
-    client_data = load_json(args.client_secret)
-    client = client_data.get("installed")
-    if not client:
-        raise SystemExit("OAuth JSON must contain an 'installed' client.")
+    try:
+        config = load_json(args.config, "YouTube config")
+        expected_id = config["channel"]["expected_id"]
+        client = load_installed_client(args.client_secret)
+        token = load_token(args.token)
+        access_token = refresh_access_token(client, token)
+        channels = fetch_owned_channels(access_token)
+    except (KeyError, TypeError, ValueError, YouTubeApiError) as error:
+        raise SystemExit(str(error)) from error
 
-    token = load_json(args.token)
-    if "refresh_token" not in token:
-        raise SystemExit("Token file does not contain refresh_token.")
-
-    access_token = refresh_access_token(client, token)
-    channels = fetch_channels(access_token)
     items = channels.get("items", [])
+    if not isinstance(items, list) or not items:
+        raise SystemExit("No YouTube channel was returned for this OAuth token.")
 
-    if not items:
-        print("No YouTube channel returned for this OAuth token.")
-        return
+    matches = [item for item in items if item.get("id") == expected_id]
+    if not matches:
+        returned_ids = [item.get("id") for item in items if item.get("id")]
+        raise SystemExit(
+            "Authorized channel does not match the configured Purrrfolio channel "
+            f"(returned {len(returned_ids)} channel(s))."
+        )
 
-    for item in items:
-        snippet = item.get("snippet", {})
-        statistics = item.get("statistics", {})
-        status = item.get("status", {})
-        print(json.dumps(
+    item = matches[0]
+    snippet = item.get("snippet", {})
+    statistics = item.get("statistics", {})
+    status = item.get("status", {})
+    print(
+        json.dumps(
             {
                 "channel_id": item.get("id"),
                 "title": snippet.get("title"),
@@ -91,11 +66,14 @@ def main():
                 "subscriber_count": statistics.get("subscriberCount"),
                 "video_count": statistics.get("videoCount"),
                 "view_count": statistics.get("viewCount"),
+                "matches_expected_channel": True,
             },
             ensure_ascii=False,
             indent=2,
-        ))
+        )
+    )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

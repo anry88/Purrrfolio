@@ -1,0 +1,49 @@
+{
+  "expected_channel_id": "UCNugnVbVAECNpMc8oWetZOg",
+  "campaign": {
+    "source": "yt_short_001_fluffy_pack",
+    "url": "https://t.me/PurrrfolioBot?start=yt_short_001_fluffy_pack"
+  },
+  "video_file": "marketing/video/out/youtube-short-001.mp4",
+  "notify_subscribers": false,
+  "snippet": {
+    "title": "What’s Inside a Fluffy Pack? 🐾 | Purrrfolio #Shorts",
+    "description": "Open a Fluffy Pack and meet Sleepy, Tiny Gardener, and Boxie — three cozy cat cards from Purrrfolio.\n\nStart your collection in Telegram with 3 starter packs: https://t.me/PurrrfolioBot?start=yt_short_001_fluffy_pack\n\n#Purrrfolio #CatCards #TelegramBot #Shorts",
+    "tags": [
+      "Purrrfolio",
+      "cat cards",
+      "collectible cards",
+      "cozy game",
+      "Telegram bot",
+      "YouTube Shorts"
+    ],
+    "defaultLanguage": "en"
+  },
+  "status": {
+    "privacyStatus": "private",
+    "embeddable": true,
+    "license": "youtube"
+  },
+  "captions": [
+    {
+      "language": "en",
+      "name": "English",
+      "file": "marketing/runs/youtube-short-001/captions/exported/en.srt"
+    },
+    {
+      "language": "ru",
+      "name": "Русский",
+      "file": "marketing/runs/youtube-short-001/captions/exported/ru.srt"
+    },
+    {
+      "language": "tr",
+      "name": "Türkçe",
+      "file": "marketing/runs/youtube-short-001/captions/exported/tr.srt"
+    },
+    {
+      "language": "id",
+      "name": "Bahasa Indonesia",
+      "file": "marketing/runs/youtube-short-001/captions/exported/id.srt"
+    }
+  ]
+}

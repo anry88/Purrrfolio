@@ -1,0 +1,37 @@
+[
+  {
+    "text": "Fluffy Pack’in içinde ne var?",
+    "startMs": 0,
+    "endMs": 2500,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Sleepy ile tanış — Yaygın.",
+    "startMs": 3000,
+    "endMs": 5000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Tiny Gardener — Destansı.",
+    "startMs": 5600,
+    "endMs": 7600,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Boxie — Efsanevi!",
+    "startMs": 8200,
+    "endMs": 10200,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Telegram’da sevimli kedi kartları biriktir. @PurrrfolioBot’ta üç başlangıç paketiyle başla.",
+    "startMs": 10800,
+    "endMs": 14500,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

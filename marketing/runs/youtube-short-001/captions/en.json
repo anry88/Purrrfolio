@@ -1,0 +1,37 @@
+[
+  {
+    "text": "What’s inside a Fluffy Pack?",
+    "startMs": 0,
+    "endMs": 2500,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Meet Sleepy — Common.",
+    "startMs": 3000,
+    "endMs": 5000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Tiny Gardener — Epic.",
+    "startMs": 5600,
+    "endMs": 7600,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Boxie — Legendary!",
+    "startMs": 8200,
+    "endMs": 10200,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Collect cozy cat cards in Telegram. Start with three packs at @PurrrfolioBot.",
+    "startMs": 10800,
+    "endMs": 14500,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

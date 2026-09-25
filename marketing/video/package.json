@@ -1,0 +1,39 @@
+{
+  "name": "purrrfolio-marketing-video",
+  "version": "1.0.0",
+  "description": "Reproducible Purrrfolio organic marketing videos",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/captions": "4.0.529",
+    "@remotion/cli": "4.0.529",
+    "@remotion/tailwind-v4": "4.0.529",
+    "@remotion/transitions": "4.0.529",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.529",
+    "tailwindcss": "4.0.0"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.529",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "prepare:assets": "node scripts/prepare-assets.mjs",
+    "captions": "node scripts/export-captions.mjs",
+    "dev": "npm run prepare:assets && remotion studio --no-open",
+    "build": "remotion bundle",
+    "render:pilot": "npm run prepare:assets && remotion render PurrrfolioPilot001 out/youtube-short-001.mp4 --codec h264 --pixel-format yuv420p",
+    "still:pilot": "npm run prepare:assets && remotion still PurrrfolioPilot001 out/youtube-short-001-preview.png --frame=390",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
+}

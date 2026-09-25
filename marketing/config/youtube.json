@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "channel": {
+    "expected_id": "UCNugnVbVAECNpMc8oWetZOg",
+    "expected_title": "Purrrfolio",
+    "expected_custom_url": "@purrrfolio"
+  },
+  "oauth": {
+    "required_scopes": [
+      "https://www.googleapis.com/auth/youtube.upload",
+      "https://www.googleapis.com/auth/youtube.readonly",
+      "https://www.googleapis.com/auth/yt-analytics.readonly"
+    ],
+    "caption_upload_scope": "https://www.googleapis.com/auth/youtube.force-ssl"
+  },
+  "publishing": {
+    "default_test_privacy": "private",
+    "allowed_test_privacy": [
+      "private",
+      "unlisted"
+    ],
+    "public_requires_explicit_approval": true
+  },
+  "campaign_links": {
+    "telegram_bot_url": "https://t.me/PurrrfolioBot",
+    "source_pattern": "[a-z0-9_-]{1,64}",
+    "youtube_source_prefix": "yt_short_"
+  }
+}

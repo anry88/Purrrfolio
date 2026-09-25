@@ -1,0 +1,12 @@
+{
+  "title": "{{hook}} | Purrrfolio",
+  "description": "{{description}}\n\nCollect cozy cat cards in Telegram: {{campaign_url}}\n\n#Purrrfolio #CatCards #Shorts",
+  "tags": [
+    "Purrrfolio",
+    "cat cards",
+    "collectible cards",
+    "Telegram bot"
+  ],
+  "language": "{{language}}",
+  "privacy_status": "private"
+}

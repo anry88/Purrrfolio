@@ -1,0 +1,37 @@
+[
+  {
+    "text": "Apa isi Fluffy Pack?",
+    "startMs": 0,
+    "endMs": 2500,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Kenalan dengan Sleepy — Umum.",
+    "startMs": 3000,
+    "endMs": 5000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Tiny Gardener — Epik.",
+    "startMs": 5600,
+    "endMs": 7600,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Boxie — Legendaris!",
+    "startMs": 8200,
+    "endMs": 10200,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Koleksi kartu kucing menggemaskan di Telegram. Mulai dengan tiga paket di @PurrrfolioBot.",
+    "startMs": 10800,
+    "endMs": 14500,
+    "timestampMs": null,
+    "confidence": null
+  }
+]
