@@ -34,6 +34,7 @@ scripts/
   youtube_readiness.py        offline credential/scope/policy validation
   youtube_whoami.py           authenticated channel identity validation
   youtube_publish.py          stable recurring public-publisher entry point
+  generate_short_music.py     original cozy/playful/reveal music generator
   youtube_upload_private.py   staged upload/caption/publication implementation
   youtube_verify_upload.py    read-only public metadata/caption verification
 ```

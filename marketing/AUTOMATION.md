@@ -98,6 +98,11 @@ and [vidIQ's 40M-video analysis](https://vidiq.com/blog/post/best-time-publish-v
 - Use only an original composition, CC0 audio, or a YouTube Audio Library track
   explicitly marked as requiring no attribution. Never use a trending song,
   ripped audio, or a track with unclear terms or Content ID risk.
+- The reliable default is the repository-owned generator:
+  `scripts/generate_short_music.py --mood <cozy|playful|reveal> --duration
+  <seconds> --seed <unique_integer> --output
+  marketing/video/public/audio/generated/<run_id>.wav`. It creates an original
+  attribution-free track locally and avoids dependence on external libraries.
 - Record the track title, exact source reference, license, source type, and
   `attribution_required=false` in the run manifest. Keep license evidence in
   the run notes; do not add attribution URLs to the Shorts description.
