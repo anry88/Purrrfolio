@@ -46,9 +46,10 @@ and [vidIQ's 40M-video analysis](https://vidiq.com/blog/post/best-time-publish-v
 3. Select a new three-card combination not already present in
    `state/content-history.json`.
 4. Create a short English creative brief with one honest hook and one CTA.
-5. Create a unique registration source matching `[a-z0-9_-]{1,64}`. Keep its
-   Telegram deep link in the manifest for attribution validation, but do not put
-   an external URL in a Shorts description.
+5. Create a unique internal run source matching `[a-z0-9_-]{1,64}`. Keep it in
+   the manifest and content history for run identity only. Do not expose its
+   Telegram deep link, campaign code, or `/start` payload in the video,
+   subtitles, title, or description.
 6. Build or adapt a 1080×1920, 30 fps, 12–20 second Remotion composition.
 7. Keep burned-in copy English-only. Generate canonical Caption JSON plus SRT
    and WebVTT for EN/RU/TR/ID.
@@ -72,10 +73,12 @@ and [vidIQ's 40M-video analysis](https://vidiq.com/blog/post/best-time-publish-v
 - Start with a unique plain-English sentence containing one or two concrete
   search phrases that accurately describe the video, such as "cozy cat cards"
   and "Telegram collectible card game". Do not keyword-stuff.
-- Shorts description URLs are non-clickable. Do not include `https://t.me/` or
-  any other external URL; use `@PurrrfolioBot` and the exact command
-  `/start <campaign_source>` instead. This avoids YouTube Studio's external-link
-  verification warning while retaining manual campaign attribution.
+- Shorts description URLs are non-clickable. Do not include `https://t.me/`,
+  another external URL, a campaign code, or a `/start` payload. Use only the
+  simple organic CTA `Find @PurrrfolioBot in Telegram`.
+- Do not advertise the three starter packs in future Shorts. Every new player
+  already receives them, so this is product onboarding rather than a campaign
+  offer. The first pilot is a documented legacy exception and remains unchanged.
 - Set Gaming category `20`, English metadata, public visibility, embeddable and
   public statistics enabled, standard YouTube license, `madeForKids=false`, and
   `containsSyntheticMedia=false`. The latter is correct for the current clearly
