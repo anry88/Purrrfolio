@@ -86,9 +86,10 @@ python3 scripts/youtube_publish.py
 
 The script refuses non-public visibility, incomplete metadata, an unexpected
 channel id, missing campaign attribution, external URLs in a Shorts
-description, missing media, or missing caption files. It stages the video
-privately, uploads all subtitle tracks, and only then publishes it. Its
-`--execute` path requires the literal confirmation phrase shown by `--help`.
+description, undocumented/uncleared music, a missing audio stream, missing
+media, or missing caption files. It stages the video privately, uploads all
+subtitle tracks, and only then publishes it. Its `--execute` path requires the
+literal confirmation phrase shown by `--help`.
 
 Uploading selectable subtitle tracks through the YouTube Data API requires the
 additional `youtube.force-ssl` scope. The authorization script requests it for
