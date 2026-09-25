@@ -1,0 +1,37 @@
+[
+  {
+    "text": "Kenali kucing Cozy Home.",
+    "startMs": 0,
+    "endMs": 2900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Sock Thief — umum.",
+    "startMs": 3000,
+    "endMs": 5900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Fireplace Friend — langka.",
+    "startMs": 6000,
+    "endMs": 8900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Pillow Fort — langka.",
+    "startMs": 9000,
+    "endMs": 11900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Koleksi kartu kucing. Temukan @PurrrfolioBot.",
+    "startMs": 12000,
+    "endMs": 14900,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

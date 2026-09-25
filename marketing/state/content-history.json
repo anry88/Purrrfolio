@@ -18,6 +18,24 @@
       ],
       "remote_status": "public",
       "uploaded_at": "2026-09-25"
+    },
+    {
+      "run_id": "youtube-short-20260925-friday-01",
+      "campaign_source": "yt_short_20260925_cozy_home_friday",
+      "cards": [
+        "sock-thief",
+        "fireplace-friend",
+        "pillow-fort"
+      ],
+      "master_language": "en",
+      "caption_languages": [
+        "en",
+        "ru",
+        "tr",
+        "id"
+      ],
+      "remote_status": "public",
+      "uploaded_at": "2026-09-25"
     }
   ]
 }

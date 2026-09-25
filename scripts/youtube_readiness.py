@@ -43,22 +43,20 @@ def main() -> int:
         configured_required_scopes = set(config["oauth"]["required_scopes"])
         configured_caption_scope = config["oauth"]["caption_upload_scope"]
         publishing = config["publishing"]
-        allowed_test_privacy = set(publishing["allowed_test_privacy"])
         if not expected_channel:
             failures.append("configured expected channel id is empty")
         if configured_required_scopes != REQUIRED_SCOPES:
             failures.append("configured OAuth scopes do not match script requirements")
         if configured_caption_scope != CAPTION_UPLOAD_SCOPE:
             failures.append("configured caption-upload scope does not match script requirements")
-        if publishing.get("default_test_privacy") != "private":
-            failures.append("default test privacy must be private")
-        if not allowed_test_privacy or not allowed_test_privacy <= {
-            "private",
-            "unlisted",
-        }:
-            failures.append("test privacy may contain only private and unlisted")
-        if publishing.get("public_requires_explicit_approval") is not True:
-            failures.append("public publishing approval gate must be enabled")
+        if publishing.get("default_privacy") != "public":
+            failures.append("configured production privacy must be public")
+        if publishing.get("public_autopublish_enabled") is not True:
+            failures.append("recurring public publishing must be enabled")
+        if publishing.get("notify_subscribers") is not True:
+            failures.append("subscriber notifications must be enabled")
+        if publishing.get("category_id") != "20":
+            failures.append("Gaming category must be configured")
         print("[ok] committed YouTube channel and publishing policy loaded")
     except (KeyError, TypeError, ValueError) as error:
         print(f"[fail] configuration: {error}")
@@ -94,7 +92,7 @@ def main() -> int:
     if CAPTION_UPLOAD_SCOPE in configured_scopes(token):
         print("[ok] caption-track upload scope is recorded")
     else:
-        print("[warn] caption-track upload requires OAuth reauthorization with youtube.force-ssl")
+        failures.append("OAuth token metadata is missing youtube.force-ssl")
 
     try:
         if check_private_mode(args.token):
@@ -109,7 +107,7 @@ def main() -> int:
             print(f"[fail] {failure}")
         return 1
 
-    print("Ready for authenticated whoami and a separately approved private test upload.")
+    print("Ready for authenticated channel validation and staged public publishing.")
     return 0
 
 

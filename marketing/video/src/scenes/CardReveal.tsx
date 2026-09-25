@@ -17,6 +17,7 @@ type CardRevealProps = {
   accent: string;
   backgroundStart: string;
   backgroundEnd: string;
+  note?: string;
 };
 
 export const CardReveal: React.FC<CardRevealProps> = ({
@@ -27,6 +28,7 @@ export const CardReveal: React.FC<CardRevealProps> = ({
   accent,
   backgroundStart,
   backgroundEnd,
+  note = "One Fluffy Pack • Three cards",
 }) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
@@ -186,7 +188,7 @@ export const CardReveal: React.FC<CardRevealProps> = ({
           }),
         }}
       >
-        One Fluffy Pack • Three cards
+        {note}
       </Interactive.Div>
     </AbsoluteFill>
   );

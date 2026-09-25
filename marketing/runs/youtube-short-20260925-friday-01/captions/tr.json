@@ -1,0 +1,37 @@
+[
+  {
+    "text": "Cozy Home kedileriyle tanışın.",
+    "startMs": 0,
+    "endMs": 2900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Sock Thief — yaygın.",
+    "startMs": 3000,
+    "endMs": 5900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Fireplace Friend — nadir.",
+    "startMs": 6000,
+    "endMs": 8900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Pillow Fort — nadir.",
+    "startMs": 9000,
+    "endMs": 11900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Kedi kartları biriktirin. @PurrrfolioBot hesabını bulun.",
+    "startMs": 12000,
+    "endMs": 14900,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

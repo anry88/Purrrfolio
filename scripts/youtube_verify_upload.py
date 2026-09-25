@@ -69,10 +69,17 @@ def main() -> int:
         raise SystemExit("Uploaded video is not public.")
     if snippet.get("categoryId") != "20":
         raise SystemExit("Uploaded video is not in the Gaming category.")
-    if status.get("selfDeclaredMadeForKids") is True:
+    if status.get("selfDeclaredMadeForKids") is not False:
         raise SystemExit("Uploaded video audience declaration is not set to not made for kids.")
     if status.get("containsSyntheticMedia") is True:
         raise SystemExit("Uploaded video synthetic-media disclosure is unexpected.")
+    for field, expected in (
+        ("embeddable", True),
+        ("publicStatsViewable", True),
+        ("license", "youtube"),
+    ):
+        if status.get(field) != expected:
+            raise SystemExit(f"Uploaded video {field} does not match the manifest policy.")
     expected_snippet = manifest.get("snippet", {})
     for field in ("title", "description", "categoryId", "defaultLanguage"):
         if snippet.get(field) != expected_snippet.get(field):
@@ -93,6 +100,13 @@ def main() -> int:
         raise SystemExit(
             f"Uploaded video is missing {len(missing)} expected caption track(s)."
         )
+    for caption in captions:
+        caption_snippet = caption.get("snippet", {})
+        if caption_snippet.get("language") in EXPECTED_CAPTION_LANGUAGES and (
+            caption_snippet.get("isDraft") is not False
+            or caption_snippet.get("status") != "serving"
+        ):
+            raise SystemExit("An expected caption track is draft or not serving.")
 
     print(
         json.dumps(

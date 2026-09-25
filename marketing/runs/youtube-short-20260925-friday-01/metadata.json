@@ -1,0 +1,62 @@
+{
+  "expected_channel_id": "UCNugnVbVAECNpMc8oWetZOg",
+  "description_policy": "organic_handle_only",
+  "audio_policy": "required_cleared_instrumental",
+  "audio": {
+    "title": "Cozy Home Stroll",
+    "source_type": "original",
+    "source_reference": "scripts/generate_short_music.py --mood cozy --duration 15 --seed 2026092522 --output marketing/video/public/audio/generated/youtube-short-20260925-friday-01.wav",
+    "license": "Purrrfolio original composition; attribution-free",
+    "attribution_required": false
+  },
+  "campaign": {
+    "source": "yt_short_20260925_cozy_home_friday",
+    "url": "https://t.me/PurrrfolioBot?start=yt_short_20260925_cozy_home_friday"
+  },
+  "video_file": "marketing/video/out/youtube-short-20260925-friday-01.mp4",
+  "notify_subscribers": true,
+  "snippet": {
+    "title": "Meet 3 Cozy Home Cat Cards 🐾 | Purrrfolio #Shorts",
+    "description": "Meet three cozy cat cards from the Cozy Home collection in Purrrfolio, a Telegram collectible card game. Sock Thief, Fireplace Friend, and Pillow Fort each bring a little story.\n\nPlay Purrrfolio in Telegram: find @PurrrfolioBot.\n\n#Purrrfolio #CatCards #TelegramBot #Shorts",
+    "tags": [
+      "Purrrfolio",
+      "cat cards",
+      "collectible cards",
+      "cozy game",
+      "Telegram bot",
+      "YouTube Shorts"
+    ],
+    "categoryId": "20",
+    "defaultLanguage": "en"
+  },
+  "status": {
+    "privacyStatus": "public",
+    "embeddable": true,
+    "license": "youtube",
+    "publicStatsViewable": true,
+    "selfDeclaredMadeForKids": false,
+    "containsSyntheticMedia": false
+  },
+  "captions": [
+    {
+      "language": "en",
+      "name": "English",
+      "file": "marketing/runs/youtube-short-20260925-friday-01/captions/exported/en.srt"
+    },
+    {
+      "language": "ru",
+      "name": "Русский",
+      "file": "marketing/runs/youtube-short-20260925-friday-01/captions/exported/ru.srt"
+    },
+    {
+      "language": "tr",
+      "name": "Türkçe",
+      "file": "marketing/runs/youtube-short-20260925-friday-01/captions/exported/tr.srt"
+    },
+    {
+      "language": "id",
+      "name": "Bahasa Indonesia",
+      "file": "marketing/runs/youtube-short-20260925-friday-01/captions/exported/id.srt"
+    }
+  ]
+}
