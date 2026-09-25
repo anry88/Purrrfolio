@@ -1,5 +1,13 @@
 {
   "description_policy": "organic_handle_only",
+  "audio_policy": "required_cleared_instrumental",
+  "audio": {
+    "title": "{{music_title}}",
+    "source_type": "{{original_or_approved_source_type}}",
+    "source_reference": "{{local_source_or_library_reference}}",
+    "license": "{{license}}",
+    "attribution_required": false
+  },
   "title": "{{hook}} | Purrrfolio",
   "description": "{{search_description}}\n\nPlay Purrrfolio in Telegram: find @PurrrfolioBot.\n\n#Purrrfolio #CatCards #TelegramBot #Shorts",
   "tags": [

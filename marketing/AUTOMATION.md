@@ -51,7 +51,8 @@ and [vidIQ's 40M-video analysis](https://vidiq.com/blog/post/best-time-publish-v
    Telegram deep link, campaign code, or `/start` payload in the video,
    subtitles, title, or description.
 6. Build or adapt a 1080×1920, 30 fps, 12–20 second Remotion composition.
-7. Keep burned-in copy English-only. Generate canonical Caption JSON plus SRT
+7. Add a suitable instrumental background melody and keep burned-in copy
+   English-only. Generate canonical Caption JSON plus SRT
    and WebVTT for EN/RU/TR/ID.
 8. Run asset preparation, TypeScript/lint checks, caption validation, still QA,
    the full render, `ffprobe`, and the local upload dry-run.
@@ -88,6 +89,23 @@ and [vidIQ's 40M-video analysis](https://vidiq.com/blog/post/best-time-publish-v
   the Shorts description. Enabling that link is a one-time YouTube Studio
   advanced-feature verification step and cannot be automated through the Data
   API.
+
+## Music gate
+
+- Every future Short must contain a light instrumental melody appropriate to
+  its creative mood: cozy, playful, curious, or reveal-focused. Avoid lyrics,
+  aggressive drops, or music that competes with the cards and captions.
+- Use only an original composition, CC0 audio, or a YouTube Audio Library track
+  explicitly marked as requiring no attribution. Never use a trending song,
+  ripped audio, or a track with unclear terms or Content ID risk.
+- Record the track title, exact source reference, license, source type, and
+  `attribution_required=false` in the run manifest. Keep license evidence in
+  the run notes; do not add attribution URLs to the Shorts description.
+- Check the source duration before rendering, trim or loop cleanly, and apply
+  short fades so there is no abrupt start or cutoff. Keep the mix comfortably
+  below any narration or sound effects and listen to the final render once.
+- The upload preflight must detect an audio stream with `ffprobe`. The first
+  silent pilot is the only legacy exception.
 
 ## Quality and safety gates
 

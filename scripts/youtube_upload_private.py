@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import json
 import secrets
+import shutil
+import subprocess
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -30,6 +32,60 @@ DEFAULT_TOKEN = Path(".secrets/youtube-oauth-token.json")
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
 CAPTIONS_UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/captions"
 CONFIRMATION_PHRASE = "PUBLISH_PUBLIC"
+
+
+def validate_audio_policy(manifest: dict[str, Any], video_path: Path, run_id: str) -> None:
+    policy = manifest.get("audio_policy", "legacy_silent_pilot")
+    if policy == "legacy_silent_pilot":
+        if run_id != "youtube-short-001":
+            raise ValueError("New runs must use audio_policy=required_cleared_instrumental.")
+        return
+    if policy != "required_cleared_instrumental":
+        raise ValueError("Unknown audio_policy in upload manifest.")
+
+    audio = manifest.get("audio")
+    if not isinstance(audio, dict):
+        raise ValueError("Future runs must document their music in manifest.audio.")
+    allowed_sources = {
+        "original",
+        "cc0",
+        "youtube_audio_library_no_attribution",
+    }
+    if audio.get("source_type") not in allowed_sources:
+        raise ValueError("Music source is not an approved attribution-free source type.")
+    if audio.get("attribution_required") is not False:
+        raise ValueError("Automated Shorts require music that needs no public attribution.")
+    for field in ("title", "source_reference", "license"):
+        if not isinstance(audio.get(field), str) or not audio[field].strip():
+            raise ValueError(f"manifest.audio.{field} must be documented.")
+
+    ffprobe = shutil.which("ffprobe")
+    if ffprobe is None:
+        raise ValueError("ffprobe is required to verify the rendered audio stream.")
+    result = subprocess.run(
+        [
+            ffprobe,
+            "-v",
+            "error",
+            "-select_streams",
+            "a:0",
+            "-show_entries",
+            "stream=codec_type",
+            "-of",
+            "json",
+            str(video_path),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    try:
+        probe = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        probe = {}
+    streams = probe.get("streams", []) if isinstance(probe, dict) else []
+    if not any(stream.get("codec_type") == "audio" for stream in streams):
+        raise ValueError("Rendered future Short does not contain an audio stream.")
 
 
 def resolve_repository_path(raw: str) -> Path:
@@ -102,6 +158,7 @@ def validate_manifest(path: Path) -> tuple[dict[str, Any], Path, list[Path]]:
             raise ValueError(f"Upload status.{key} must be {expected!r}.")
     if not video_path.is_file():
         raise ValueError(f"Rendered video does not exist: {video_path}")
+    validate_audio_policy(manifest, video_path, path.parent.name)
 
     caption_paths: list[Path] = []
     if not isinstance(captions, list) or not captions:
