@@ -56,9 +56,12 @@ and [vidIQ's 40M-video analysis](https://vidiq.com/blog/post/best-time-publish-v
    the full render, `ffprobe`, and the local upload dry-run.
 9. Upload exactly one video as private staging, attach all four caption tracks,
    and only then switch it to `public`. Use the per-run recovery receipt to
-   prevent duplicate videos. Subscriber notifications are enabled.
+   prevent duplicate videos. Subscriber notifications are enabled. Always pass
+   the new run explicitly with `scripts/youtube_publish.py --manifest
+   marketing/runs/<run_id>/metadata.json`; never rely on the pilot default.
 10. Verify channel id, public status, category, audience declaration, synthetic
-    media disclosure, title, and caption languages through the YouTube API.
+    media disclosure, title, and caption languages through the YouTube API,
+    passing the same `--manifest` to `scripts/youtube_verify_upload.py`.
 11. Append the successful campaign/card combination to content history. Store
     no OAuth values, client secrets, access tokens, or refresh tokens in Git.
 12. Report the video id, creative summary, campaign source, verification result,
