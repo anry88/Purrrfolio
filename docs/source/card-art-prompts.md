@@ -12,9 +12,9 @@ cozy background, warm lighting, English title on the nameplate):
 | card | seed | scene |
 | --- | --- | --- |
 | sleepy | 101 | sleepy calico cat napping on soft cushions hugging a small blue fish toy, warm lamp-lit living room, night window with glowing stars |
-| librarian | 102 | black cat wearing round glasses and a red knitted scarf sitting on a tall stack of old books in a cozy wooden library, warm lamp light, bookshelves |
+| librarian | 102 | Epic frame; black cat wearing round glasses and a red knitted scarf sitting on a tall stack of old books in a cozy wooden library, warm lamp light, bookshelves |
 | rainy | 103 | gray-and-white kitten in a yellow raincoat holding a yellow umbrella on a rainy evening street, blue hydrangea flowers, glowing street lantern, reflections on wet pavement |
-| baker | 104 | happy chubby cat chef in a white toque holding a cat-shaped bun, cozy bakery with wooden shelves full of bread and croissants, warm oven light |
+| baker | 104 | Epic frame; happy chubby cat chef in a white toque holding a cat-shaped bun, cozy bakery with wooden shelves full of bread and croissants, warm oven light |
 | blossom | 105 | orange cat wearing a white flower crown sitting in a sunny flower garden, butterflies, daisies, soft spring light |
 | wanderer | 106 | gray cat with a small backpack and red scarf sitting on a cliff edge overlooking the sea and a coastal town at sunset |
 | astronaut | 107 | white kitten in a glass astronaut helmet sitting on the moon surface, planet Earth and a ringed planet in a starry sky |

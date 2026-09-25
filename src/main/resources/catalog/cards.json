@@ -499,7 +499,7 @@
       "nameRu": "Пекарь",
       "nameEn": "Baker",
       "themeId": "professions",
-      "rarity": "LEGENDARY",
+      "rarity": "EPIC",
       "imagePath": "/assets/cards/baker.png",
       "sortOrder": 10
     },
@@ -508,7 +508,7 @@
       "nameRu": "Библиотекарь",
       "nameEn": "Librarian",
       "themeId": "professions",
-      "rarity": "LEGENDARY",
+      "rarity": "EPIC",
       "imagePath": "/assets/cards/librarian.png",
       "sortOrder": 11
     },
@@ -1129,7 +1129,7 @@
       "nameRu": "Королевский пир",
       "nameEn": "Royal Feast",
       "themeId": "food",
-      "rarity": "LEGENDARY",
+      "rarity": "EPIC",
       "imagePath": "/assets/cards/royal-feast.png",
       "sortOrder": 12
     },

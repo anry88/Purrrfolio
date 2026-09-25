@@ -14,7 +14,7 @@ class CardCatalogTest {
         assertEquals(285, catalog.cards.size)
         assertTrue(catalog.collections.isNotEmpty())
         assertEquals("Соня", catalog.card("sleepy").nameRu)
-        assertEquals(CardRarity.LEGENDARY, catalog.card("baker").rarity)
+        assertEquals(CardRarity.EPIC, catalog.card("baker").rarity)
         assertEquals(CardRarity.MYTHIC, catalog.card("dreamweaver").rarity)
         assertEquals(CardRarity.UNCOMMON, catalog.card("blossom").rarity)
         assertEquals("Спорт", catalog.collection("sports").nameRu)
@@ -72,6 +72,11 @@ class CardCatalogTest {
         catalog.collections.forEach { theme ->
             val ranks = catalog.cardsByCollection(theme.id).map { it.rarity.displayRank }
             assertEquals(ranks.sorted(), ranks, "Collection ${theme.id} is not sorted by rarity")
+            assertEquals(
+                1,
+                catalog.cardsByCollection(theme.id).count { it.rarity == CardRarity.LEGENDARY },
+                "Collection ${theme.id} must contain exactly one Legendary card",
+            )
         }
 
         val friendshipCards = catalog.cardsByCollection("friendship")
