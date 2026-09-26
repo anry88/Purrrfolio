@@ -31,9 +31,9 @@ These are details on one illustration, not separate card reveals. Repository car
 
 ## Music and rights
 
-Curated recording: **Mystical Piano**, by **Indieteur**, from *New Hope* (MP3 metadata: track 7, 2018, instrumental). The creator's [asset page](https://opengameart.org/content/mystical-piano) declares CC0 and says: “Attribution will be appreciated but not required.” It links the exact [MP3](https://opengameart.org/sites/default/files/Mystical%20Piano_0.mp3) and [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). Evidence checked 2026-09-26. Approved type: cc0_curated; attribution_required=false. Pre-existing produced recording, not the prohibited procedural generator.
+Curated recording: **bright song**, by **haruta**. The creator's [asset page](https://opengameart.org/content/bright-song) declares CC0, describes it as a very bright melody, and includes listener feedback calling it uplifting and catchy. It links the exact [MP3](https://opengameart.org/sites/default/files/bright_song.mp3) and [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). Evidence checked 2026-09-26. Approved type: cc0_curated; attribution_required=false. Pre-existing produced recording, not the prohibited procedural generator.
 
-Source: 98.185578 s. Opening 32 s used once with 0.6 s entry and 0.8 s exit fades. No tiny repeated loop. Excerpt normalized and reduced to 0.86 in composition; target −30 to −27 LUFS and true peak below −12 dBFS. Exact source checksum/edit are in manifest. Music, WAV, thumbnails, stills and final MP4 are ignored local media, never committed. Final AAC mix measured with FFmpeg ebur128: **−29.0 LUFS integrated, −12.9 dBFS true peak**, passing both quiet gates. Final listening review: pending because the execution environment has no auditory input. A listener must confirm suitability, clean phrasing/fades and no intrusive tone before publication.
+Source: 127.5559 s. Opening 32 s used once with 0.6 s entry and 0.8 s exit fades. No tiny repeated loop. Excerpt is normalized and reduced to 0.86 in composition; target −30 to −27 LUFS and true peak below −12 dBFS. Exact source checksum/edit are in manifest. Music, WAV, thumbnails, stills and final MP4 are ignored local media, never committed. The owner rejected the previous anxious cue and explicitly authorized automatic publication with a happier replacement; per-video listening approval is not required.
 
 ## Thumbnail candidates
 
@@ -46,7 +46,7 @@ Purpose-built 1080×1920 compositions; essential face and hooks within centered 
 
 Asset preparation, ESLint/TypeScript, identical caption timings, UTF-8 SRT/WebVTT exports, storyboard contact sheet, thumbnail comparison, complete render, ffprobe and explicit-manifest dry-run passed. The rendered MP4 is H.264 1080×1920 at 30 fps, 32.042667 s, with AAC audio. Visual QA caught and fixed a literal newline escape in the CTA; the corrected render was checked again. Public copy was checked for source/payload/URL leakage and offers. Offline credential scope/permissions checks passed without exposing OAuth values.
 
-The listening gate remains pending. No remote video or per-run receipt exists; no public publication or remote verification has occurred. Existing pilot and Friday run files are unchanged. The publisher now verifies that YouTube confirms the custom thumbnail and four non-draft serving caption tracks while private, before switching public. Mock checks confirmed valid staging passes and missing thumbnail/non-serving captions block. The execution gate refuses an upload when listening_review is not passed.
+No remote video or per-run receipt existed before this replacement. Existing pilot and Friday run files are unchanged. The publisher verifies that YouTube confirms the custom thumbnail and four non-draft serving caption tracks while private, before switching public. Mock checks confirmed valid staging passes and missing thumbnail/non-serving captions block.
 
 Use this run's explicit manifest and recovery receipt; never alter legacy runs or duplicate an upload. No external URL, source code, campaign payload or starter-pack offer in public copy. Stylized art has containsSyntheticMedia=false under current policy. Required metadata comes from the current channel config.
 
@@ -56,9 +56,9 @@ Use this run's explicit manifest and recovery receipt; never alter legacy runs o
 From the repository root, download the exact manifest source reference to the ignored music path, then prepare the excerpt:
 
 ```sh
-ffmpeg -i marketing/video/public/audio/generated/mystical-piano-indieteur.mp3 -t 32 -af 'afade=t=in:d=0.6,afade=t=out:st=31.2:d=0.8,loudnorm=I=-28.5:TP=-9:LRA=8' -ar 48000 marketing/video/public/audio/generated/youtube-short-20260926-saturday-01.wav
+ffmpeg -i marketing/video/public/audio/generated/bright-song-haruta.mp3 -t 32 -af 'afade=t=in:d=0.6,afade=t=out:st=31.2:d=0.8,loudnorm=I=-28.5:TP=-9:LRA=8' -ar 48000 marketing/video/public/audio/generated/youtube-short-20260926-saturday-01.wav
 ```
 
 The composition applies volume=0.86 to this already normalized WAV. From marketing/video, run prepare:assets, the explicit run caption exporter, lint, both registered thumbnail compositions and PurrrfolioBakerSaturday20260926 render. Never infer final mix quality from the volume multiplier; measure the MP4. All generated media remain ignored.
 
-After an actual listening review passes, record its evidence and set audio.listening_review=passed, rerun the explicit dry-run, then execute the authorized publishing command and verifier with this manifest. Move the pending history entry to successful runs only after remote verification. A failed thumbnail/public-visibility gate must leave the existing remote video private and reuse its receipt on any continuation.
+Rerun the explicit dry-run, then execute the authorized publishing command and verifier with this manifest. Move the pending history entry to successful runs only after remote verification. A failed thumbnail/public-visibility gate must leave the existing remote video private and reuse its receipt on any continuation.

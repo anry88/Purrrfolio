@@ -6,7 +6,11 @@
     "source_type": "{{original_or_approved_source_type}}",
     "source_reference": "{{local_source_or_library_reference}}",
     "license": "{{license}}",
-    "attribution_required": false
+    "attribution_required": false,
+    "mood_evidence": "{{documented_positive_mood_evidence}}",
+    "mood_tags": [
+      "{{positive_mood_tag}}"
+    ]
   },
   "creative": {
     "concept_family": "{{concept_family}}",

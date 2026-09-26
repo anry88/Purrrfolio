@@ -52,16 +52,22 @@ experiment and must not be used again for public content.
 - Use a curated, professionally produced instrumental from YouTube Audio
   Library with no attribution requirement, curated CC0 music, or a specific
   owner-approved original track.
-- Prefer warm acoustic, soft lo-fi, gentle piano/guitar, restrained cinematic,
-  or subtle ambient textures. Reject chip-tune, toy-like plucks, pure-tone
+- Prefer warm acoustic, soft lo-fi, gentle piano/guitar, cheerful light pop,
+  or playful organic textures. Reject chip-tune, toy-like plucks, pure-tone
   synthesis, repetitive eight-note loops, shrill leads, and constant percussion.
+- Reject mystical, suspenseful, ominous, dramatic, dark, horror, anxious,
+  tense, or melancholic cues. Default to warm, cheerful, playful, optimistic
+  tracks with a resolved, friendly feel.
 - The track should have musical development rather than one short loop repeated
   unchanged. Trim on musical phrases and use 0.4–1.0 second fades.
 - Mix background music around −30 to −27 LUFS integrated with true peak below
   −12 dBFS. Lower it further under narration or important sound effects.
-- Store the exact title, source, license evidence, and mix measurements in the
-  run README and manifest. If the quality or rights are uncertain, do not
-  publish.
+- Store the exact title, source, license evidence, positive mood evidence, and
+  mix measurements in the run README and manifest. If the rights or technical
+  quality are uncertain, do not publish.
+- Do not require per-video owner approval. Publish automatically once license,
+  documented positive mood, loudness, render, captions, thumbnail, and remote
+  verification gates pass; improve later runs from feedback.
 
 ## Thumbnail direction
 

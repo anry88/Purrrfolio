@@ -109,7 +109,15 @@ and [vidIQ's 40M-video analysis](https://vidiq.com/blog/post/best-time-publish-v
   the run notes; do not add attribution URLs to the Shorts description.
 - Check duration before rendering, edit on musical phrases, and apply 0.4–1.0
   second fades. Do not repeat a tiny loop unchanged. Target −30 to −27 LUFS
-  integrated and true peak below −12 dBFS, then listen to the final render.
+  integrated and true peak below −12 dBFS.
+- Treat music mood as a release gate. Prefer warm, cheerful, light, playful,
+  optimistic acoustic or softly produced tracks. Reject sources or tags that
+  suggest mystical, suspenseful, ominous, dramatic, dark, horror, anxious,
+  tense, or melancholic music. Avoid unresolved drones and prominent minor-key
+  tension. Record positive mood evidence from the source page in the manifest.
+- Publication is automatic after the licensing, mood, render, subtitle,
+  thumbnail, and technical gates pass. Do not pause for per-video owner
+  listening approval; use feedback to improve the next run.
 - The upload preflight must detect an audio stream with `ffprobe`. The first
   silent pilot is the only legacy exception.
 

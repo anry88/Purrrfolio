@@ -14,24 +14,31 @@
     ]
   },
   "audio": {
-    "title": "Mystical Piano",
-    "artist": "Indieteur",
+    "title": "bright song",
+    "artist": "haruta",
     "source_type": "cc0_curated",
-    "source_reference": "https://opengameart.org/sites/default/files/Mystical%20Piano_0.mp3",
+    "source_reference": "https://opengameart.org/sites/default/files/bright_song.mp3",
     "license": "CC0 1.0 Universal",
-    "license_evidence": "https://opengameart.org/content/mystical-piano",
+    "license_evidence": "https://opengameart.org/content/bright-song",
     "attribution_required": false,
-    "source_duration_seconds": 98.185578,
+    "source_duration_seconds": 127.5559,
     "excerpt_start_seconds": 0,
     "excerpt_duration_seconds": 32,
     "fade_in_seconds": 0.6,
     "fade_out_seconds": 0.8,
     "target_integrated_lufs": -28.5,
     "mix_volume": 0.86,
-    "listening_review": "pending",
-    "source_sha256": "b19c57ba33e90df581006f954dba35201ed31f5f8e7018c74fc0153f387a66f6",
-    "measured_integrated_lufs": -29.0,
-    "measured_true_peak_dbfs": -12.9
+    "listening_review": "automatic_release_authorized",
+    "mood_evidence": "Source page describes a very bright melody; listener feedback calls it uplifting and catchy.",
+    "mood_tags": [
+      "bright",
+      "uplifting",
+      "catchy",
+      "cheerful"
+    ],
+    "source_sha256": "140e129dff20b97bea7ac36b37224f8ee4e36500a29c082446524a3c290d7723",
+    "measured_integrated_lufs": null,
+    "measured_true_peak_dbfs": null
   },
   "thumbnail": {
     "file": "marketing/video/out/youtube-short-20260926-saturday-01-thumbnail-closeup.png",

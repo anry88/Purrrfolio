@@ -64,8 +64,8 @@ export const BakeryArt: React.FC<{ answers?: boolean; fullCard?: boolean }> = ({
       {answers &&
         [
           { x: 397, y: 341, n: "1" },
-          { x: 480, y: 680, n: "2" },
-          { x: 635, y: 183, n: "3" },
+          { x: 524, y: 688, n: "2" },
+          { x: 658, y: 220, n: "3" },
         ].map(({ x, y, n }, i) => (
           <div
             key={n}

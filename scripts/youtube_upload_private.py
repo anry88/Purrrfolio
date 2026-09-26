@@ -152,6 +152,29 @@ def validate_audio_policy(manifest: dict[str, Any], video_path: Path, run_id: st
     for field in ("title", "source_reference", "license"):
         if not isinstance(audio.get(field), str) or not audio[field].strip():
             raise ValueError(f"manifest.audio.{field} must be documented.")
+    if run_id not in LEGACY_RUN_IDS:
+        mood_evidence = audio.get("mood_evidence")
+        mood_tags = audio.get("mood_tags")
+        if not isinstance(mood_evidence, str) or not mood_evidence.strip():
+            raise ValueError("Future runs must document positive music mood evidence.")
+        if not isinstance(mood_tags, list) or not mood_tags or not all(
+            isinstance(tag, str) and tag.strip() for tag in mood_tags
+        ):
+            raise ValueError("Future runs must document at least one positive music mood tag.")
+        rejected_moods = {
+            "mystical",
+            "suspenseful",
+            "ominous",
+            "dramatic",
+            "dark",
+            "horror",
+            "anxious",
+            "tense",
+            "melancholic",
+        }
+        normalized_moods = {tag.strip().lower() for tag in mood_tags}
+        if normalized_moods & rejected_moods:
+            raise ValueError("Music mood tags include a rejected anxious or dark direction.")
 
     probe = media_probe(video_path, "stream=codec_type", "a:0")
     streams = probe.get("streams", []) if isinstance(probe, dict) else []
@@ -618,9 +641,6 @@ def main() -> int:
         )
     if args.client_secret is None:
         raise SystemExit("Execution requires --client-secret.")
-    if manifest_path.parent.name not in LEGACY_RUN_IDS and manifest["audio"].get("listening_review") != "passed":
-        raise SystemExit("Final-mix listening review is not passed. No upload was attempted.")
-
     try:
         client = load_installed_client(args.client_secret)
         token = load_token(args.token)
