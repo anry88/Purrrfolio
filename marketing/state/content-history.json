@@ -44,9 +44,7 @@
       "music_style": "legacy_procedural_loop",
       "remote_status": "public",
       "uploaded_at": "2026-09-25"
-    }
-  ],
-  "pending_runs": [
+    },
     {
       "run_id": "youtube-short-20260926-saturday-01",
       "campaign_source": "yt_short_20260926_baker_paw_hunt",
@@ -56,9 +54,6 @@
       "concept_family": "detail_hunt",
       "visual_grammar": "hero_inspection_with_annotations",
       "duration_seconds": 32,
-      "remote_status": "not_uploaded",
-      "created_at": "2026-09-26T18:24:51.658194+00:00",
-      "local_status": "awaiting_listening_review",
       "master_language": "en",
       "caption_languages": [
         "en",
@@ -66,7 +61,12 @@
         "tr",
         "id"
       ],
-      "music_style": "curated_ambient_piano"
+      "music_style": "curated_cheerful_bright_song",
+      "custom_thumbnail": true,
+      "remote_status": "public",
+      "video_id": "zWhcyYMi5DA",
+      "uploaded_at": "2026-09-26"
     }
-  ]
+  ],
+  "pending_runs": []
 }
