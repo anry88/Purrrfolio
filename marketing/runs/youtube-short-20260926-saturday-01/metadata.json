@@ -37,8 +37,8 @@
       "cheerful"
     ],
     "source_sha256": "140e129dff20b97bea7ac36b37224f8ee4e36500a29c082446524a3c290d7723",
-    "measured_integrated_lufs": null,
-    "measured_true_peak_dbfs": null
+    "measured_integrated_lufs": -28.4,
+    "measured_true_peak_dbfs": -13.8
   },
   "thumbnail": {
     "file": "marketing/video/out/youtube-short-20260926-saturday-01-thumbnail-closeup.png",

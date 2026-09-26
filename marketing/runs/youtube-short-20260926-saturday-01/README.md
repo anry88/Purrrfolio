@@ -33,7 +33,7 @@ These are details on one illustration, not separate card reveals. Repository car
 
 Curated recording: **bright song**, by **haruta**. The creator's [asset page](https://opengameart.org/content/bright-song) declares CC0, describes it as a very bright melody, and includes listener feedback calling it uplifting and catchy. It links the exact [MP3](https://opengameart.org/sites/default/files/bright_song.mp3) and [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). Evidence checked 2026-09-26. Approved type: cc0_curated; attribution_required=false. Pre-existing produced recording, not the prohibited procedural generator.
 
-Source: 127.5559 s. Opening 32 s used once with 0.6 s entry and 0.8 s exit fades. No tiny repeated loop. Excerpt is normalized and reduced to 0.70 in composition; target −30 to −27 LUFS and true peak below −12 dBFS. Exact source checksum/edit are in manifest. Music, WAV, thumbnails, stills and final MP4 are ignored local media, never committed. The owner rejected the previous anxious cue and explicitly authorized automatic publication with a happier replacement; per-video listening approval is not required.
+Source: 127.5559 s. Opening 32 s used once with 0.6 s entry and 0.8 s exit fades. No tiny repeated loop. Excerpt is normalized and reduced to 0.70 in composition. The final AAC mix measures **−28.4 LUFS integrated and −13.8 dBFS true peak**, passing the quiet background-music gates. Exact source checksum/edit are in manifest. Music, WAV, thumbnails, stills and final MP4 are ignored local media, never committed. The owner rejected the previous anxious cue and explicitly authorized automatic publication with a happier replacement; per-video listening approval is not required.
 
 ## Thumbnail candidates
 
@@ -44,7 +44,7 @@ Purpose-built 1080×1920 compositions; essential face and hooks within centered 
 
 ## QA and publication
 
-Asset preparation, ESLint/TypeScript, identical caption timings, UTF-8 SRT/WebVTT exports, storyboard contact sheet, thumbnail comparison, complete render, ffprobe and explicit-manifest dry-run passed. The rendered MP4 is H.264 1080×1920 at 30 fps, 32.042667 s, with AAC audio. Visual QA caught and fixed a literal newline escape in the CTA; the corrected render was checked again. Public copy was checked for source/payload/URL leakage and offers. Offline credential scope/permissions checks passed without exposing OAuth values.
+Asset preparation, ESLint/TypeScript, identical caption timings, UTF-8 SRT/WebVTT exports, storyboard contact sheet, thumbnail comparison, complete render and ffprobe passed. The rendered MP4 is H.264 1080×1920 at 30 fps, 32.042667 s, with AAC audio. Visual QA caught and fixed a literal newline escape in the CTA, then corrected the apron and jar annotation positions against the source art. Public copy was checked for source/payload/URL leakage and offers. Offline credential scope/permissions checks passed without exposing OAuth values.
 
 No remote video or per-run receipt existed before this replacement. Existing pilot and Friday run files are unchanged. The publisher verifies that YouTube confirms the custom thumbnail and four non-draft serving caption tracks while private, before switching public. Mock checks confirmed valid staging passes and missing thumbnail/non-serving captions block.
 
