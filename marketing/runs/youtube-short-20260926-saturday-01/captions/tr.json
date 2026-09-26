@@ -1,0 +1,51 @@
+[
+  {
+    "text": "Pati izlerini bulabilir misin?",
+    "startMs": 0,
+    "endMs": 4000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Biraz daha yakından bak.",
+    "startMs": 4000,
+    "endMs": 12000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Şapkanın üstünde.",
+    "startMs": 12000,
+    "endMs": 15000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Önlüğün üstünde.",
+    "startMs": 15000,
+    "endMs": 18000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Kavanozların üstünde.",
+    "startMs": 18000,
+    "endMs": 21000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Baker · Epik\nMeslekler koleksiyonu",
+    "startMs": 21000,
+    "endMs": 26000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Telegram’da kedi kartları biriktir.\n@PurrrfolioBot’u bul.",
+    "startMs": 26000,
+    "endMs": 32000,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

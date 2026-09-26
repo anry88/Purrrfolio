@@ -1,4 +1,9 @@
 import "./index.css";
+import { BakerSaturdayVideo } from "./BakerSaturdayVideo";
+import {
+  BakerThumbnailCloseup,
+  BakerThumbnailPoster,
+} from "./saturday/BakerThumbnails";
 import { Composition, Folder } from "remotion";
 import { PilotVideo } from "./PilotVideo";
 import { CozyHomeFridayVideo } from "./CozyHomeFridayVideo";
@@ -11,6 +16,30 @@ import { SleepyScene } from "./scenes/SleepyScene";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="PurrrfolioBakerSaturday20260926"
+        component={BakerSaturdayVideo}
+        durationInFrames={960}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="BakerThumbnailCloseup"
+        component={BakerThumbnailCloseup}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="BakerThumbnailPoster"
+        component={BakerThumbnailPoster}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
       <Composition
         id="PurrrfolioCozyHomeFriday20260925"
         component={CozyHomeFridayVideo}

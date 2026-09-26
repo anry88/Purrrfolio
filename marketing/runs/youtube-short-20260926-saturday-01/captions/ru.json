@@ -1,0 +1,51 @@
+[
+  {
+    "text": "Найдёшь отпечатки лапок?",
+    "startMs": 0,
+    "endMs": 4000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Присмотрись повнимательнее.",
+    "startMs": 4000,
+    "endMs": 12000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "На колпаке.",
+    "startMs": 12000,
+    "endMs": 15000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "На фартуке.",
+    "startMs": 15000,
+    "endMs": 18000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "На банках.",
+    "startMs": 18000,
+    "endMs": 21000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Baker · Эпическая\nКоллекция «Профессии»",
+    "startMs": 21000,
+    "endMs": 26000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Собирай карточки с котиками в Telegram.\nНайди @PurrrfolioBot.",
+    "startMs": 26000,
+    "endMs": 32000,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

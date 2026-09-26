@@ -20,6 +20,8 @@ from youtube_api import (
     YouTubeApiError,
     configured_scopes,
     fetch_owned_channels,
+    fetch_video,
+    fetch_captions,
     load_installed_client,
     load_json,
     load_token,
@@ -534,6 +536,29 @@ def publish_video(
     return result
 
 
+def verify_private_staging(access_token: str, video_id: str, manifest: dict[str, Any]) -> None:
+    """Leave the asset private if required remote assets are not ready."""
+    videos = fetch_video(access_token, video_id).get("items", [])
+    if len(videos) != 1:
+        raise YouTubeApiError("Private staging verification returned no unique video.")
+    video = videos[0]
+    if video.get("snippet", {}).get("channelId") != manifest["expected_channel_id"]:
+        raise YouTubeApiError("Staged video belongs to an unexpected channel.")
+    if video.get("status", {}).get("privacyStatus") != "private":
+        raise YouTubeApiError("Staged video is not private; refusing the publication step.")
+    if video.get("contentDetails", {}).get("hasCustomThumbnail") is not True:
+        raise YouTubeApiError("YouTube has not confirmed the custom thumbnail; leaving video private.")
+    captions = fetch_captions(access_token, video_id).get("items", [])
+    serving_languages = {
+        item.get("snippet", {}).get("language")
+        for item in captions
+        if item.get("snippet", {}).get("isDraft") is False
+        and item.get("snippet", {}).get("status") == "serving"
+    }
+    if not {item["language"] for item in manifest["captions"]} <= serving_languages:
+        raise YouTubeApiError("Required captions are not all serving; leaving video private. Resume this receipt later.")
+
+
 def write_receipt(path: Path, receipt: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -593,6 +618,8 @@ def main() -> int:
         )
     if args.client_secret is None:
         raise SystemExit("Execution requires --client-secret.")
+    if manifest_path.parent.name not in LEGACY_RUN_IDS and manifest["audio"].get("listening_review") != "passed":
+        raise SystemExit("Final-mix listening review is not passed. No upload was attempted.")
 
     try:
         client = load_installed_client(args.client_secret)
@@ -660,6 +687,8 @@ def main() -> int:
             receipt["thumbnail_uploaded"] = True
             write_receipt(receipt_path, receipt)
         if not receipt.get("published"):
+            if manifest_path.parent.name not in LEGACY_RUN_IDS:
+                verify_private_staging(access_token, video_id, manifest)
             publish_video(access_token, video_id, manifest)
             receipt["privacy_status"] = "public"
             receipt["published"] = True

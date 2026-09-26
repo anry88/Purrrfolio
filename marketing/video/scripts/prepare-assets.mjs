@@ -8,8 +8,13 @@ const repositoryRoot = resolve(videoDirectory, "../..");
 const sourceDirectory = resolve(repositoryRoot, "assets/cards");
 const targetDirectory = resolve(videoDirectory, "public/cards");
 const selectedCards = [
-  "sleepy.png", "tiny-gardener.png", "boxie.png",
-  "sock-thief.png", "fireplace-friend.png", "pillow-fort.png",
+  "sleepy.png",
+  "tiny-gardener.png",
+  "boxie.png",
+  "sock-thief.png",
+  "fireplace-friend.png",
+  "pillow-fort.png",
+  "baker.png",
 ];
 
 await mkdir(targetDirectory, { recursive: true });

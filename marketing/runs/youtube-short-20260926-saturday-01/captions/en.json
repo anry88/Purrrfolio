@@ -1,0 +1,51 @@
+[
+  {
+    "text": "Can you spot the paw prints?",
+    "startMs": 0,
+    "endMs": 4000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Take a closer look.",
+    "startMs": 4000,
+    "endMs": 12000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "On the hat.",
+    "startMs": 12000,
+    "endMs": 15000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "On the apron.",
+    "startMs": 15000,
+    "endMs": 18000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "On the jars.",
+    "startMs": 18000,
+    "endMs": 21000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Baker · Epic\nProfessions collection",
+    "startMs": 21000,
+    "endMs": 26000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Collect cat cards in Telegram.\nFind @PurrrfolioBot.",
+    "startMs": 26000,
+    "endMs": 32000,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

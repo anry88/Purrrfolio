@@ -1,0 +1,97 @@
+{
+  "expected_channel_id": "UCNugnVbVAECNpMc8oWetZOg",
+  "description_policy": "organic_handle_only",
+  "audio_policy": "required_cleared_instrumental",
+  "creative": {
+    "concept_family": "detail_hunt",
+    "visual_grammar": "hero_inspection_with_annotations",
+    "hook_style": "visual_search_question",
+    "duration_seconds": 32,
+    "card_count": 1,
+    "candidate_count": 4,
+    "cards": [
+      "baker"
+    ]
+  },
+  "audio": {
+    "title": "Mystical Piano",
+    "artist": "Indieteur",
+    "source_type": "cc0_curated",
+    "source_reference": "https://opengameart.org/sites/default/files/Mystical%20Piano_0.mp3",
+    "license": "CC0 1.0 Universal",
+    "license_evidence": "https://opengameart.org/content/mystical-piano",
+    "attribution_required": false,
+    "source_duration_seconds": 98.185578,
+    "excerpt_start_seconds": 0,
+    "excerpt_duration_seconds": 32,
+    "fade_in_seconds": 0.6,
+    "fade_out_seconds": 0.8,
+    "target_integrated_lufs": -28.5,
+    "mix_volume": 0.86,
+    "listening_review": "pending",
+    "source_sha256": "b19c57ba33e90df581006f954dba35201ed31f5f8e7018c74fc0153f387a66f6",
+    "measured_integrated_lufs": -29.0,
+    "measured_true_peak_dbfs": -12.9
+  },
+  "thumbnail": {
+    "file": "marketing/video/out/youtube-short-20260926-saturday-01-thumbnail-closeup.png",
+    "layout": "extreme_card_closeup",
+    "hook": "Spot the paw prints",
+    "safe_crop": "centered_4_5",
+    "candidates": [
+      "marketing/video/out/youtube-short-20260926-saturday-01-thumbnail-closeup.png",
+      "marketing/video/out/youtube-short-20260926-saturday-01-thumbnail-poster.png"
+    ],
+    "selection_reason": "Close-up presents a larger face, clearer hat detail, and a shorter high-contrast hook than the poster; both centered 4:5 crops reviewed."
+  },
+  "campaign": {
+    "source": "yt_short_20260926_baker_paw_hunt",
+    "url": "https://t.me/PurrrfolioBot?start=yt_short_20260926_baker_paw_hunt"
+  },
+  "video_file": "marketing/video/out/youtube-short-20260926-saturday-01.mp4",
+  "notify_subscribers": true,
+  "snippet": {
+    "title": "Can You Spot the Paw Prints? 🐾 Baker Cat Card | Purrrfolio #Shorts",
+    "description": "Spot the paw prints on a cozy cat card from Purrrfolio, a Telegram collectible card game. Take a closer look at Baker from the Professions collection.\n\nPlay Purrrfolio in Telegram: find @PurrrfolioBot.\n\n#Purrrfolio #CatCards #CozyGames #Shorts",
+    "tags": [
+      "Purrrfolio",
+      "cat cards",
+      "cozy game",
+      "Telegram collectible card game",
+      "Baker cat",
+      "YouTube Shorts"
+    ],
+    "categoryId": "20",
+    "defaultLanguage": "en"
+  },
+  "status": {
+    "privacyStatus": "public",
+    "embeddable": true,
+    "license": "youtube",
+    "publicStatsViewable": true,
+    "selfDeclaredMadeForKids": false,
+    "containsSyntheticMedia": false
+  },
+  "captions": [
+    {
+      "language": "en",
+      "name": "English",
+      "file": "marketing/runs/youtube-short-20260926-saturday-01/captions/exported/en.srt"
+    },
+    {
+      "language": "ru",
+      "name": "Русский",
+      "file": "marketing/runs/youtube-short-20260926-saturday-01/captions/exported/ru.srt"
+    },
+    {
+      "language": "tr",
+      "name": "Türkçe",
+      "file": "marketing/runs/youtube-short-20260926-saturday-01/captions/exported/tr.srt"
+    },
+    {
+      "language": "id",
+      "name": "Bahasa Indonesia",
+      "file": "marketing/runs/youtube-short-20260926-saturday-01/captions/exported/id.srt"
+    }
+  ]
+}

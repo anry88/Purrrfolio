@@ -1,0 +1,51 @@
+[
+  {
+    "text": "Bisa temukan jejak kakinya?",
+    "startMs": 0,
+    "endMs": 4000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Coba lihat lebih dekat.",
+    "startMs": 4000,
+    "endMs": 12000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Di topi.",
+    "startMs": 12000,
+    "endMs": 15000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Di celemek.",
+    "startMs": 15000,
+    "endMs": 18000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Di stoples.",
+    "startMs": 18000,
+    "endMs": 21000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Baker · Epik\nKoleksi Profesi",
+    "startMs": 21000,
+    "endMs": 26000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Koleksi kartu kucing di Telegram.\nCari @PurrrfolioBot.",
+    "startMs": 26000,
+    "endMs": 32000,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

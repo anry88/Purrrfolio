@@ -11,6 +11,11 @@ const runDirectory = resolve(
 const sourceDirectory = resolve(runDirectory, "captions");
 const outputDirectory = resolve(sourceDirectory, "exported");
 const languages = ["en", "ru", "tr", "id"];
+const manifest = JSON.parse(
+  await readFile(resolve(runDirectory, "metadata.json"), "utf8"),
+);
+const durationMs = (manifest.creative?.duration_seconds ?? 15) * 1000;
+let masterTimings;
 
 const timestamp = (milliseconds, separator) => {
   const hours = Math.floor(milliseconds / 3_600_000);
@@ -28,11 +33,12 @@ const validateCaptions = (captions, language) => {
   for (const [index, caption] of captions.entries()) {
     if (
       typeof caption.text !== "string" ||
+      !caption.text.trim() ||
       !Number.isInteger(caption.startMs) ||
       !Number.isInteger(caption.endMs) ||
       caption.startMs < previousEnd ||
       caption.endMs <= caption.startMs ||
-      caption.endMs > 15_000 ||
+      caption.endMs > durationMs ||
       caption.timestampMs !== null ||
       caption.confidence !== null
     ) {
@@ -49,6 +55,11 @@ for (const language of languages) {
     await readFile(resolve(sourceDirectory, `${language}.json`), "utf8"),
   );
   validateCaptions(captions, language);
+  const timings = captions.map(({ startMs, endMs }) => [startMs, endMs]);
+  if (language === "en") masterTimings = timings;
+  else if (JSON.stringify(timings) !== JSON.stringify(masterTimings)) {
+    throw new Error(`${language}: timing boundaries differ from English`);
+  }
 
   const srt = captions
     .map(
