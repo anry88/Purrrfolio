@@ -98,6 +98,27 @@ class MarketRepository(private val jdbcTemplate: JdbcTemplate) {
         return jdbcTemplate.query(sql, marketListingRowMapper)
     }
 
+    /** Oldest active listings first, in small batches so the expiry job handles large markets. */
+    fun findExpiredActiveListings(cutoff: OffsetDateTime, limit: Int): List<MarketListing> {
+        val sql = """
+            SELECT * FROM market_listings
+            WHERE status = 'ACTIVE' AND created_at <= ?
+            ORDER BY created_at ASC
+            LIMIT ?
+        """.trimIndent()
+        return jdbcTemplate.query(sql, marketListingRowMapper, cutoff, limit)
+    }
+
+    /** Settles dangling PENDING offers that reference an expired listing. Returns rows updated. */
+    fun cancelPendingOffersForListing(listingId: UUID): Int {
+        val sql = """
+            UPDATE trade_offers
+            SET status = 'CANCELLED', resolved_at = NOW()
+            WHERE (target_listing_id = ? OR offered_listing_id = ?) AND status = 'PENDING'
+        """.trimIndent()
+        return jdbcTemplate.update(sql, listingId, listingId)
+    }
+
     fun updateListingStatus(listingId: UUID, status: MarketListingStatus) {
         val sql = """
             UPDATE market_listings 

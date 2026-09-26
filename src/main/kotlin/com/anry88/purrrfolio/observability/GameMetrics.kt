@@ -96,6 +96,10 @@ class GameMetrics(
         registry.counter("purrrfolio.market.offer", "stage", stage).increment()
     }
 
+    fun marketExpired(count: Int) {
+        registry.counter("purrrfolio.market.expired").increment(count.toDouble())
+    }
+
     @Scheduled(initialDelay = 5_000, fixedDelay = 60_000)
     fun refreshDatabaseGauges() {
         runCatching {

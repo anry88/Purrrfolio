@@ -306,6 +306,18 @@ object Messages {
             "Your listings:" to
                 "Твои лоты:"
             ),
+        "market.myListingsPage" to (
+            "Your listings (page %s):" to
+                "Твои лоты (страница %s):"
+            ),
+        "market.expiredReturned" to (
+            "⏳ *Market listings expired*\n\nThese cards were returned to your collection:\n%s" to
+                "⏳ *Срок лотов на бирже истёк*\n\nЭти карточки возвращены в твою коллекцию:\n%s"
+            ),
+        "market.expiredMore" to (
+            "…and %s more" to
+                "…и ещё %s"
+            ),
         "market.noDuplicates" to (
             "You don't have duplicates to list." to
                 "У тебя нет дубликатов для выставления."

@@ -21,7 +21,7 @@ Open [`@PurrrfolioBot`](https://t.me/PurrrfolioBot) and use:
 - `/craft` — melt duplicates into points (15 pts = 1 pack)
 - `/buy` — buy packs with Telegram Stars (1/3/5/10 packs for 5/12/16/25 Stars)
 - `/trade` — random trade of a duplicate from the shared pool
-- `/market` — list duplicates, browse others, offer card-for-card trades
+- `/market` — list duplicates, browse others, offer card-for-card trades (listings paginate 5 per page; unsold listings return to the owner after 7 days)
 - `/language` — switch between English and Russian
 - `/help` — command help
 - `/paysupport` — select a Stars purchase and request an admin-approved refund

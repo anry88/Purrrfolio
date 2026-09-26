@@ -110,6 +110,7 @@ class GameService(
 
     companion object {
         const val COLLECTIONS_PAGE_SIZE = 10
+        const val MARKET_PAGE_SIZE = 5
         const val STARS_CURRENCY = "XTR"
         const val SUPPORT_TEXT_LIMIT = 1_000
 
@@ -1365,18 +1366,26 @@ class GameService(
 
     // ---- Marketplace ----
 
-    private fun handleMarket(chatId: Long, user: User) {
+    private fun handleMarket(chatId: Long, user: User, myPage: Int = 0) {
         val locale = gameLocale(user)
         val myListings = marketRepository.findActiveListingsBySeller(user.id)
         val duplicates = userCardRepository.findByUserId(user.id)
             .filter { TradePolicy.canOfferDuplicate(it.quantity) }
             .take(10)
 
+        val totalMyPages = (myListings.size + MARKET_PAGE_SIZE - 1) / MARKET_PAGE_SIZE
+        val safeMyPage = myPage.coerceIn(0, maxOf(totalMyPages - 1, 0))
+        val myPageItems = myListings.drop(safeMyPage * MARKET_PAGE_SIZE).take(MARKET_PAGE_SIZE)
+
         val buttons = mutableListOf<List<TelegramInlineButton>>()
-        myListings.take(5).forEach { listing ->
+        myPageItems.forEach { listing ->
             val name = runCatching { cardCatalog.card(listing.cardId).nameFor(locale) }.getOrElse { listing.cardId }
             buttons.add(listOf(TelegramInlineButton(Messages.t("market.returnButton", locale, name), "m:ret:${listing.id}")))
         }
+        val myNav = mutableListOf<TelegramInlineButton>()
+        if (safeMyPage > 0) myNav.add(TelegramInlineButton(Messages.t("collection.prev", locale), "m:my:${safeMyPage - 1}"))
+        if (safeMyPage < totalMyPages - 1) myNav.add(TelegramInlineButton(Messages.t("collection.next", locale), "m:my:${safeMyPage + 1}"))
+        if (myNav.isNotEmpty()) buttons.add(myNav)
         duplicates.forEach { uc ->
             val name = runCatching { cardCatalog.card(uc.cardId).nameFor(locale) }.getOrElse { uc.cardId }
             buttons.add(listOf(TelegramInlineButton(Messages.t("market.listButton", locale, name), "m:list:${uc.cardId}")))
@@ -1386,10 +1395,16 @@ class GameService(
         val myListingsSection = if (myListings.isEmpty()) {
             ""
         } else {
-            Messages.t("market.myListings", locale) + "\n" + myListings.take(5).joinToString("\n") { listing ->
+            val header = if (totalMyPages > 1) {
+                Messages.t("market.myListingsPage", locale, "${safeMyPage + 1}/$totalMyPages")
+            } else {
+                Messages.t("market.myListings", locale)
+            }
+            header + "\n" + myPageItems.mapIndexed { i, listing ->
+                val number = safeMyPage * MARKET_PAGE_SIZE + i + 1
                 val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
-                card?.let { formatTradeCard(it, locale) } ?: listing.cardId
-            } + "\n\n"
+                "$number. " + (card?.let { formatTradeCard(it, locale) } ?: listing.cardId)
+            }.joinToString("\n") + "\n\n"
         }
 
         val duplicatesSection = if (duplicates.isEmpty()) {
@@ -1476,7 +1491,7 @@ class GameService(
     }
 
     /** Seller picked someone's listing: remember it and ask which of their own listings to offer. */
-    private fun handleMarketPick(chatId: Long, user: User, targetId: UUID) {
+    private fun handleMarketPick(chatId: Long, user: User, targetId: UUID, offerPage: Int = 0) {
         val locale = gameLocale(user)
         val target = marketRepository.findListingById(targetId)
         if (target == null || target.sellerId == user.id) {
@@ -1489,22 +1504,35 @@ class GameService(
             return
         }
         pendingMarketOffers[chatId] = targetId
+        val totalPages = (mine.size + MARKET_PAGE_SIZE - 1) / MARKET_PAGE_SIZE
+        val safePage = offerPage.coerceIn(0, maxOf(totalPages - 1, 0))
+        val pageItems = mine.drop(safePage * MARKET_PAGE_SIZE).take(MARKET_PAGE_SIZE)
         val quantities = ownedQuantities(user.id)
         val targetCard = runCatching { cardCatalog.card(target.cardId) }.getOrNull()
         val targetLine = targetCard?.let { formatMarketCard(it, locale, quantities[it.id] ?: 0) } ?: target.cardId
-        val buttons = mine.take(10).map { listing ->
+        val buttons = pageItems.map { listing ->
             val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
             val name = card?.nameFor(locale) ?: listing.cardId
             listOf(TelegramInlineButton(name, "m:off:${listing.id}"))
-        }
-        val myListingsText = mine.take(10).joinToString("\n") { listing ->
+        }.toMutableList()
+        val nav = mutableListOf<TelegramInlineButton>()
+        if (safePage > 0) nav.add(TelegramInlineButton(Messages.t("collection.prev", locale), "m:pick:$targetId:${safePage - 1}"))
+        if (safePage < totalPages - 1) nav.add(TelegramInlineButton(Messages.t("collection.next", locale), "m:pick:$targetId:${safePage + 1}"))
+        if (nav.isNotEmpty()) buttons.add(nav)
+        val myListingsText = pageItems.mapIndexed { i, listing ->
+            val number = safePage * MARKET_PAGE_SIZE + i + 1
             val card = runCatching { cardCatalog.card(listing.cardId) }.getOrNull()
-            card?.let { formatTradeCard(it, locale) + specialSuffix(it, locale) } ?: listing.cardId
+            "$number. " + (card?.let { formatTradeCard(it, locale) + specialSuffix(it, locale) } ?: listing.cardId)
+        }.joinToString("\n")
+        val myHeader = if (totalPages > 1) {
+            Messages.t("market.myListingsPage", locale, "${safePage + 1}/$totalPages")
+        } else {
+            Messages.t("market.myListings", locale)
         }
         telegramClient.sendMessage(
             chatId,
             Messages.t("market.chooseOffer", locale, targetLine) + "\n\n" +
-                Messages.t("market.myListings", locale) + "\n" + myListingsText,
+                myHeader + "\n" + myListingsText,
             TelegramReplyMarkup(inlineKeyboard = buttons),
         )
     }
@@ -1567,8 +1595,17 @@ class GameService(
             when {
                 data.startsWith("m:list:") -> handleMarketList(chatId, user, data.removePrefix("m:list:"))
                 data.startsWith("m:ret:") -> handleMarketReturn(chatId, user, UUID.fromString(data.removePrefix("m:ret:")))
+                data.startsWith("m:my:") -> handleMarket(chatId, user, data.removePrefix("m:my:").toIntOrNull() ?: 0)
                 data.startsWith("m:brw:") -> handleMarketBrowse(chatId, user, data.removePrefix("m:brw:").toIntOrNull() ?: 0)
-                data.startsWith("m:pick:") -> handleMarketPick(chatId, user, UUID.fromString(data.removePrefix("m:pick:")))
+                data.startsWith("m:pick:") -> {
+                    val parts = data.removePrefix("m:pick:").split(":")
+                    val targetId = runCatching { UUID.fromString(parts.getOrElse(0) { "" }) }.getOrNull()
+                    if (targetId == null) {
+                        telegramClient.sendMessage(chatId, Messages.t("callback.expired", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
+                    } else {
+                        handleMarketPick(chatId, user, targetId, parts.getOrNull(1)?.toIntOrNull() ?: 0)
+                    }
+                }
                 data.startsWith("m:off:") -> handleMarketOffer(chatId, user, UUID.fromString(data.removePrefix("m:off:")))
                 data.startsWith("m:acc:") -> handleMarketAccept(chatId, user, UUID.fromString(data.removePrefix("m:acc:")))
                 data.startsWith("m:rej:") -> handleMarketReject(chatId, user, UUID.fromString(data.removePrefix("m:rej:")))

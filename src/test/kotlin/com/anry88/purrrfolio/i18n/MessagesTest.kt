@@ -86,6 +86,7 @@ class MessagesTest {
             "trade.title", "trade.hint", "trade.added", "trade.addedToPool", "trade.matched", "trade.noDuplicates",
             "trade.pickCard", "trade.offerButton", "trade.waiting",
             "market.hint", "market.listed", "market.returned", "market.noListings", "market.myListings",
+            "market.myListingsPage", "market.expiredReturned", "market.expiredMore",
             "market.noDuplicates", "market.selectCard", "market.cardListing", "market.specialCollection",
             "market.browsingListings", "market.browseHint",
             "market.chooseOffer", "market.offerMade", "market.offerReceived",

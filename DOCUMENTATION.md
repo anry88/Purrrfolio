@@ -100,6 +100,13 @@ Core business logic is split into small packages:
 4. Only the target-card owner can accept or reject. Acceptance locks both active
    listings and atomically moves both escrowed cards before marking them SOLD.
 5. Exchange results are sent only to the two listing owners, in each owner's language.
+6. Own and foreign listing lists are paginated 5 per page (`m:my:<page>`, `m:brw:<page>`;
+   offer picking paginates the seller's own lots via `m:pick:<target>:<page>`).
+7. `game/MarketListingExpiryService` runs daily at ~16:00 server time (`@Scheduled(cron = "0 0 16 * * *")`):
+   ACTIVE listings with `created_at` older than 7 days are cancelled in 200-row batches
+   (pending offers on them are CANCELLED, cards credited back), and each seller gets one
+   aggregated notification in their language (lists truncated with a "…and N more" tail).
+   Counter `purrrfolio.market.expired` tracks returned cards.
 
 ## Localization
 
@@ -114,7 +121,7 @@ All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strin
 
 ## Persistence
 
-PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V16). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, referral rewards, persisted Telegram card file ids, and the capped-referrer reward flag.
+PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V17). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, referral rewards, persisted Telegram card file ids, the capped-referrer reward flag, and the market-listing expiry backfill/index (`V17`: `created_at IS NULL → NOW()`, index on `(status, created_at)`).
 
 Main tables:
 
