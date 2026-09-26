@@ -40,29 +40,35 @@ and [vidIQ's 40M-video analysis](https://vidiq.com/blog/post/best-time-publish-v
 ## Per-run workflow
 
 1. Read `AGENTS.md`, the product documentation, this file, and
-   `SUBTITLE_REQUIREMENTS.md`.
+   `CREATIVE_VARIETY.md` and `SUBTITLE_REQUIREMENTS.md`.
 2. Refuse to run if secrets would be printed/committed or unrelated working-tree
    changes would be overwritten.
-3. Select a new three-card combination not already present in
-   `state/content-history.json`.
-4. Create a short English creative brief with one honest hook and one CTA.
+3. Generate and score four distinct concepts. Select a concept family, visual
+   grammar, card count, and card combination not blocked by content history.
+4. Create a short English creative brief, storyboard, truthful hook, thumbnail
+   hook, and CTA. Let the concept determine the duration.
 5. Create a unique internal run source matching `[a-z0-9_-]{1,64}`. Keep it in
    the manifest and content history for run identity only. Do not expose its
    Telegram deep link, campaign code, or `/start` payload in the video,
    subtitles, title, or description.
-6. Build or adapt a 1080×1920, 30 fps, 12–20 second Remotion composition.
-7. Add a suitable instrumental background melody and keep burned-in copy
+6. Build a 1080×1920, 30 fps Remotion composition. The minimum duration is 15
+   seconds, but 20–40 seconds is the normal range and explainers may reach 60.
+   Do not reuse the previous run's scene structure.
+7. Add a curated, professionally produced instrumental background track and
+   a purpose-built 1080×1920 thumbnail. Keep burned-in copy
    English-only. Generate canonical Caption JSON plus SRT
    and WebVTT for EN/RU/TR/ID.
-8. Run asset preparation, TypeScript/lint checks, caption validation, still QA,
-   the full render, `ffprobe`, and the local upload dry-run.
+8. Run asset preparation, TypeScript/lint checks, caption validation, storyboard
+   and thumbnail contact-sheet QA, the full render, audio loudness analysis,
+   `ffprobe`, and the local upload dry-run.
 9. Upload exactly one video as private staging, attach all four caption tracks,
-   and only then switch it to `public`. Use the per-run recovery receipt to
+   upload the custom thumbnail, and only then switch it to `public`. Use the
+   per-run recovery receipt to
    prevent duplicate videos. Subscriber notifications are enabled. Always pass
    the new run explicitly with `scripts/youtube_publish.py --manifest
    marketing/runs/<run_id>/metadata.json`; never rely on the pilot default.
-10. Verify channel id, public status, category, audience declaration, synthetic
-    media disclosure, title, and caption languages through the YouTube API,
+10. Verify channel id, public status, custom thumbnail, category, audience
+    declaration, synthetic media disclosure, title, and caption languages,
     passing the same `--manifest` to `scripts/youtube_verify_upload.py`.
 11. Append the successful campaign/card combination to content history. Store
     no OAuth values, client secrets, access tokens, or refresh tokens in Git.
@@ -92,25 +98,28 @@ and [vidIQ's 40M-video analysis](https://vidiq.com/blog/post/best-time-publish-v
 
 ## Music gate
 
-- Every future Short must contain a light instrumental melody appropriate to
-  its creative mood: cozy, playful, curious, or reveal-focused. Avoid lyrics,
-  aggressive drops, or music that competes with the cards and captions.
-- Use only an original composition, CC0 audio, or a YouTube Audio Library track
-  explicitly marked as requiring no attribution. Never use a trending song,
-  ripped audio, or a track with unclear terms or Content ID risk.
-- The reliable default is the repository-owned generator:
-  `scripts/generate_short_music.py --mood <cozy|playful|reveal> --duration
-  <seconds> --seed <unique_integer> --output
-  marketing/video/public/audio/generated/<run_id>.wav`. It creates an original
-  attribution-free track locally and avoids dependence on external libraries.
+- Every future Short must use curated music matched to the concept. The old
+  procedural generator is prohibited for new public uploads because it produces
+  overly simple, repetitive timbres.
+- Use a YouTube Audio Library track explicitly marked as requiring no
+  attribution, curated CC0 audio, or a specific owner-approved original track.
+  Never use trending/ripped audio, unclear terms, or likely Content ID music.
 - Record the track title, exact source reference, license, source type, and
   `attribution_required=false` in the run manifest. Keep license evidence in
   the run notes; do not add attribution URLs to the Shorts description.
-- Check the source duration before rendering, trim or loop cleanly, and apply
-  short fades so there is no abrupt start or cutoff. Keep the mix comfortably
-  below any narration or sound effects and listen to the final render once.
+- Check duration before rendering, edit on musical phrases, and apply 0.4–1.0
+  second fades. Do not repeat a tiny loop unchanged. Target −30 to −27 LUFS
+  integrated and true peak below −12 dBFS, then listen to the final render.
 - The upload preflight must detect an audio stream with `ffprobe`. The first
   silent pilot is the only legacy exception.
+
+## Thumbnail gate
+
+- Render at least two truthful 1080×1920 thumbnail candidates using different
+  layouts from `CREATIVE_VARIETY.md`, choose one, and record the choice.
+- Keep the focal card/face and 2–5 word hook inside the centered 4:5 safe crop.
+- Upload the selected thumbnail with the YouTube Data API while the video is
+  still private. If YouTube rejects it, do not publish the default thumbnail.
 
 ## Quality and safety gates
 

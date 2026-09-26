@@ -7,6 +7,7 @@ mixing credentials, generated media, or raw analytics into the application.
 Operational requirements:
 
 - [YouTube automation and schedule](AUTOMATION.md)
+- [Creative variety, pacing, music, and thumbnails](CREATIVE_VARIETY.md)
 - [Subtitle requirements](SUBTITLE_REQUIREMENTS.md)
 
 ## Safety boundaries
@@ -34,7 +35,7 @@ scripts/
   youtube_readiness.py        offline credential/scope/policy validation
   youtube_whoami.py           authenticated channel identity validation
   youtube_publish.py          stable recurring public-publisher entry point
-  generate_short_music.py     original cozy/playful/reveal music generator
+  generate_short_music.py     legacy experimental generator; not for publication
   youtube_upload_private.py   staged upload/caption/publication implementation
   youtube_verify_upload.py    read-only public metadata/caption verification
 ```
