@@ -33,7 +33,7 @@ These are details on one illustration, not separate card reveals. Repository car
 
 Curated recording: **bright song**, by **haruta**. The creator's [asset page](https://opengameart.org/content/bright-song) declares CC0, describes it as a very bright melody, and includes listener feedback calling it uplifting and catchy. It links the exact [MP3](https://opengameart.org/sites/default/files/bright_song.mp3) and [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). Evidence checked 2026-09-26. Approved type: cc0_curated; attribution_required=false. Pre-existing produced recording, not the prohibited procedural generator.
 
-Source: 127.5559 s. Opening 32 s used once with 0.6 s entry and 0.8 s exit fades. No tiny repeated loop. Excerpt is normalized and reduced to 0.86 in composition; target −30 to −27 LUFS and true peak below −12 dBFS. Exact source checksum/edit are in manifest. Music, WAV, thumbnails, stills and final MP4 are ignored local media, never committed. The owner rejected the previous anxious cue and explicitly authorized automatic publication with a happier replacement; per-video listening approval is not required.
+Source: 127.5559 s. Opening 32 s used once with 0.6 s entry and 0.8 s exit fades. No tiny repeated loop. Excerpt is normalized and reduced to 0.70 in composition; target −30 to −27 LUFS and true peak below −12 dBFS. Exact source checksum/edit are in manifest. Music, WAV, thumbnails, stills and final MP4 are ignored local media, never committed. The owner rejected the previous anxious cue and explicitly authorized automatic publication with a happier replacement; per-video listening approval is not required.
 
 ## Thumbnail candidates
 
@@ -59,6 +59,6 @@ From the repository root, download the exact manifest source reference to the ig
 ffmpeg -i marketing/video/public/audio/generated/bright-song-haruta.mp3 -t 32 -af 'afade=t=in:d=0.6,afade=t=out:st=31.2:d=0.8,loudnorm=I=-28.5:TP=-9:LRA=8' -ar 48000 marketing/video/public/audio/generated/youtube-short-20260926-saturday-01.wav
 ```
 
-The composition applies volume=0.86 to this already normalized WAV. From marketing/video, run prepare:assets, the explicit run caption exporter, lint, both registered thumbnail compositions and PurrrfolioBakerSaturday20260926 render. Never infer final mix quality from the volume multiplier; measure the MP4. All generated media remain ignored.
+The composition applies volume=0.70 to this already normalized WAV. From marketing/video, run prepare:assets, the explicit run caption exporter, lint, both registered thumbnail compositions and PurrrfolioBakerSaturday20260926 render. Never infer final mix quality from the volume multiplier; measure the MP4. All generated media remain ignored.
 
 Rerun the explicit dry-run, then execute the authorized publishing command and verifier with this manifest. Move the pending history entry to successful runs only after remote verification. A failed thumbnail/public-visibility gate must leave the existing remote video private and reuse its receipt on any continuation.
