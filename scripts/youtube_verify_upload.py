@@ -23,6 +23,10 @@ DEFAULT_MANIFEST = REPOSITORY_ROOT / "marketing/runs/youtube-short-001/metadata.
 DEFAULT_TOKEN = Path(".secrets/youtube-oauth-token.json")
 EXPECTED_CHANNEL_ID = "UCNugnVbVAECNpMc8oWetZOg"
 EXPECTED_CAPTION_LANGUAGES = {"en", "ru", "tr", "id"}
+LEGACY_RUN_IDS = {
+    "youtube-short-001",
+    "youtube-short-20260925-friday-01",
+}
 
 
 def main() -> int:
@@ -63,6 +67,7 @@ def main() -> int:
     video = videos[0]
     snippet = video.get("snippet", {})
     status = video.get("status", {})
+    content_details = video.get("contentDetails", {})
     if snippet.get("channelId") != EXPECTED_CHANNEL_ID:
         raise SystemExit("Uploaded video belongs to an unexpected channel.")
     if status.get("privacyStatus") != "public":
@@ -88,6 +93,11 @@ def main() -> int:
         raise SystemExit("Uploaded video tags do not match the manifest.")
     if "https://t.me/" in snippet.get("description", ""):
         raise SystemExit("Uploaded Shorts description still contains an external Telegram URL.")
+    if manifest_path.parent.name not in LEGACY_RUN_IDS:
+        if receipt.get("thumbnail_uploaded") is not True:
+            raise SystemExit("Upload receipt does not confirm a custom thumbnail.")
+        if content_details.get("hasCustomThumbnail") is not True:
+            raise SystemExit("YouTube does not report a custom thumbnail for this Short.")
 
     captions = caption_response.get("items", [])
     languages = {
@@ -116,6 +126,7 @@ def main() -> int:
                 "title": snippet.get("title"),
                 "privacy_status": status.get("privacyStatus"),
                 "caption_languages": sorted(languages),
+                "custom_thumbnail": content_details.get("hasCustomThumbnail", False),
                 "verification_passed": True,
             },
             ensure_ascii=False,

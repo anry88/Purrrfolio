@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a short original instrumental loop for Purrrfolio videos."""
+"""Generate an experimental local loop; prohibited for new public Shorts."""
 
 from __future__ import annotations
 
@@ -188,7 +188,7 @@ def write_stereo_wav(path: Path, samples: list[float]) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Generate original attribution-free music for a Purrrfolio Short."
+        description="Generate an experimental attribution-free loop for local tests only."
     )
     parser.add_argument("--mood", choices=sorted(MOODS), default="cozy")
     parser.add_argument("--duration", type=float, default=16.0)

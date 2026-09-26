@@ -24,13 +24,33 @@
     "external_urls_in_shorts_descriptions": false,
     "campaign_codes_in_shorts_descriptions": false,
     "starter_pack_offer_in_shorts_descriptions": false,
+    "minimum_duration_seconds": 15,
+    "typical_duration_seconds": [
+      20,
+      40
+    ],
+    "maximum_duration_seconds": 60,
+    "minimum_primary_scene_seconds": 2.5,
+    "minimum_hero_card_seconds": 4,
+    "creative_candidate_count": 4,
+    "concept_family_cooldown_runs": 1,
+    "sequential_three_card_reveal_cooldown_runs": 4,
     "music_required_for_future_shorts": true,
     "allowed_music_source_types": [
-      "original",
-      "cc0",
+      "owner_approved_original",
+      "cc0_curated",
       "youtube_audio_library_no_attribution"
     ],
-    "music_public_attribution_required": false
+    "music_public_attribution_required": false,
+    "music_integrated_lufs_range": [
+      -30,
+      -27
+    ],
+    "music_true_peak_max_dbfs": -12,
+    "custom_thumbnail_required": true,
+    "thumbnail_width": 1080,
+    "thumbnail_height": 1920,
+    "thumbnail_max_words": 5
   },
   "campaign_links": {
     "telegram_bot_url": "https://t.me/PurrrfolioBot",

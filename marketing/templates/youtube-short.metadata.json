@@ -8,6 +8,20 @@
     "license": "{{license}}",
     "attribution_required": false
   },
+  "creative": {
+    "concept_family": "{{concept_family}}",
+    "visual_grammar": "{{visual_grammar}}",
+    "duration_seconds": "{{duration_seconds}}",
+    "card_count": "{{card_count}}",
+    "candidate_count": 4,
+    "hook_style": "{{hook_style}}"
+  },
+  "thumbnail": {
+    "file": "{{thumbnail_file}}",
+    "layout": "{{thumbnail_layout}}",
+    "hook": "{{thumbnail_hook}}",
+    "safe_crop": "centered_4_5"
+  },
   "title": "{{hook}} | Purrrfolio",
   "description": "{{search_description}}\n\nPlay Purrrfolio in Telegram: find @PurrrfolioBot.\n\n#Purrrfolio #CatCards #TelegramBot #Shorts",
   "tags": [

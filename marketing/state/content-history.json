@@ -16,6 +16,10 @@
         "tr",
         "id"
       ],
+      "concept_family": "pack_suspense",
+      "visual_grammar": "sequential_three_card_reveal",
+      "duration_seconds": 15,
+      "music_style": "silent",
       "remote_status": "public",
       "uploaded_at": "2026-09-25"
     },
@@ -34,6 +38,10 @@
         "tr",
         "id"
       ],
+      "concept_family": "collection_tour",
+      "visual_grammar": "sequential_three_card_reveal",
+      "duration_seconds": 15,
+      "music_style": "legacy_procedural_loop",
       "remote_status": "public",
       "uploaded_at": "2026-09-25"
     }

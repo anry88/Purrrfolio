@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import secrets
 import shutil
 import subprocess
@@ -31,7 +32,89 @@ DEFAULT_MANIFEST = Path("marketing/runs/youtube-short-001/metadata.json")
 DEFAULT_TOKEN = Path(".secrets/youtube-oauth-token.json")
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
 CAPTIONS_UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/captions"
+THUMBNAILS_UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/thumbnails/set"
 CONFIRMATION_PHRASE = "PUBLISH_PUBLIC"
+LEGACY_RUN_IDS = {
+    "youtube-short-001",
+    "youtube-short-20260925-friday-01",
+}
+
+
+def media_probe(path: Path, entries: str, select_streams: str | None = None) -> dict[str, Any]:
+    ffprobe = shutil.which("ffprobe")
+    if ffprobe is None:
+        raise ValueError("ffprobe is required for media validation.")
+    command = [ffprobe, "-v", "error"]
+    if select_streams:
+        command.extend(["-select_streams", select_streams])
+    command.extend(["-show_entries", entries, "-of", "json", str(path)])
+    result = subprocess.run(
+        command,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    try:
+        value = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        value = {}
+    if not isinstance(value, dict):
+        return {}
+    return value
+
+
+def validate_creative_policy(manifest: dict[str, Any], video_path: Path, run_id: str) -> None:
+    if run_id in LEGACY_RUN_IDS:
+        return
+    creative = manifest.get("creative")
+    if not isinstance(creative, dict):
+        raise ValueError("Future runs must document manifest.creative.")
+    for field in ("concept_family", "visual_grammar", "hook_style"):
+        if not isinstance(creative.get(field), str) or not creative[field].strip():
+            raise ValueError(f"manifest.creative.{field} must be documented.")
+    try:
+        declared_duration = float(creative["duration_seconds"])
+        card_count = int(creative["card_count"])
+        candidate_count = int(creative["candidate_count"])
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError("Creative duration and card count must be numeric.") from error
+    if not 15.0 <= declared_duration <= 60.0:
+        raise ValueError("Future Shorts must be 15–60 seconds; 15 seconds is only the minimum.")
+    if card_count < 1:
+        raise ValueError("A creative must use at least one card.")
+    if candidate_count < 4:
+        raise ValueError("Each run must evaluate at least four creative candidates.")
+    history = load_json(
+        REPOSITORY_ROOT / "marketing/state/content-history.json",
+        "content history",
+    )
+    previous_runs = history.get("runs", [])
+    if not isinstance(previous_runs, list):
+        raise ValueError("Content history runs must be a list.")
+    if previous_runs:
+        previous = previous_runs[-1]
+        if not isinstance(previous, dict):
+            raise ValueError("Content history entries must be objects.")
+        if previous.get("concept_family") == creative["concept_family"]:
+            raise ValueError("Creative concept family repeats the immediately previous run.")
+        if previous.get("visual_grammar") == creative["visual_grammar"]:
+            raise ValueError("Creative visual grammar repeats the immediately previous run.")
+    if creative["visual_grammar"] == "sequential_three_card_reveal" and any(
+        item.get("visual_grammar") == "sequential_three_card_reveal"
+        for item in previous_runs[-4:]
+        if isinstance(item, dict)
+    ):
+        raise ValueError("Sequential three-card reveal is still inside its four-run cooldown.")
+    probe = media_probe(video_path, "format=duration")
+    try:
+        actual_duration = float(probe["format"]["duration"])
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError("Cannot verify rendered video duration.") from error
+    if actual_duration < 15.0 or actual_duration > 60.5:
+        raise ValueError("Rendered future Short is outside the 15–60 second policy.")
+    if abs(actual_duration - declared_duration) > 1.0:
+        raise ValueError("Rendered duration does not match manifest.creative.duration_seconds.")
 
 
 def validate_audio_policy(manifest: dict[str, Any], video_path: Path, run_id: str) -> None:
@@ -47,45 +130,103 @@ def validate_audio_policy(manifest: dict[str, Any], video_path: Path, run_id: st
     if not isinstance(audio, dict):
         raise ValueError("Future runs must document their music in manifest.audio.")
     allowed_sources = {
-        "original",
-        "cc0",
+        "owner_approved_original",
+        "cc0_curated",
         "youtube_audio_library_no_attribution",
     }
+    if (
+        run_id == "youtube-short-20260925-friday-01"
+        and audio.get("source_type") == "original"
+    ):
+        allowed_sources.add("original")
     if audio.get("source_type") not in allowed_sources:
         raise ValueError("Music source is not an approved attribution-free source type.")
+    if run_id not in LEGACY_RUN_IDS and "generate_short_music.py" in str(
+        audio.get("source_reference", "")
+    ):
+        raise ValueError("The legacy procedural music generator is prohibited for future uploads.")
     if audio.get("attribution_required") is not False:
         raise ValueError("Automated Shorts require music that needs no public attribution.")
     for field in ("title", "source_reference", "license"):
         if not isinstance(audio.get(field), str) or not audio[field].strip():
             raise ValueError(f"manifest.audio.{field} must be documented.")
 
-    ffprobe = shutil.which("ffprobe")
-    if ffprobe is None:
-        raise ValueError("ffprobe is required to verify the rendered audio stream.")
-    result = subprocess.run(
+    probe = media_probe(video_path, "stream=codec_type", "a:0")
+    streams = probe.get("streams", []) if isinstance(probe, dict) else []
+    if not any(stream.get("codec_type") == "audio" for stream in streams):
+        raise ValueError("Rendered future Short does not contain an audio stream.")
+    if run_id in LEGACY_RUN_IDS:
+        return
+
+    ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg is None:
+        raise ValueError("ffmpeg is required for perceptual-level audio validation.")
+    loudness = subprocess.run(
         [
-            ffprobe,
-            "-v",
-            "error",
-            "-select_streams",
-            "a:0",
-            "-show_entries",
-            "stream=codec_type",
-            "-of",
-            "json",
+            ffmpeg,
+            "-hide_banner",
+            "-nostats",
+            "-i",
             str(video_path),
+            "-filter:a",
+            "ebur128=peak=true",
+            "-f",
+            "null",
+            "-",
         ],
         check=False,
         capture_output=True,
         text=True,
+        timeout=120,
     )
-    try:
-        probe = json.loads(result.stdout) if result.returncode == 0 else {}
-    except json.JSONDecodeError:
-        probe = {}
-    streams = probe.get("streams", []) if isinstance(probe, dict) else []
-    if not any(stream.get("codec_type") == "audio" for stream in streams):
-        raise ValueError("Rendered future Short does not contain an audio stream.")
+    integrated_matches = re.findall(r"I:\s*(-?\d+(?:\.\d+)?) LUFS", loudness.stderr)
+    peak_matches = re.findall(r"Peak:\s*(-?\d+(?:\.\d+)?) dBFS", loudness.stderr)
+    if not integrated_matches or not peak_matches:
+        raise ValueError("Cannot measure final audio loudness and true peak.")
+    integrated_lufs = float(integrated_matches[-1])
+    true_peak_dbfs = float(peak_matches[-1])
+    if not -30.5 <= integrated_lufs <= -26.5:
+        raise ValueError(
+            f"Final music loudness {integrated_lufs:.1f} LUFS is outside the quiet -30 to -27 LUFS target."
+        )
+    if true_peak_dbfs > -12.0:
+        raise ValueError(
+            f"Final music true peak {true_peak_dbfs:.1f} dBFS exceeds the -12 dBFS ceiling."
+        )
+
+
+def validate_thumbnail(
+    manifest: dict[str, Any], run_id: str
+) -> Path | None:
+    if run_id in LEGACY_RUN_IDS and "thumbnail" not in manifest:
+        return None
+    thumbnail = manifest.get("thumbnail")
+    if not isinstance(thumbnail, dict):
+        raise ValueError("Future runs require a custom manifest.thumbnail.")
+    for field in ("file", "layout", "hook"):
+        if not isinstance(thumbnail.get(field), str) or not thumbnail[field].strip():
+            raise ValueError(f"manifest.thumbnail.{field} must be documented.")
+    if thumbnail.get("safe_crop") != "centered_4_5":
+        raise ValueError("Thumbnail must declare the centered 4:5 safe crop.")
+    hook_words = thumbnail["hook"].split()
+    if not 2 <= len(hook_words) <= 5:
+        raise ValueError("Thumbnail hook must contain 2–5 words.")
+    path = resolve_repository_path(thumbnail["file"])
+    if not path.is_file():
+        raise ValueError(f"Custom thumbnail does not exist: {path}")
+    if path.suffix.lower() not in {".png", ".jpg", ".jpeg"}:
+        raise ValueError("Custom thumbnail must be PNG or JPEG.")
+    if path.stat().st_size > 50 * 1024 * 1024:
+        raise ValueError("Custom thumbnail exceeds YouTube's 50MB limit.")
+    probe = media_probe(path, "stream=width,height", "v:0")
+    streams = probe.get("streams", [])
+    if not streams:
+        raise ValueError("Cannot inspect custom thumbnail dimensions.")
+    width = streams[0].get("width")
+    height = streams[0].get("height")
+    if (width, height) != (1080, 1920):
+        raise ValueError("Custom Shorts thumbnail must be exactly 1080×1920 (9:16).")
+    return path
 
 
 def resolve_repository_path(raw: str) -> Path:
@@ -93,7 +234,7 @@ def resolve_repository_path(raw: str) -> Path:
     return path if path.is_absolute() else REPOSITORY_ROOT / path
 
 
-def validate_manifest(path: Path) -> tuple[dict[str, Any], Path, list[Path]]:
+def validate_manifest(path: Path) -> tuple[dict[str, Any], Path, list[Path], Path | None]:
     manifest = load_json(path, "upload manifest")
     try:
         expected_channel_id = manifest["expected_channel_id"]
@@ -158,7 +299,10 @@ def validate_manifest(path: Path) -> tuple[dict[str, Any], Path, list[Path]]:
             raise ValueError(f"Upload status.{key} must be {expected!r}.")
     if not video_path.is_file():
         raise ValueError(f"Rendered video does not exist: {video_path}")
-    validate_audio_policy(manifest, video_path, path.parent.name)
+    run_id = path.parent.name
+    validate_creative_policy(manifest, video_path, run_id)
+    validate_audio_policy(manifest, video_path, run_id)
+    thumbnail_path = validate_thumbnail(manifest, run_id)
 
     caption_paths: list[Path] = []
     if not isinstance(captions, list) or not captions:
@@ -169,7 +313,7 @@ def validate_manifest(path: Path) -> tuple[dict[str, Any], Path, list[Path]]:
             raise ValueError(f"Caption file does not exist: {caption_path}")
         caption_paths.append(caption_path)
 
-    return manifest, video_path, caption_paths
+    return manifest, video_path, caption_paths, thumbnail_path
 
 
 def begin_resumable_upload(
@@ -309,6 +453,46 @@ def upload_caption(
     return result
 
 
+def upload_thumbnail(
+    access_token: str,
+    video_id: str,
+    thumbnail_path: Path,
+) -> dict[str, Any]:
+    content_type = "image/png" if thumbnail_path.suffix.lower() == ".png" else "image/jpeg"
+    query = urllib.parse.urlencode(
+        {
+            "videoId": video_id,
+            "uploadType": "media",
+        }
+    )
+    image_data = thumbnail_path.read_bytes()
+    request = urllib.request.Request(
+        f"{THUMBNAILS_UPLOAD_URL}?{query}",
+        data=image_data,
+        method="POST",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": content_type,
+            "Content-Length": str(len(image_data)),
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            result = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as error:
+        raise YouTubeApiError(
+            f"Custom thumbnail upload failed with HTTP {error.code}. "
+            "The channel may still be awaiting thumbnail eligibility verification."
+        ) from error
+    except urllib.error.URLError as error:
+        raise YouTubeApiError("Custom thumbnail upload failed: network unavailable.") from error
+    except (OSError, json.JSONDecodeError) as error:
+        raise YouTubeApiError("Custom thumbnail upload returned an unreadable response.") from error
+    if not isinstance(result, dict) or not result.get("items"):
+        raise YouTubeApiError("Custom thumbnail upload returned no thumbnail resource.")
+    return result
+
+
 def publish_video(
     access_token: str,
     video_id: str,
@@ -376,7 +560,7 @@ def main() -> int:
 
     manifest_path = resolve_repository_path(str(args.manifest))
     try:
-        manifest, video_path, caption_paths = validate_manifest(manifest_path)
+        manifest, video_path, caption_paths, thumbnail_path = validate_manifest(manifest_path)
     except ValueError as error:
         raise SystemExit(str(error)) from error
     receipt_path = (
@@ -393,6 +577,7 @@ def main() -> int:
         "title": manifest["snippet"]["title"],
         "video_bytes": video_path.stat().st_size,
         "caption_tracks_prepared": len(caption_paths),
+        "custom_thumbnail_prepared": thumbnail_path is not None,
         "caption_upload_scope_required": CAPTION_UPLOAD_SCOPE,
         "campaign_source": manifest["campaign"]["source"],
     }
@@ -438,6 +623,7 @@ def main() -> int:
                     "privacy_status": "private",
                     "video_upload_skipped": True,
                     "caption_ids": {},
+                    "thumbnail_uploaded": False,
                     "published": False,
                 }
         else:
@@ -453,6 +639,7 @@ def main() -> int:
                 "privacy_status": "private",
                 "video_upload_skipped": False,
                 "caption_ids": {},
+                "thumbnail_uploaded": False,
                 "published": False,
             }
             write_receipt(receipt_path, receipt)
@@ -467,6 +654,10 @@ def main() -> int:
                 caption_path,
             )
             receipt["caption_ids"][caption["language"]] = caption_result["id"]
+            write_receipt(receipt_path, receipt)
+        if thumbnail_path is not None and not receipt.get("thumbnail_uploaded"):
+            upload_thumbnail(access_token, video_id, thumbnail_path)
+            receipt["thumbnail_uploaded"] = True
             write_receipt(receipt_path, receipt)
         if not receipt.get("published"):
             publish_video(access_token, video_id, manifest)
@@ -483,13 +674,14 @@ def main() -> int:
                 "privacy_status": receipt["privacy_status"],
                 "caption_tracks_uploaded": len(receipt["caption_ids"]),
                 "caption_languages": sorted(receipt["caption_ids"]),
+                "custom_thumbnail_uploaded": receipt.get("thumbnail_uploaded", False),
                 "receipt": str(receipt_path.relative_to(REPOSITORY_ROOT)),
             },
             ensure_ascii=False,
             indent=2,
         )
     )
-    print("Public video and caption tracks are ready.")
+    print("Public video, caption tracks, and required thumbnail are ready.")
     return 0
 
 
