@@ -5,8 +5,8 @@ Purrrfolio (КотоКоллекция) is a Telegram-first collectible card gam
 The repository contains a working command-only bot backend: JDBC persistence,
 pack and free-card claims, collection galleries, crafting, random trades, a
 card-for-card marketplace, Telegram Stars purchases and refunds, group raffles,
-and Prometheus metrics. The JSON catalog currently contains 285 cards across
-16 collections.
+Prometheus metrics, and a private TikTok API demo surface for marketing review.
+The JSON catalog currently contains 285 cards across 16 collections.
 
 ![Starter cards](assets/cards/sleepy.png)
 
@@ -87,6 +87,13 @@ registrations in a calendar month; later newcomers still receive all 8 packs.
 - Product overview: [docs/product-overview.md](docs/product-overview.md)
 - Architecture: [DOCUMENTATION.md](DOCUMENTATION.md)
 - Agent guide: [AGENTS.md](AGENTS.md)
+
+## Private Marketing Integrations
+
+`/go/tiktok` is a private admin-only page for TikTok Developer review and future
+API-based video posting automation. It is not part of the player game surface.
+Configure `MARKETING_ADMIN_TOKEN`, `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`,
+and `TIKTOK_REDIRECT_URI` before using it.
 
 ## Local Development
 

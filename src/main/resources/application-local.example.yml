@@ -15,3 +15,11 @@ purrrfolio:
     polling-enabled: true
     admin-tg-id: 0
     payment-payload-secret: replace-me
+  marketing:
+    admin-token: replace-me-with-a-long-random-secret
+    tiktok:
+      client-key: replace-me
+      client-secret: replace-me
+      redirect-uri: http://localhost:8080/go/tiktok/oauth/callback
+      scopes: user.info.basic,video.upload,video.publish,video.list
+      demo-video-url: http://localhost:8080/assets/marketing/purrrfolio-demo.mp4

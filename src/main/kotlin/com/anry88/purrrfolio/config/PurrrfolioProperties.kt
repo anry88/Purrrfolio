@@ -8,6 +8,7 @@ data class PurrrfolioProperties(
     val gameTimezone: String = "UTC",
     val telegram: TelegramProperties = TelegramProperties(),
     val economy: EconomyProperties = EconomyProperties(),
+    val marketing: MarketingProperties = MarketingProperties(),
 )
 
 data class TelegramProperties(
@@ -34,4 +35,17 @@ data class StarsPricing(
     val threePacks: Int = 12,
     val fivePacks: Int = 16,
     val tenPacks: Int = 25,
+)
+
+data class MarketingProperties(
+    val adminToken: String = "",
+    val tiktok: TiktokMarketingProperties = TiktokMarketingProperties(),
+)
+
+data class TiktokMarketingProperties(
+    val clientKey: String = "",
+    val clientSecret: String = "",
+    val redirectUri: String = "",
+    val scopes: String = "user.info.basic,video.upload,video.publish,video.list",
+    val demoVideoUrl: String = "",
 )

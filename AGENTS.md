@@ -14,7 +14,7 @@ AI-oriented repository guide for coding assistants and code-review tools.
 ## Current State
 
 - This repository contains a working command-only Telegram collectible card bot backend.
-- Implemented today: JDBC persistence, Flyway migrations, retryable update claims, atomic registration/starter and monthly-capped referrer grants, concurrency-safe transactional pack openings, idempotent pack-opening receipts, free cards, photo reveals and galleries, collection progress and versioned completion rewards, cached-photo inline card sharing with named referral links, crafting, random-trade matching, marketplace settlement, paginated market lists (5 per page), daily expiry returning 7-day-old listings to owners, Telegram Stars purchases/refunds, payment support, group raffles, campaign/referral-source attribution, and metrics.
+- Implemented today: JDBC persistence, Flyway migrations, retryable update claims, atomic registration/starter and monthly-capped referrer grants, concurrency-safe transactional pack openings, idempotent pack-opening receipts, free cards, photo reveals and galleries, collection progress and versioned completion rewards, cached-photo inline card sharing with named referral links, crafting, random-trade matching, marketplace settlement, paginated market lists (5 per page), daily expiry returning 7-day-old listings to owners, Telegram Stars purchases/refunds, payment support, group raffles, campaign/referral-source attribution, private TikTok marketing API review flow, and metrics.
 - The JSON catalog currently contains 285 cards in 16 collections, including Calendar and group-only Friends special collections; standalone card art is mirrored into the runtime resources.
 - Known gaps: Telegram delivery is at-least-once (a crash between Telegram accepting a message and the local acknowledgement can duplicate that message); PostgreSQL integration coverage does not yet cover every trade/payment/raffle path; referral abuse across multiple Telegram accounts is not identity-verified beyond one reward per newly registered account.
 - Do not describe planned behavior as shipped until code and tests support the claim.
@@ -30,6 +30,7 @@ AI-oriented repository guide for coding assistants and code-review tools.
 - `src/main/kotlin/com/anry88/purrrfolio/trade/`: trade/market models and policy constants.
 - `src/main/kotlin/com/anry88/purrrfolio/telegram/`: Telegram client and update DTOs.
 - `src/main/kotlin/com/anry88/purrrfolio/game/`: command routing and player-facing copy.
+- `src/main/kotlin/com/anry88/purrrfolio/marketing/tiktok/`: private TikTok OAuth/content-posting demo flow for app review and marketing automation.
 - `src/main/kotlin/com/anry88/purrrfolio/observability/`: Micrometer counters and database gauges.
 - `src/main/kotlin/com/anry88/purrrfolio/web/`: health endpoints and webhook controller.
 - `src/main/kotlin/com/anry88/purrrfolio/config/`: Spring configuration properties.
@@ -47,7 +48,7 @@ AI-oriented repository guide for coding assistants and code-review tools.
 - Card definitions, collection metadata, pack definitions, and rarity weights are data-driven through `cards.json`; economy timing and Stars prices live under `purrrfolio.economy.*` in application configuration.
 - Webhook endpoint: `POST /bot` with `X-Telegram-Bot-Api-Secret-Token`.
 - Actuator/prometheus on `${MANAGEMENT_PORT:9090}`.
-- Secrets and privileged identifiers (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `PAYMENT_PAYLOAD_SECRET`, `ADMIN_TG_ID`, DB credentials) belong in environment or local profile files only.
+- Secrets and privileged identifiers (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `PAYMENT_PAYLOAD_SECRET`, `ADMIN_TG_ID`, `MARKETING_ADMIN_TOKEN`, `TIKTOK_CLIENT_SECRET`, DB credentials) belong in environment or local profile files only.
 
 ## First Pass For Any Agent
 

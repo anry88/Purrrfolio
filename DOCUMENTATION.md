@@ -27,6 +27,7 @@ Core business logic is split into small packages:
 | Telegram bot commands | Implemented (`GameService`) |
 | Telegram webhook | Implemented (`WebhookController`) |
 | Telegram long polling | Implemented for local/optional runtime use (`TelegramPollingRunner`) |
+| TikTok marketing API demo | Implemented as a private admin surface (`/go/tiktok`) |
 | Mini App | Out of scope |
 | Admin UI | Out of scope for MVP |
 
@@ -165,8 +166,36 @@ Application settings are in `src/main/resources/application.yml` under the `purr
 - `purrrfolio.telegram.admin-tg-id` / `ADMIN_TG_ID` — private admin identity for payment refunds
 - `purrrfolio.telegram.payment-payload-secret` / `PAYMENT_PAYLOAD_SECRET` — HMAC key for Stars orders; a blank value falls back to the webhook secret
 - `purrrfolio.economy.*` — starter packs, referral bonus packs (`REFERRAL_BONUS_PACKS`, default 5), monthly rewarded-referral cap (`REFERRAL_MONTHLY_LIMIT`, default 10), free-card interval, cards per pack, and Stars bundle prices
+- `purrrfolio.marketing.admin-token` / `MARKETING_ADMIN_TOKEN` — private token required to open marketing integrations such as `/go/tiktok`
+- `purrrfolio.marketing.tiktok.*` — TikTok Developer client key/secret, redirect URI, requested scopes, and demo video URL used by the private TikTok API review flow
 
 Local overrides: copy `application-local.example.yml` to `application-local.yml` (gitignored).
+
+## Private TikTok Marketing API Flow
+
+`GET /go/tiktok` is a private, non-player-facing demo/admin page for TikTok
+Developer review and future Codex-driven marketing automation. It is disabled
+until `MARKETING_ADMIN_TOKEN`, `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`, and a
+redirect URI are configured. Without the admin cookie set by the login form,
+state-changing API actions return `401`.
+
+The page demonstrates the required end-to-end TikTok API flow:
+
+1. Start OAuth with the configured scopes (`user.info.basic`, `video.upload`,
+   `video.publish`, `video.list` by default).
+2. Handle `/go/tiktok/oauth/callback`, validate one-time state, exchange the code
+   for server-side tokens, and store them in PostgreSQL. Access tokens are
+   refreshed server-side before API calls when they are close to expiry.
+3. Query `creator_info` before direct posting.
+4. Upload a public mp4 from the verified Purrrfolio domain with
+   `PULL_FROM_URL`, either to the creator inbox (`video.upload`) or as a direct
+   private post (`video.publish`, typically `SELF_ONLY` before production review).
+5. Poll `/v2/post/publish/status/fetch/` and optionally call `/v2/video/list/`
+   when the app has the Display API scope.
+
+The bundled demo asset is served from
+`/assets/marketing/purrrfolio-demo.mp4`; production can override it with
+`TIKTOK_DEMO_VIDEO_URL`.
 
 ## Observability
 

@@ -48,3 +48,11 @@ purrrfolio:
       three-packs: ${STARS_THREE_PACKS:12}
       five-packs: ${STARS_FIVE_PACKS:16}
       ten-packs: ${STARS_TEN_PACKS:25}
+  marketing:
+    admin-token: ${MARKETING_ADMIN_TOKEN:}
+    tiktok:
+      client-key: ${TIKTOK_CLIENT_KEY:}
+      client-secret: ${TIKTOK_CLIENT_SECRET:}
+      redirect-uri: ${TIKTOK_REDIRECT_URI:}
+      scopes: ${TIKTOK_SCOPES:user.info.basic,video.upload,video.publish,video.list}
+      demo-video-url: ${TIKTOK_DEMO_VIDEO_URL:}
