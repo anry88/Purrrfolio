@@ -437,7 +437,8 @@ class GameService(
 
         gameMetrics.command(action.name.lowercase(), if (text.startsWith("/")) "command" else "keyboard")
 
-        if (fromGroupChat) {
+        // Bots are served like everyone else, but never enter the raffle pool.
+        if (fromGroupChat && message.from?.isBot != true) {
             trackGroupMember(chatId, user, message)
         }
 
