@@ -1,0 +1,19 @@
+1
+00:00:00,000 --> 00:00:05,900
+Kucing yang sama lagi? Kartu duplikat tetap berguna.
+
+2
+00:00:06,000 --> 00:00:12,900
+Kenali Yarn Keeper, kartu Uncommon dari koleksi Cozy Home.
+
+3
+00:00:13,000 --> 00:00:20,900
+Simpan satu kartu. Ubah salinannya menjadi poin craft.
+
+4
+00:00:21,000 --> 00:00:26,900
+Duplikat Uncommon ini memberi 2 poin.
+
+5
+00:00:27,000 --> 00:00:33,000
+15 poin craft menghasilkan satu paket. Duplikat mana yang akan kamu gunakan? Temukan @PurrrfolioBot di Telegram.

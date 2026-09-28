@@ -66,6 +66,31 @@
       "remote_status": "public",
       "video_id": "zWhcyYMi5DA",
       "uploaded_at": "2026-09-26"
+    },
+    {
+      "run_id": "youtube-short-20260928-monday-01",
+      "campaign_source": "yt_short_20260928_duplicate_craft",
+      "content_type": "short",
+      "source_episode_run_id": "youtube-full-20260927-sunday-01-fenrir",
+      "source_excerpt_id": "duplicates-still-matter",
+      "cards": [
+        "yarn-keeper"
+      ],
+      "concept_family": "feature_explainer",
+      "visual_grammar": "vertical_duplicate_to_craft_diagram",
+      "duration_seconds": 33,
+      "master_language": "en",
+      "caption_languages": [
+        "en",
+        "ru",
+        "tr",
+        "id"
+      ],
+      "music_style": "owner_approved_warm_acoustic_sunday_edit",
+      "custom_thumbnail": true,
+      "remote_status": "public",
+      "video_id": "hMi6XtzG68o",
+      "uploaded_at": "2026-09-28"
     }
   ],
   "pending_runs": []

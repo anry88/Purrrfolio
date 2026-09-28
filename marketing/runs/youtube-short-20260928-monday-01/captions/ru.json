@@ -1,0 +1,37 @@
+[
+  {
+    "text": "Тот же котик снова? Дубликат тоже полезен.",
+    "startMs": 0,
+    "endMs": 5900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Знакомьтесь: Yarn Keeper, необычная карта из Cozy Home.",
+    "startMs": 6000,
+    "endMs": 12900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Оставьте одну копию. Лишнюю превратите в очки крафта.",
+    "startMs": 13000,
+    "endMs": 20900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Этот необычный дубликат даёт 2 очка.",
+    "startMs": 21000,
+    "endMs": 26900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "15 очков крафта дают один набор. Какой дубликат вы бы использовали? Найдите @PurrrfolioBot в Telegram.",
+    "startMs": 27000,
+    "endMs": 33000,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

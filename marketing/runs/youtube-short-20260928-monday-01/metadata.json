@@ -1,0 +1,106 @@
+{
+  "expected_channel_id": "UCNugnVbVAECNpMc8oWetZOg",
+  "description_policy": "organic_handle_only",
+  "audio_policy": "required_cleared_instrumental",
+  "source_episode_run_id": "youtube-full-20260927-sunday-01-fenrir",
+  "source_excerpt_id": "duplicates-still-matter",
+  "creative": {
+    "content_type": "short",
+    "concept_family": "feature_explainer",
+    "visual_grammar": "vertical_duplicate_to_craft_diagram",
+    "hook_style": "duplicate_question",
+    "duration_seconds": 33,
+    "card_count": 1,
+    "candidate_count": 4,
+    "cards": [
+      "yarn-keeper"
+    ]
+  },
+  "audio": {
+    "title": "Warm Fireplace Sunday — Monday craft edit",
+    "artist": "Purrrfolio owner-approved arrangement",
+    "source_type": "owner_approved_original",
+    "source_reference": "GarageBand Alternative Acoustic 07/09 and Fireplace All loops, arranged by marketing/video/scripts/prepare-sunday-audio.mjs; 33-second excerpt beginning at 26 s",
+    "license": "Apple GarageBand Software License Agreement: royalty-free original soundtracks may be broadcast and distributed",
+    "license_evidence": "/Applications/GarageBand.app/Contents/Resources/GarageBand License Agreement.pdf, section 2.C",
+    "attribution_required": false,
+    "file": "marketing/video/public/audio/generated/youtube-short-20260928-monday-01.wav",
+    "source_duration_seconds": 87.94,
+    "excerpt_start_seconds": 26,
+    "excerpt_duration_seconds": 33,
+    "fade_in_seconds": 0.6,
+    "fade_out_seconds": 0.8,
+    "target_integrated_lufs": -28.5,
+    "measured_integrated_lufs": -28.7,
+    "measured_true_peak_dbfs": -15.5,
+    "mood_evidence": "Owner-approved Sunday arrangement uses developed acoustic phrases and warm fireplace ambience with a resolved cheerful cadence. The Monday edit uses one 33-second passage without looping.",
+    "mood_tags": [
+      "warm",
+      "acoustic",
+      "cheerful",
+      "gentle",
+      "optimistic"
+    ]
+  },
+  "thumbnail": {
+    "file": "marketing/video/out/youtube-short-20260928-monday-01-thumbnail-pair.png",
+    "layout": "two_card_duplicate_pair",
+    "hook": "Same cat twice",
+    "safe_crop": "centered_4_5",
+    "candidates": [
+      "marketing/video/out/youtube-short-20260928-monday-01-thumbnail-pair.png",
+      "marketing/video/out/youtube-short-20260928-monday-01-thumbnail-points.png"
+    ],
+    "selection_reason": "The two-card overlap explains the duplicate question instantly; hook and both cards fit the centered 4:5 crop."
+  },
+  "campaign": {
+    "source": "yt_short_20260928_duplicate_craft",
+    "url": "https://t.me/PurrrfolioBot?start=yt_short_20260928_duplicate_craft"
+  },
+  "video_file": "marketing/video/out/youtube-short-20260928-monday-01.mp4",
+  "notify_subscribers": true,
+  "snippet": {
+    "title": "Same Cat Twice? Turn Duplicates Into Packs 🧶 | Purrrfolio #Shorts",
+    "description": "A duplicate Yarn Keeper card can become craft points in this cozy Telegram collectible card game. See how spare cards contribute toward another pack.\n\nFind @PurrrfolioBot in Telegram.\n\n#Purrrfolio #CatCards #CozyGames #Shorts",
+    "tags": [
+      "Purrrfolio",
+      "cat cards",
+      "cozy game",
+      "Telegram collectible card game",
+      "crafting",
+      "YouTube Shorts"
+    ],
+    "categoryId": "20",
+    "defaultLanguage": "en"
+  },
+  "status": {
+    "privacyStatus": "public",
+    "embeddable": true,
+    "license": "youtube",
+    "publicStatsViewable": true,
+    "selfDeclaredMadeForKids": false,
+    "containsSyntheticMedia": false
+  },
+  "captions": [
+    {
+      "language": "en",
+      "name": "English",
+      "file": "marketing/runs/youtube-short-20260928-monday-01/captions/exported/en.srt"
+    },
+    {
+      "language": "ru",
+      "name": "Русский",
+      "file": "marketing/runs/youtube-short-20260928-monday-01/captions/exported/ru.srt"
+    },
+    {
+      "language": "tr",
+      "name": "Türkçe",
+      "file": "marketing/runs/youtube-short-20260928-monday-01/captions/exported/tr.srt"
+    },
+    {
+      "language": "id",
+      "name": "Bahasa Indonesia",
+      "file": "marketing/runs/youtube-short-20260928-monday-01/captions/exported/id.srt"
+    }
+  ]
+}

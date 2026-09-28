@@ -1,0 +1,37 @@
+[
+  {
+    "text": "Aynı kedi yine mi? Kopya kart da işe yarar.",
+    "startMs": 0,
+    "endMs": 5900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Yarn Keeper ile tanışın: Cozy Home koleksiyonundan Nadir Olmayan bir kart.",
+    "startMs": 6000,
+    "endMs": 12900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Bir kopyayı saklayın. Fazla kopyayı üretim puanına dönüştürün.",
+    "startMs": 13000,
+    "endMs": 20900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Bu Nadir Olmayan kopya 2 puan kazandırır.",
+    "startMs": 21000,
+    "endMs": 26900,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "15 üretim puanı bir paket kazandırır. Hangi kopyayı kullanırdınız? Telegram’da @PurrrfolioBot hesabını bulun.",
+    "startMs": 27000,
+    "endMs": 33000,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

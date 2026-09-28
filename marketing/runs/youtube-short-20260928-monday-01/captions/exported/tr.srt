@@ -1,0 +1,19 @@
+1
+00:00:00,000 --> 00:00:05,900
+Aynı kedi yine mi? Kopya kart da işe yarar.
+
+2
+00:00:06,000 --> 00:00:12,900
+Yarn Keeper ile tanışın: Cozy Home koleksiyonundan Nadir Olmayan bir kart.
+
+3
+00:00:13,000 --> 00:00:20,900
+Bir kopyayı saklayın. Fazla kopyayı üretim puanına dönüştürün.
+
+4
+00:00:21,000 --> 00:00:26,900
+Bu Nadir Olmayan kopya 2 puan kazandırır.
+
+5
+00:00:27,000 --> 00:00:33,000
+15 üretim puanı bir paket kazandırır. Hangi kopyayı kullanırdınız? Telegram’da @PurrrfolioBot hesabını bulun.
