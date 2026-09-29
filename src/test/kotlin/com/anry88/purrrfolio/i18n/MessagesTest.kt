@@ -91,6 +91,7 @@ class MessagesTest {
             "market.browsingListings", "market.browseHint",
             "market.chooseOffer", "market.offerMade", "market.offerReceived",
             "market.offerAccepted", "market.offerRejectedByYou", "market.offerRejectedNotice", "market.settlementFailed",
+            "market.listedDm", "market.needStartBot",
             "market.browse",
             "market.listButton", "market.returnButton", "market.offerButton", "market.accept", "market.reject",
             "error.general",

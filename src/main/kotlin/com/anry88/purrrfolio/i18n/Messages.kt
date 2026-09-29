@@ -294,6 +294,14 @@ object Messages {
             "Card listed on market." to
                 "Карточка выставлена на биржу."
             ),
+        "market.listedDm" to (
+            "✅ *%s* is listed on the market! New trade offers will arrive here in private messages." to
+                "✅ *%s* выставлена на биржу! Новые предложения обмена будут приходить сюда в личку."
+            ),
+        "market.needStartBot" to (
+            "⚠️ I can't send you private messages, so trade offers can't reach you. Start the bot first: %s — then list the card again. The listing was *not* created." to
+                "⚠️ Я не могу писать тебе в личку, поэтому предложения обмена до тебя не дойдут. Сначала запусти бота: %s — затем выстави карточку снова. Лот *не* создан."
+            ),
         "market.returned" to (
             "Card returned to your collection." to
                 "Карточка возвращена в коллекцию."

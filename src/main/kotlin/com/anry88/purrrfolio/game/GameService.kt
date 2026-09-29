@@ -1431,7 +1431,15 @@ class GameService(
         // Keep one copy in the collection; only the duplicate goes to the market.
         userCardRepository.removeCard(user.id, cardId, 1)
         try {
-            marketRepository.createListing(user.id, cardId)
+            val listing = marketRepository.createListing(user.id, cardId)
+            // A listing from a group chat is useless when the bot cannot DM the seller:
+            // trade offers would never reach them. Verify DM delivery and roll the
+            // listing back when the seller is unreachable.
+            if (chatId != user.telegramUserId && !verifySellerDirectMessages(chatId, user, locale, cardId)) {
+                runCatching { marketRepository.cancelActiveListing(listing.id) }
+                runCatching { userCardRepository.addCards(user.id, listOf(cardId)) }
+                return
+            }
             telegramClient.sendMessage(chatId, Messages.t("market.listed", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         } catch (e: Exception) {
             logger.error("Failed to create market listing", e)
@@ -1439,6 +1447,31 @@ class GameService(
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         }
     }
+
+    /**
+     * Sends the listing confirmation to the seller's DMs. Returns false (after explaining
+     * in the originating chat how to start the bot) when Telegram reports the recipient
+     * as permanently unreachable. Transient failures are treated as reachable.
+     */
+    private fun verifySellerDirectMessages(originChatId: Long, user: User, locale: GameLocale, cardId: String): Boolean {
+        val cardName = runCatching { cardCatalog.card(cardId).nameFor(locale) }.getOrElse { cardId }
+        return try {
+            telegramClient.sendMessage(user.telegramUserId, Messages.t("market.listedDm", locale, cardName))
+            true
+        } catch (e: Exception) {
+            if (!TelegramClient.isUnreachableRecipient(e)) {
+                logger.warn("Transient failure probing seller {} DMs; keeping the listing", user.id, e)
+                return true
+            }
+            logger.warn("Seller {} unreachable in DMs; rolling back the listing", user.id, e)
+            runCatching {
+                telegramClient.sendMessage(originChatId, Messages.t("market.needStartBot", locale, botDeepLink()))
+            }.onFailure { logger.warn("Failed to notify chat {} about unreachable seller {}", originChatId, user.id, it) }
+            false
+        }
+    }
+
+    private fun botDeepLink(): String = "https://t.me/${properties.telegram.botUsername}"
 
     private fun handleMarketReturn(chatId: Long, user: User, listingId: UUID) {
         val locale = gameLocale(user)
@@ -1558,7 +1591,6 @@ class GameService(
         try {
             val offer = marketRepository.createTradeOffer(targetId, offeredId)
             gameMetrics.marketOffer("created")
-            telegramClient.sendMessage(chatId, Messages.t("market.offerMade", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             // Notify the owner with accept/reject buttons.
             val owner = userRepository.findById(target.sellerId)
             // Best effort: we can only notify if we knew the owner's chat id (= telegram id for 1:1 chats).
@@ -1569,7 +1601,7 @@ class GameService(
                 val targetLine = targetCard?.let { formatTradeCard(it, ownerLocale) + specialSuffix(it, ownerLocale) } ?: target.cardId
                 val offeredCard = runCatching { cardCatalog.card(offered.cardId) }.getOrNull()
                 val offeredLine = offeredCard?.let { formatMarketCard(it, ownerLocale, ownerQuantities[it.id] ?: 0) } ?: offered.cardId
-                runCatching {
+                try {
                     telegramClient.sendMessage(
                         owner.telegramUserId,
                         Messages.t("market.offerReceived", ownerLocale, targetLine, offeredLine),
@@ -1582,12 +1614,38 @@ class GameService(
                             ),
                         ),
                     )
-                }.onFailure { logger.warn("Failed to notify market listing owner {}", owner.id, it) }
+                } catch (e: Exception) {
+                    if (TelegramClient.isUnreachableRecipient(e)) {
+                        // Nobody can ever reach this seller, so the listing is dead weight:
+                        // return the card, drop dangling offers and tell the offerer the card is gone.
+                        delistUnreachableTarget(target, owner, e)
+                        telegramClient.sendMessage(chatId, Messages.t("market.settlementFailed", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
+                        return
+                    }
+                    logger.warn("Failed to notify market listing owner {}", owner.id, e)
+                }
             }
+            telegramClient.sendMessage(chatId, Messages.t("market.offerMade", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         } catch (e: Exception) {
             logger.error("Failed to create trade offer", e)
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         }
+    }
+
+    /**
+     * Returns an unreachable seller's card from escrow to their collection and drops the
+     * listing with all its dangling PENDING offers (including the one just created).
+     * Mirrors the daily expiry settlement, minus the notification that cannot be delivered.
+     */
+    private fun delistUnreachableTarget(target: MarketListing, owner: User, cause: Throwable) {
+        val delisted = transactionTemplate.execute {
+            if (!marketRepository.cancelActiveListing(target.id)) return@execute false
+            marketRepository.cancelPendingOffersForListing(target.id)
+            userCardRepository.addCards(target.sellerId, listOf(target.cardId))
+            true
+        } == true
+        if (delisted) gameMetrics.marketOffer("unreachable")
+        logger.warn("Market listing {} delisted: owner {} unreachable for trade offers (delisted={})", target.id, owner.id, delisted, cause)
     }
 
     private fun handleMarketCallback(chatId: Long, user: User, data: String) {

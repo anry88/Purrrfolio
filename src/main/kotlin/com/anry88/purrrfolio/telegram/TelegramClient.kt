@@ -275,6 +275,32 @@ class TelegramClient(
             throw e
         }
     }
+
+    companion object {
+        /**
+         * Telegram error descriptions that mean messages can never reach this recipient:
+         * blocked/deleted bot, missing chat, deactivated user. Anything else (429, 5xx,
+         * network failures) is transient and may succeed on retry.
+         */
+        private val UNREACHABLE_RECIPIENT_MARKERS = listOf(
+            "bot was blocked by the user",
+            "bot can't initiate conversation with a user",
+            "chat not found",
+            "chat_write_forbidden",
+            "user is deactivated",
+            "user_not_found",
+            "peer_id_invalid",
+        )
+
+        /** True when [error] is a terminal 400/403 delivery failure for this recipient. */
+        fun isUnreachableRecipient(error: Throwable): Boolean {
+            val clientError = error as? HttpClientErrorException ?: return false
+            val status = clientError.statusCode.value()
+            if (status != 400 && status != 403) return false
+            val body = clientError.responseBodyAsString.orEmpty()
+            return UNREACHABLE_RECIPIENT_MARKERS.any { body.contains(it, ignoreCase = true) }
+        }
+    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
