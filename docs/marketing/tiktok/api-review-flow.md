@@ -1,14 +1,24 @@
 # Purrrfolio TikTok API review flow
 
+Public website URL:
+
+`https://purrrfolio.tg-games.com/`
+
+This URL must be used as the TikTok Developer Portal Website/Web/Desktop URL.
+It is an externally facing product page and displays visible Privacy Policy and
+Terms of Service links without login.
+
 Private review/demo URL:
 
 `https://purrrfolio.tg-games.com/go/tiktok`
 
 Access is protected by `MARKETING_ADMIN_TOKEN`. Do not share the token publicly.
+Mention this private URL and the test admin token only in the app review apply
+reason/instructions when TikTok needs to verify the API flow.
 
 ## TikTok Developer settings
 
-- Web/Desktop URL: `https://purrrfolio.tg-games.com/go/tiktok`
+- Web/Desktop URL: `https://purrrfolio.tg-games.com/`
 - Redirect URI: `https://purrrfolio.tg-games.com/go/tiktok/oauth/callback`
 - Privacy Policy URL: `https://purrrfolio.tg-games.com/privacy`
 - Terms of Service URL: `https://purrrfolio.tg-games.com/terms`
