@@ -248,6 +248,8 @@ data class TelegramChatMemberResponse(
 data class TelegramChatMember(
     val user: TelegramChatMemberUser? = null,
     val status: String? = null,
+    @JsonProperty("is_member")
+    val isMember: Boolean? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

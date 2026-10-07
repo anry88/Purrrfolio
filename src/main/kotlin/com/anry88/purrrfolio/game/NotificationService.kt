@@ -118,7 +118,7 @@ class NotificationService(
             } finally {
                 pacer.attemptFinished()
             }
-            notifications.markSent(state, freeCard, packDate.takeIf { remindPacks })
+            notifications.markSent(state, freeCard, packDate.takeIf { remindPacks }, now.plusNanos(System.nanoTime() - startedAt))
             metrics.notification(if (freeCard && remindPacks) "combined" else if (freeCard) "freecard" else "packs")
             return SendResult.SENT
         } catch (error: Exception) {

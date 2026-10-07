@@ -56,7 +56,7 @@ Core business logic is split into small packages:
 2. Empty stash → `/buy` prompt. Free single cards are fully separate: `/freecard`
    immediately grants the card when due (first card immediately, then every 3h via
    `users.last_free_card_at`) and shows an hours/minutes countdown otherwise.
-3. The negative `pack_ledger` row, weighted roll, `user_cards` upserts, completion rewards, and `pack_opening_receipts` row commit in one transaction.
+3. The negative `pack_ledger` row, weighted roll, `user_cards` upserts, acquisition history and XP, completion rewards, and `pack_opening_receipts` row commit in one transaction.
 4. `pack_opening_receipts.update_id` stores the exact rolled/new card ids. A webhook retry restores that result rather than consuming another pack.
 5. Bot sends card PNGs from `/static/assets/cards/{id}.png`, each with a share button, then sends a new-card count and progress for the affected collections. Text fallback is used if photo delivery fails.
 6. Calendar special cards are filtered by the configured game-timezone month after
@@ -127,7 +127,8 @@ Downtime catches up the current day's snapshot without replaying past days.
 
 The free-card cycle is `last_free_card_at`, or `created_at` for the first card.
 `free_card_notified_for` starts NULL for existing and new players, is set after
-delivery, and is cleared atomically by the next successful free-card claim. This
+delivery. `free_card_reminded_at` enables repeats every seven days; both markers are cleared
+atomically by the next successful free-card claim. This
 covers overdue cards without a separate queue, Redis, or in-memory timers.
 Preferences (`notifications_enabled`, `notification_snooze_until`), retry time,
 and delivery markers live in PostgreSQL. No reminder writes `updated_at`, so
@@ -181,7 +182,7 @@ All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strin
 
 ## Persistence
 
-PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V20). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, referral rewards, persisted Telegram card file ids, the capped-referrer reward flag, the private TikTok review schema (`V18`), durable notification preferences/delivery state and daily pack snapshots (`V19`), the shared notification dispatch pause (`V20`), and the market-listing expiry backfill/index (`V17`: `created_at IS NULL → NOW()`, index on `(status, created_at)`).
+PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V22). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, referral rewards, persisted Telegram card file ids, the capped-referrer reward flag, the private TikTok review schema (`V18`), durable notification preferences/delivery state and daily pack snapshots (`V19`), the shared notification dispatch pause (`V20`), acquisition history/free-card receipts/cumulative XP with an estimated historical backfill (`V21`), weekly free-card reminder timestamps (`V22`), and the market-listing expiry backfill/index (`V17`: `created_at IS NULL → NOW()`, index on `(status, created_at)`).
 
 Main tables:
 
@@ -288,3 +289,35 @@ The bundled demo asset is served from
 
 1. Telegram delivery remains at-least-once: the pack receipt prevents another debit or card grant, but a process crash after Telegram accepts a message and before local completion can duplicate a reveal on retry.
 2. Extend Testcontainers PostgreSQL coverage beyond registration and pack opening to crafting, random trades, marketplace settlement, payments, completion rewards, and group raffles.
+
+
+### Acquisition history and XP
+
+`UserCardRepository` records inventory credits in `card_acquisitions`; only
+`addDrawnCards` awards rarity XP. Transfers and escrow returns use explicit sources
+and zero XP. A transaction template on the same DataSource joins the caller's Spring
+transaction and commits inventory/history/XP together even for direct credit calls.
+`PackOpeningTransactionService` includes this grant in the pack debit/reward/receipt
+transaction. `FreeCardClaimTransactionService` locks the player and commits the
+cooldown, grant, completion reward and `free_card_receipts` together. Receipt replay
+restores the cards without another draw, even after the next free-card timer expires.
+
+The V21 frozen-catalog backfill imports exact retained pack receipts and only the
+per-card surplus of surviving holdings including escrow as an estimated baseline.
+Unknown card IDs fail migration. Future acquisitions preserve their XP snapshot;
+future policy/catalog changes cannot reinterpret earned XP. `users.xp` is the
+materialized sum of acquisition quantity × xp_each. Refunds leave both intact.
+
+`ChatLeaderboardRepository` joins only the requested chat's known roster to XP.
+`ChatLeaderboardService` checks requester and candidate membership live, emits only
+verified human players and current first names, and ranks ties as 1,1,3. Group-only
+routing and chat-bound pagination prevent private/global query paths. Lookup work
+is bounded to 100 known players, a 20-second inter-call deadline, and one active
+request per process; larger rosters fail closed. Names are rendered without markup,
+control characters or profile links. See [privacy review](docs/xp-and-chat-ranking.md).
+
+Free-card notification eligibility includes a seven-day repeat from the last accepted
+send; the timestamp commits under the same user lock as the cycle marker. A new claim
+clears both. Snoozes/opt-outs/blocks/retry_after/pacing remain applicable to all repeats.
+Database gauges `purrrfolio.xp.total` and `purrrfolio.card.acquisitions.total` expose only
+aggregates; XP/rank command and rank callback counters use bounded labels.

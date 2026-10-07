@@ -25,6 +25,8 @@ Open [`@PurrrfolioBot`](https://t.me/PurrrfolioBot) and use:
 - `/language` — switch between English and Russian
 - `/menu` — show action buttons under a message
 - `/notifications` — enable reminders or pause them for 10 hours, 1 day, 3 days, or forever
+- `/xp` — cumulative experience from pack and free-card draws, including duplicates (Common → Legendary: 1 / 2 / 3 / 5 / 8 / 12 XP)
+- `/rank` — XP ranking inside the current group, among known players with verified membership (10 per page)
 - `/help` — command help
 - `/paysupport` — select a Stars purchase and request an admin-approved refund
 
@@ -161,3 +163,10 @@ docs/source/   original concept and sprite sheet images
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE).
+
+Free-card reminders arrive when a card becomes available and repeat every seven days
+until it is claimed, respecting notification pauses, permanent opt-out, and bot blocks.
+Unopened-pack reminders continue daily at 12:00 game time. XP survives crafting, trades,
+and Stars refunds. Every new card acquisition is recorded; transferred/returned cards earn
+zero XP. Historical XP uses the agreed estimate from surviving holdings (including escrow)
+and retained pack receipts, without double-counting the same card copies.

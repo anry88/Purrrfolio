@@ -13,6 +13,7 @@ data class User(
     val availablePacks: Int,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
+    val xp: Long = 0,
 )
 
 data class UserCard(

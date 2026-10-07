@@ -59,7 +59,7 @@ class MarketListingExpiryService(
                 val returned = transactionTemplate.execute {
                     if (!marketRepository.cancelActiveListing(listing.id)) return@execute false
                     marketRepository.cancelPendingOffersForListing(listing.id)
-                    userCardRepository.addCards(listing.sellerId, listOf(listing.cardId))
+                    userCardRepository.addCards(listing.sellerId, listOf(listing.cardId), "market_expiry_return")
                     true
                 } == true
                 if (returned) {

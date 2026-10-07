@@ -2,6 +2,20 @@ package com.anry88.purrrfolio.i18n
 
 object Messages {
     private val texts: Map<String, Pair<String, String>> = mapOf(
+        "xp.total" to ("✨ Your experience: %s XP\nCommon 1 · Uncommon 2 · Rare 3 · Epic 5 · Mythic 8 · Legendary 12.\nEach free-card or pack draw earns XP, including duplicates." to
+            "✨ Твой опыт: %s XP\nОбычная 1 · Необычная 2 · Редкая 3 · Эпическая 5 · Мифическая 8 · Легендарная 12.\nXP за каждую карту из набора или бесплатную выдачу, включая дубли."),
+        "rank.title" to ("🏆 Experience in this chat" to "🏆 Опыт игроков этого чата"),
+        "rank.groupOnly" to ("Use /rank in a group chat to see its players. /xp shows your own experience." to
+            "Используй /rank в групповом чате для его рейтинга. /xp покажет твой опыт."),
+        "rank.unavailable" to ("The chat ranking is temporarily unavailable. The bot needs permission to verify membership. Try again later." to
+            "Рейтинг чата временно недоступен. Боту нужно право проверять участников. Попробуй позже."),
+        "rank.empty" to ("No verified players yet. Play in this chat to join." to "Подтверждённых игроков пока нет. Играй в этом чате, чтобы попасть в рейтинг."),
+        "rank.player" to ("Player" to "Игрок"),
+        "rank.page" to ("Page %s of %s" to "Страница %s из %s"),
+        "rank.privacy" to ("Only players known to the bot and currently verified in this chat are shown. Equal XP shares a place." to
+            "Показаны известные боту игроки с подтверждённым членством в этом чате. При равном XP место общее."),
+        "cmd.xp" to ("Your experience" to "Твой опыт"),
+        "cmd.rank" to ("Experience ranking in this group" to "Рейтинг по опыту в этой группе"),
         "welcome" to (
             "🐾 *Purrrfolio* — a cozy collectible card game about kawaii cats.\n\n" +
                 "Collect cards, open fluffy packs, complete themed sets and trade duplicates.\n\n" +
@@ -16,6 +30,7 @@ object Messages {
                 "/language — change language\n" +
                 "/menu — action buttons\n" +
                 "/notifications — reminders\n" +
+                "/xp — your experience\n/rank — ranking in this group\n" +
                 "/help — help\n\n" +
                 "📢 *News & updates:*\n" +
                 "🇷🇺 Russian channel: [Purrrfolio RU](https://t.me/Purrrfolio_Ru)\n" +
@@ -33,6 +48,7 @@ object Messages {
                 "/language — сменить язык\n" +
                 "/menu — кнопки действий\n" +
                 "/notifications — уведомления\n" +
+                "/xp — твой опыт\n/rank — рейтинг этой группы\n" +
                 "/help — справка\n\n" +
                 "📢 *Новости и обновления:*\n" +
                 "🇷🇺 Русский канал: [Purrrfolio RU](https://t.me/Purrrfolio_Ru)\n" +
@@ -55,6 +71,7 @@ object Messages {
                 "/language — change language\n" +
                 "/menu — action buttons\n" +
                 "/notifications — manage reminders\n" +
+                "/xp — your experience\n/rank — ranking in this group\n" +
                 "/paysupport — payment support\n\n" +
                 "You can also send simple words:\n" +
                 "• pack / card pack\n" +
@@ -81,6 +98,7 @@ object Messages {
                 "/language — сменить язык\n" +
                 "/menu — кнопки действий\n" +
                 "/notifications — настроить уведомления\n" +
+                "/xp — твой опыт\n/rank — рейтинг этой группы\n" +
                 "/paysupport — поддержка платежей\n\n" +
                 "Можно отправлять и простые слова:\n" +
                 "• набор / пак\n" +
@@ -102,8 +120,8 @@ object Messages {
         "cmd.menu" to ("Show action buttons" to "Показать кнопки действий"),
         "cmd.notifications" to ("Manage reminders" to "Настроить уведомления"),
         "notifications.on" to (
-            "🔔 Reminders are on. Free cards: once when ready. Unopened packs: daily at 12:00 game time.\n\nPause reminders:" to
-                "🔔 Уведомления включены. Бесплатная карточка: один раз, когда готова. Неоткрытые наборы: ежедневно в 12:00 игрового времени.\n\nОтключить уведомления:"
+            "🔔 Reminders are on. Free cards: when ready, then weekly until claimed. Unopened packs: daily at 12:00 game time.\n\nPause reminders:" to
+                "🔔 Уведомления включены. Бесплатная карточка: когда готова, затем раз в неделю, пока не заберёшь. Неоткрытые наборы: ежедневно в 12:00 игрового времени.\n\nОтключить уведомления:"
             ),
         "notifications.off" to ("🔕 Reminders are off until you enable them again." to "🔕 Уведомления выключены, пока ты не включишь их снова."),
         "notifications.paused" to ("🔕 Reminders are paused until %s. They will resume automatically." to "🔕 Уведомления выключены до %s. Затем включатся автоматически."),

@@ -14,7 +14,7 @@ AI-oriented repository guide for coding assistants and code-review tools.
 ## Current State
 
 - This repository contains a working command-only Telegram collectible card bot backend.
-- Implemented today: JDBC persistence, Flyway migrations, retryable update claims, atomic registration/starter and monthly-capped referrer grants, concurrency-safe transactional pack openings, idempotent pack-opening receipts, free cards, photo reveals and galleries, collection progress and versioned completion rewards, cached-photo inline card sharing with named referral links, crafting, random-trade matching, marketplace settlement, paginated market lists (5 per page), daily expiry returning 7-day-old listings to owners, Telegram Stars purchases/refunds, payment support, group raffles, campaign/referral-source attribution, private TikTok marketing API review flow, and metrics.
+- Implemented today: JDBC persistence, Flyway migrations, retryable update claims, atomic registration/starter and monthly-capped referrer grants, concurrency-safe transactional pack openings, idempotent pack/free-card receipts, transactional free cards, cumulative rarity XP, persistent card-acquisition history, chat-scoped XP rankings, photo reveals and galleries, collection progress and versioned completion rewards, cached-photo inline card sharing with named referral links, crafting, random-trade matching, marketplace settlement, paginated market lists (5 per page), daily expiry returning 7-day-old listings to owners, Telegram Stars purchases/refunds, payment support, group raffles, campaign/referral-source attribution, private TikTok marketing API review flow, and metrics.
 - The JSON catalog currently contains 393 cards in 21 collections, including Calendar, group-only Friends, and date-limited Halloween 2026 special collections; standalone card art is mirrored into the runtime resources.
 - Known gaps: Telegram delivery is at-least-once (a crash between Telegram accepting a message and the local acknowledgement can duplicate that message); PostgreSQL integration coverage does not yet cover every trade/payment/raffle path; referral abuse across multiple Telegram accounts is not identity-verified beyond one reward per newly registered account.
 - Do not describe planned behavior as shipped until code and tests support the claim.
@@ -50,7 +50,7 @@ AI-oriented repository guide for coding assistants and code-review tools.
 - Optional paired `availableFrom` / `availableThrough` ISO dates limit new drops inclusively in the configured game timezone. Both pack and free-card rolls use the full local date; Calendar month and Friends group restrictions remain conjunctive. Existing owned cards and retry receipts are not filtered by the drop window.
 - Webhook endpoint: `POST /bot` with `X-Telegram-Bot-Api-Secret-Token`.
 - Persistent reply keyboards are private-only; group replies remove them. `/menu` summons inline actions; `/help` clears a legacy group keyboard.
-- `/notifications` controls reminders (10h/24h/72h pause or permanent opt-out). Pack reminders snapshot positive balances daily at 12:00 game time; free-card reminders poll every minute and survive restarts, pauses, and concurrent workers. Terminal delivery failures persist in `users.telegram_blocked_at`, cleared only by private contact or an unblock update. Reminder attempts have a quiet interval of at least 250 ms after each client call per instance, waited before player locking; a Telegram 429 stops the batch and persists a shared dispatch pause in notification_dispatch_state, respecting retry_after across restarts.
+- `/notifications` controls reminders (10h/24h/72h pause or permanent opt-out). Pack reminders snapshot positive balances daily at 12:00 game time; free-card reminders poll every minute, repeat every 7 days until claimed, and survive restarts, pauses, and concurrent workers. Terminal delivery failures persist in `users.telegram_blocked_at`, cleared only by private contact or an unblock update. Reminder attempts have a quiet interval of at least 250 ms after each client call per instance, waited before player locking; a Telegram 429 stops the batch and persists a shared dispatch pause in notification_dispatch_state, respecting retry_after across restarts.
 - Actuator/prometheus on `${MANAGEMENT_PORT:9090}`.
 - Secrets and privileged identifiers (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `PAYMENT_PAYLOAD_SECRET`, `ADMIN_TG_ID`, `MARKETING_ADMIN_TOKEN`, `TIKTOK_CLIENT_SECRET`, DB credentials) belong in environment or local profile files only.
 
@@ -110,3 +110,14 @@ You usually need to touch:
 - If you change architecture boundaries, update `DOCUMENTATION.md` and this file.
 - Keep public claims honest: label planned features explicitly until implemented.
 - Do not commit secrets, `.env`, or `application-local.yml`.
+
+## XP and acquisition history
+
+- Rarity XP: Common 1 / Uncommon 2 / Rare 3 / Epic 5 / Mythic 8 / Legendary 12; duplicates count.
+- Fresh pack/free-card draws must call `UserCardRepository.addDrawnCards` inside the opening transaction.
+  Inventory transfers and returns call `addCards` with their source and award zero XP. Never infer
+  cumulative XP from present holdings or subtract it on refund/crafting.
+- Every credit records `card_acquisitions`. Keep the V21 frozen catalog snapshot immutable;
+  legacy_pack is receipt-backed, legacy_baseline is the approved estimate with unknown acquisition time.
+- `/rank` stays group-only and chat-bound. Never fall back to global usernames, user IDs,
+  another chat's roster or unverified membership; render current membership first_name as plain text.

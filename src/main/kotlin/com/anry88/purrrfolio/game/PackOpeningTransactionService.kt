@@ -13,6 +13,7 @@ import com.anry88.purrrfolio.repository.PackOpeningReceipt
 import com.anry88.purrrfolio.repository.PackOpeningReceiptRepository
 import com.anry88.purrrfolio.repository.UserCardRepository
 import com.anry88.purrrfolio.repository.UserRepository
+import com.anry88.purrrfolio.repository.CardDrawSource
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
@@ -74,7 +75,7 @@ class PackOpeningTransactionService(
             }
 
             packLedgerRepository.addPacks(userId, OPENED_PACK_SOURCE, -1)
-            userCardRepository.addCards(userId, cards.map { it.id })
+            userCardRepository.addDrawnCards(userId, cards, CardDrawSource.PACK, updateId)
             val completedCollections = collectionCompletionRewardService.claimCompletedCollections(userId)
 
             val inventoryAfter = inventoryBefore + cards.map { it.id }

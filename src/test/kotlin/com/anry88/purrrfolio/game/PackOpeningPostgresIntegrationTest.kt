@@ -511,6 +511,139 @@ class PackOpeningPostgresIntegrationTest {
         assertThat(userRepository.isTelegramBlocked(94001)).isFalse()
     }
 
+    @Test
+    fun `XP leaderboard repository only includes players observed in the requested chat`() {
+        val alice = userRepository.create(7591, "en")
+        val bob = userRepository.create(7592, "en")
+        val outsider = userRepository.create(7593, "en")
+        jdbc.update("UPDATE users SET xp = 1000 WHERE id = ?", outsider.id)
+        jdbc.update("UPDATE users SET xp = 10 WHERE id = ?", bob.id)
+        val members = GroupRaffleRepository(jdbc)
+        members.trackMember(-7591, alice.id, "A", "private_a")
+        members.trackMember(-7591, bob.id, "B", "private_b")
+        members.trackMember(-7592, outsider.id, "Secret", "private_secret")
+        val ranking = com.anry88.purrrfolio.repository.ChatLeaderboardRepository(jdbc)
+        assertThat(ranking.candidates(-7591, 100).map { it.userId }).containsExactly(bob.id, alice.id)
+        assertThat(ranking.candidates(-9999, 100)).isEmpty()
+    }
+
+    private fun freeClaims() = FreeCardClaimTransactionService(properties, catalog, packOpeningService,
+        userRepository, userCardRepository, com.anry88.purrrfolio.repository.FreeCardReceiptRepository(jdbc),
+        completionRewardService, transactionManager)
+
+    @Test
+    fun `pack XP counts every drawn card and replay and refund do not change it`() {
+        val user = registrationService.registerIfMissing(7601, "en", "direct").user
+        val opened = openingService.open(user.id, LocalDate.of(2026, 10, 7), false, 7601) as PackOpeningAttempt.Opened
+        val expected = opened.cards.sumOf { it.rarity.xp }.toLong()
+        assertThat(userRepository.findById(user.id)!!.xp).isEqualTo(expected)
+        assertThat(jdbc.queryForObject("SELECT SUM(quantity) FROM card_acquisitions WHERE user_id = ? AND source = 'pack'", Long::class.java, user.id)).isEqualTo(3)
+        assertThat(openingService.open(user.id, LocalDate.of(2026, 10, 8), false, 7601)).isEqualTo(opened)
+        packLedgerRepository.addPacks(user.id, "stars", 3)
+        packLedgerRepository.addPacks(user.id, "refund", -3)
+        assertThat(userRepository.findById(user.id)!!.xp).isEqualTo(expected)
+        assertThat(jdbc.queryForObject("SELECT SUM(quantity * xp_each) FROM card_acquisitions WHERE user_id = ?", Long::class.java, user.id)).isEqualTo(expected)
+    }
+
+    @Test
+    fun `rarity XP includes duplicates and inventory transfers and returns award zero`() {
+        val user = userRepository.create(7602, "en")
+        val cards = com.anry88.purrrfolio.catalog.CardRarity.entries.map { catalog.cardsByRarity(it).first() }
+        val draws = cards + cards.last()
+        userCardRepository.addDrawnCards(user.id, draws, com.anry88.purrrfolio.repository.CardDrawSource.PACK, 7602)
+        assertThat(userRepository.findById(user.id)!!.xp).isEqualTo(43)
+        userCardRepository.addCards(user.id, draws.map { it.id }, "market_return")
+        val recipient = userRepository.create(7603, "en")
+        userCardRepository.transferCard(user.id, recipient.id, cards.first().id)
+        assertThat(userRepository.findById(user.id)!!.xp).isEqualTo(43)
+        assertThat(userRepository.findById(recipient.id)!!.xp).isZero()
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM card_acquisitions WHERE source = 'market_return' AND xp_each <> 0", Int::class.java)).isZero()
+        assertThat(jdbc.queryForObject("SELECT SUM(quantity) FROM card_acquisitions WHERE user_id = ?", Long::class.java, user.id)).isEqualTo(14)
+    }
+
+    @Test
+    fun `free card receipt remains idempotent after cooldown and a new claim grants XP again`() {
+        val user = userRepository.create(7604, "en")
+        val now = java.time.OffsetDateTime.parse("2026-10-07T12:00:00Z")
+        val first = freeClaims().claim(user.id, now, false, 7604) as FreeCardAttempt.Claimed
+        val xp = first.card.rarity.xp.toLong()
+        assertThat(userRepository.findById(user.id)!!.xp).isEqualTo(xp)
+        assertThat(freeClaims().claim(user.id, now.plusHours(6), false, 7604)).isEqualTo(first)
+        assertThat(userRepository.findById(user.id)!!.lastFreeCardAt).isEqualTo(now)
+        assertThat(userRepository.findById(user.id)!!.xp).isEqualTo(xp)
+        val second = freeClaims().claim(user.id, now.plusHours(6), false, 7605) as FreeCardAttempt.Claimed
+        assertThat(userRepository.findById(user.id)!!.xp).isEqualTo(xp + second.card.rarity.xp)
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM free_card_receipts WHERE user_id = ?", Int::class.java, user.id)).isEqualTo(2)
+        assertThat(jdbc.queryForObject("SELECT SUM(quantity) FROM card_acquisitions WHERE user_id = ?", Long::class.java, user.id)).isEqualTo(2)
+    }
+
+    @Test
+    fun `concurrent free claims commit exactly one card and one XP award`() {
+        val user = userRepository.create(7606, "en")
+        val now = java.time.OffsetDateTime.parse("2026-10-07T12:00:00Z")
+        val executor = Executors.newFixedThreadPool(2)
+        val start = CountDownLatch(1)
+        try {
+            val futures = (1..2).map { n -> executor.submit<FreeCardAttempt> {
+                start.await(); freeClaims().claim(user.id, now, false, 7610L + n)
+            } }
+            start.countDown()
+            val results = futures.map { it.get(10, TimeUnit.SECONDS) }
+            assertThat(results.filterIsInstance<FreeCardAttempt.Claimed>()).hasSize(1)
+            assertThat(results.filterIsInstance<FreeCardAttempt.Wait>()).hasSize(1)
+            assertThat(userRepository.findById(user.id)!!.xp)
+                .isEqualTo(results.filterIsInstance<FreeCardAttempt.Claimed>().single().card.rarity.xp.toLong())
+            assertThat(userCardRepository.findByUserId(user.id).sumOf { it.quantity }).isEqualTo(1)
+        } finally { executor.shutdownNow() }
+    }
+
+    @Test
+    fun `failure writing free receipt rolls back cooldown inventory history and XP`() {
+        val user = userRepository.create(7607, "en")
+        jdbc.execute("""CREATE FUNCTION fail_free_receipt() RETURNS trigger LANGUAGE plpgsql AS $$
+            BEGIN RAISE EXCEPTION 'injected receipt failure'; END; $$""")
+        jdbc.execute("CREATE TRIGGER fail_free_receipt BEFORE INSERT ON free_card_receipts FOR EACH ROW EXECUTE FUNCTION fail_free_receipt()")
+        try {
+            org.assertj.core.api.Assertions.assertThatThrownBy {
+                freeClaims().claim(user.id, java.time.OffsetDateTime.parse("2026-10-07T12:00:00Z"), false, 7607)
+            }.isInstanceOf(org.springframework.dao.DataAccessException::class.java)
+            assertThat(userRepository.findById(user.id)!!.xp).isZero()
+            assertThat(userRepository.findById(user.id)!!.lastFreeCardAt).isNull()
+            assertThat(userCardRepository.findByUserId(user.id)).isEmpty()
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM card_acquisitions WHERE user_id = ?", Int::class.java, user.id)).isZero()
+        } finally {
+            jdbc.execute("DROP TRIGGER fail_free_receipt ON free_card_receipts")
+            jdbc.execute("DROP FUNCTION fail_free_receipt()")
+        }
+    }
+
+    @Test
+    fun `historical migration takes per-card maximum of receipts and holdings including escrow`() {
+        val ds = DriverManagerDataSource(postgres.jdbcUrl, postgres.username, postgres.password)
+        ds.setConnectionProperties(java.util.Properties().apply { setProperty("currentSchema", "xp_upgrade") })
+        Flyway.configure().dataSource(ds).schemas("xp_upgrade").target("20").load().migrate()
+        val old = JdbcTemplate(ds)
+        try {
+            val id = old.queryForObject("INSERT INTO users (telegram_user_id,language) VALUES (7608,'en') RETURNING id", Long::class.java)!!
+            val common = catalog.cardsByRarity(com.anry88.purrrfolio.catalog.CardRarity.COMMON).first().id
+            val rare = catalog.cardsByRarity(com.anry88.purrrfolio.catalog.CardRarity.RARE).first().id
+            val mythic = catalog.cardsByRarity(com.anry88.purrrfolio.catalog.CardRarity.MYTHIC).first().id
+            val legendary = catalog.cardsByRarity(com.anry88.purrrfolio.catalog.CardRarity.LEGENDARY).first().id
+            old.update("INSERT INTO user_cards (user_id,card_id,quantity) VALUES (?,?,4)", id, common)
+            old.update("INSERT INTO market_listings (seller_id,card_id,status) VALUES (?,?,'ACTIVE'),(?,?,'ACTIVE'),(?,?,'CANCELLED')", id, common, id, legendary, id, rare)
+            old.update("INSERT INTO random_trade_pool (user_id,card_id,status) VALUES (?,?,'WAITING'),(?,?,'MATCHED')", id, rare, id, mythic)
+            old.update("INSERT INTO pack_opening_receipts (update_id,user_id,card_ids,new_card_ids) VALUES (7608,?,ARRAY[?,?,?],ARRAY[]::TEXT[])", id, common, common, mythic)
+            old.update("INSERT INTO pack_ledger (user_id,source,quantity) VALUES (?,'stars',1),(?,'refund',-1)", id, id)
+            Flyway.configure().dataSource(ds).schemas("xp_upgrade").load().migrate()
+            assertThat(UserRepository(old).findById(id)!!.xp).isEqualTo(28)
+            assertThat(old.queryForObject("SELECT SUM(quantity) FROM card_acquisitions WHERE source = 'legacy_pack'", Long::class.java)).isEqualTo(3)
+            assertThat(old.queryForObject("SELECT SUM(quantity) FROM card_acquisitions WHERE source = 'legacy_baseline' AND received_at IS NULL", Long::class.java)).isEqualTo(5)
+            assertThat(old.queryForObject("SELECT COUNT(DISTINCT opening_id) FROM card_acquisitions WHERE source = 'legacy_pack'", Int::class.java)).isEqualTo(1)
+            Flyway.configure().dataSource(ds).schemas("xp_upgrade").load().migrate()
+            assertThat(UserRepository(old).findById(id)!!.xp).isEqualTo(28)
+        } finally { jdbc.execute("DROP SCHEMA xp_upgrade CASCADE") }
+    }
+
     private fun createGameService(telegramClient: TelegramClient) =
         GameService(
             properties = properties,
@@ -536,6 +669,9 @@ class PackOpeningPostgresIntegrationTest {
             gameMetrics = mock(GameMetrics::class.java),
             telegramClient = telegramClient,
             notificationService = NotificationService(properties, com.anry88.purrrfolio.repository.NotificationRepository(jdbc), packLedgerRepository, userRepository, telegramClient, mock(GameMetrics::class.java), transactionManager),
+            freeCardClaimService = FreeCardClaimTransactionService(properties, catalog, packOpeningService, userRepository,
+                userCardRepository, com.anry88.purrrfolio.repository.FreeCardReceiptRepository(jdbc), completionRewardService, transactionManager),
+            leaderboardService = ChatLeaderboardService(com.anry88.purrrfolio.repository.ChatLeaderboardRepository(jdbc), telegramClient),
             transactionManager = transactionManager,
         )
 

@@ -32,6 +32,8 @@ class GameMetrics(
     private val packGauges = ConcurrentHashMap<String, AtomicLong>()
     private val paymentGauges = PAYMENT_STATES.associateWith { status -> gauge("purrrfolio.stars.payments", "status", status) }
     private val starAmountGauges = PAYMENT_STATES.associateWith { status -> gauge("purrrfolio.stars.amount", "status", status) }
+    private val xpGauge = gauge("purrrfolio.xp.total")
+    private val acquisitionGauge = gauge("purrrfolio.card.acquisitions.total")
     private val craftPointsGauge = gauge("purrrfolio.craft.points")
     private val poolWaitingGauge = gauge("purrrfolio.trade.pool.waiting")
     private val marketActiveGauge = gauge("purrrfolio.market.listings.active")
@@ -130,6 +132,8 @@ class GameMetrics(
                     ) ?: 0,
                 )
             }
+            xpGauge.set(count("SELECT COALESCE(SUM(xp), 0) FROM users"))
+            acquisitionGauge.set(count("SELECT COALESCE(SUM(quantity), 0) FROM card_acquisitions"))
             craftPointsGauge.set(
                 jdbc.queryForObject("SELECT COALESCE(SUM(craft_points), 0) FROM users", Long::class.java) ?: 0,
             )
@@ -237,6 +241,7 @@ class GameMetrics(
             raw.trim().lowercase().takeIf { it in CARD_SOURCES } ?: "unknown"
 
         fun callbackAction(data: String): String = when {
+            data.startsWith("rank:") -> "rank"
             data.startsWith("notify:") -> "notifications"
             data.startsWith("gal:") || data.startsWith("col:page:") -> "gallery"
             data.startsWith("trade:") -> "trade"
@@ -250,7 +255,7 @@ class GameMetrics(
         }
 
         private val KNOWN_COMMANDS = setOf(
-            "start", "collection", "pack", "freecard", "craft", "buy",
+            "xp", "rank", "rating", "leaderboard", "start", "collection", "pack", "freecard", "craft", "buy",
             "trade", "market", "language", "help", "paysupport", "answer", "menu", "notifications",
         )
         private val CARD_RARITIES = setOf("common", "uncommon", "rare", "epic", "mythic", "legendary")

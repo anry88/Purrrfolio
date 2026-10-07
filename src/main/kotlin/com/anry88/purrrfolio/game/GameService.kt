@@ -88,6 +88,8 @@ class GameService(
     private val gameMetrics: GameMetrics,
     private val telegramClient: TelegramClient,
     private val notificationService: NotificationService,
+    private val freeCardClaimService: FreeCardClaimTransactionService,
+    private val leaderboardService: ChatLeaderboardService,
     transactionManager: PlatformTransactionManager,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -246,6 +248,8 @@ class GameService(
                     "/help" -> Action.HELP
                     "/menu" -> Action.MENU
                     "/notifications" -> Action.NOTIFICATIONS
+                    "/xp" -> Action.XP
+                    "/rank", "/rating", "/leaderboard" -> Action.RANK
                     "/language" -> Action.LANGUAGE
                     "/collection" -> Action.COLLECTION
                     "/themes" -> Action.COLLECTION // legacy alias
@@ -482,10 +486,13 @@ class GameService(
                 else helpKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
             Action.MENU -> telegramClient.sendMessage(chatId, Messages.t("menu.title", gameLocale(user)), helpKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
             Action.NOTIFICATIONS -> notificationService.showSettings(chatId, user.id)
+            Action.XP -> telegramClient.sendMessage(chatId, Messages.t("xp.total", gameLocale(user),
+                userRepository.findById(user.id)?.xp ?: user.xp))
+            Action.RANK -> sendChatLeaderboard(chatId, user, fromGroupChat, 0)
             Action.LANGUAGE -> handleLanguage(chatId, user)
             Action.COLLECTION -> sendCollectionView(chatId, user, page = 0)
             Action.PACK -> handlePackOpening(chatId, user, fromGroupChat, updateId)
-            Action.FREECARD -> handleFreeCard(chatId, user, fromGroupChat)
+            Action.FREECARD -> handleFreeCard(chatId, user, fromGroupChat, updateId)
             Action.CRAFT -> handleCraft(chatId, user)
             Action.BUY -> handleBuy(chatId, user)
             Action.PAYSUPPORT -> handlePaySupport(chatId, user, text)
@@ -571,46 +578,52 @@ class GameService(
 
     // ---- Free single card (one card every 3h, first one immediately) ----
 
-    private fun handleFreeCard(chatId: Long, user: User, fromGroupChat: Boolean = false) {
-        handleFreeCardClaim(chatId, user, fromGroupChat)
+    private fun handleFreeCard(chatId: Long, user: User, fromGroupChat: Boolean = false, updateId: Long? = null) {
+        val locale = gameLocale(user)
+        val now = OffsetDateTime.now(ZoneId.of(properties.gameTimezone))
+        val result = freeCardClaimService.claim(user.id, now, fromGroupChat, updateId)
+        val availablePacks = packLedgerRepository.getTotalAvailablePacks(user.id)
+        when (result) {
+            is FreeCardAttempt.Wait -> sendFreeCardWait(chatId, locale,
+                minutesUntilFreeCard(result.lastClaimedAt, now, properties.economy.freeCardIntervalHours), availablePacks)
+            is FreeCardAttempt.Claimed -> {
+                gameMetrics.cardOpened(result.card.rarity.name, "free")
+                gameMetrics.freeCardClaimed()
+                sendCardReveal(chatId, user.id, result.card, result.isNew, locale,
+                    if (availablePacks > 0) openPackKeyboard(locale, availablePacks) else null, logContext = "free card")
+                sendCollectionCompletionRewards(chatId, user, result.completedCollections)
+                val lastClaim = userRepository.findById(user.id)?.lastFreeCardAt
+                sendFreeCardWait(chatId, locale,
+                    minutesUntilFreeCard(lastClaim, now, properties.economy.freeCardIntervalHours), availablePacks)
+            }
+        }
     }
 
-    private fun handleFreeCardClaim(chatId: Long, user: User, fromGroupChat: Boolean = false) {
-        // Re-read and atomically claim for double-tap and concurrent-update safety.
-        val fresh = userRepository.findByTelegramUserId(user.telegramUserId) ?: user
-        val locale = gameLocale(fresh)
-        val availablePacks = packLedgerRepository.getTotalAvailablePacks(fresh.id)
-        val now = OffsetDateTime.now(ZoneId.of(properties.gameTimezone))
-        val minutesLeft = minutesUntilFreeCard(fresh.lastFreeCardAt, now, properties.economy.freeCardIntervalHours)
-        if (minutesLeft > 0) {
-            sendFreeCardWait(chatId, locale, minutesLeft, availablePacks)
+    private fun sendChatLeaderboard(chatId: Long, user: User, fromGroupChat: Boolean, page: Int) {
+        val locale = gameLocale(user)
+        if (!fromGroupChat) {
+            telegramClient.sendMessage(chatId, Messages.t("rank.groupOnly", locale))
             return
         }
-        if (!userRepository.claimFreeCardIfDue(fresh.id, now, properties.economy.freeCardIntervalHours)) {
-            val latest = userRepository.findByTelegramUserId(fresh.telegramUserId) ?: fresh
-            val latestMinutes = minutesUntilFreeCard(latest.lastFreeCardAt, now, properties.economy.freeCardIntervalHours)
-            sendFreeCardWait(chatId, locale, latestMinutes, availablePacks)
-            return
+        when (val result = leaderboardService.page(chatId, user.telegramUserId, user.id, page, locale)) {
+            ChatLeaderboardResult.Unavailable -> telegramClient.sendMessage(chatId, Messages.t("rank.unavailable", locale))
+            is ChatLeaderboardResult.Page -> {
+                val text = buildString {
+                    appendLine(Messages.t("rank.title", locale))
+                    appendLine()
+                    if (result.entries.isEmpty()) appendLine(Messages.t("rank.empty", locale))
+                    result.entries.forEach { appendLine("${it.rank}. ${it.name} — ${it.xp} XP") }
+                    appendLine()
+                    appendLine(Messages.t("rank.page", locale, result.page + 1, result.pages))
+                    append(Messages.t("rank.privacy", locale))
+                }
+                val buttons = mutableListOf<TelegramInlineButton>()
+                if (result.page > 0) buttons += TelegramInlineButton("◀️", callbackData = "rank:$chatId:${result.page - 1}")
+                if (result.page + 1 < result.pages) buttons += TelegramInlineButton("▶️", callbackData = "rank:$chatId:${result.page + 1}")
+                telegramClient.sendMessage(chatId, text,
+                    if (buttons.isEmpty()) null else TelegramReplyMarkup(inlineKeyboard = listOf(buttons)), parseMode = null)
+            }
         }
-        val owned = userCardRepository.findByUserId(fresh.id).map { it.cardId }.toSet()
-        val card = packOpeningService.rollCards(1, owned, now.toLocalDate(), fromGroupChat).firstOrNull()
-        if (card == null) {
-            telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
-            return
-        }
-        userCardRepository.addCards(fresh.id, listOf(card.id))
-        val completedCollections = claimCollectionCompletionRewards(fresh.id)
-        gameMetrics.cardOpened(card.rarity.name, "free")
-        gameMetrics.freeCardClaimed()
-        val isNew = !owned.contains(card.id)
-        val revealKeyboard = if (availablePacks > 0) {
-            openPackKeyboard(locale, availablePacks)
-        } else {
-            null
-        }
-        sendCardReveal(chatId, fresh.id, card, isNew, locale, revealKeyboard, logContext = "free card")
-        sendCollectionCompletionRewards(chatId, fresh, completedCollections)
-        sendFreeCardWait(chatId, locale, properties.economy.freeCardIntervalHours * 60L, availablePacks)
     }
 
     private fun sendFreeCardWait(chatId: Long, locale: GameLocale, minutesLeft: Long, availablePacks: Int) {
@@ -1343,7 +1356,7 @@ class GameService(
         }
         val returned = transactionTemplate.execute {
             if (!randomTradeRepository.cancelTrade(tradeId)) return@execute false
-            userCardRepository.addCards(user.id, listOf(trade.cardId))
+            userCardRepository.addCards(user.id, listOf(trade.cardId), "random_trade_return")
             true
         } == true
         if (!returned) {
@@ -1372,14 +1385,14 @@ class GameService(
                     "Random-trade pair changed while locked"
                 }
                 // Both cards were removed from inventories when enqueued; simply deal them out.
-                userCardRepository.addCards(userId, listOf(match.cardId))
-                userCardRepository.addCards(match.userId, listOf(cardId))
+                userCardRepository.addCards(userId, listOf(match.cardId), "random_trade")
+                userCardRepository.addCards(match.userId, listOf(cardId), "random_trade")
                 logger.info("Random trade matched: user {} card {} with user {} card {}", userId, cardId, match.userId, match.cardId)
                 RandomTradeResult(match.cardId, match.userId)
             }
         } catch (e: Exception) {
             logger.error("Failed to enqueue or match random trade for user {} card {}", userId, cardId, e)
-            runCatching { userCardRepository.addCards(userId, listOf(cardId)) }
+            runCatching { userCardRepository.addCards(userId, listOf(cardId), "random_trade_return") }
             null
         }
     }
@@ -1456,13 +1469,13 @@ class GameService(
             // listing back when the seller is unreachable.
             if (chatId != user.telegramUserId && !verifySellerDirectMessages(chatId, user, locale, cardId)) {
                 runCatching { marketRepository.cancelActiveListing(listing.id) }
-                runCatching { userCardRepository.addCards(user.id, listOf(cardId)) }
+                runCatching { userCardRepository.addCards(user.id, listOf(cardId), "market_return") }
                 return
             }
             telegramClient.sendMessage(chatId, Messages.t("market.listed", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         } catch (e: Exception) {
             logger.error("Failed to create market listing", e)
-            runCatching { userCardRepository.addCards(user.id, listOf(cardId)) }
+            runCatching { userCardRepository.addCards(user.id, listOf(cardId), "market_return") }
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
         }
     }
@@ -1501,7 +1514,7 @@ class GameService(
         }
         val returned = transactionTemplate.execute {
             if (!marketRepository.cancelActiveListing(listingId)) return@execute false
-            userCardRepository.addCards(user.id, listOf(listing.cardId))
+            userCardRepository.addCards(user.id, listOf(listing.cardId), "market_return")
             true
         } == true
         if (!returned) {
@@ -1660,7 +1673,7 @@ class GameService(
         val delisted = transactionTemplate.execute {
             if (!marketRepository.cancelActiveListing(target.id)) return@execute false
             marketRepository.cancelPendingOffersForListing(target.id)
-            userCardRepository.addCards(target.sellerId, listOf(target.cardId))
+            userCardRepository.addCards(target.sellerId, listOf(target.cardId), "market_return")
             true
         } == true
         if (delisted) gameMetrics.marketOffer("unreachable")
@@ -1776,8 +1789,8 @@ class GameService(
                 val offerOwner = userRepository.findById(offeredListing.sellerId) ?: return@execute null
 
                 // Both cards leave escrow and reach their new owners in the same transaction.
-                userCardRepository.addCards(targetOwner.id, listOf(offeredListing.cardId))
-                userCardRepository.addCards(offerOwner.id, listOf(targetListing.cardId))
+                userCardRepository.addCards(targetOwner.id, listOf(offeredListing.cardId), "market_trade")
+                userCardRepository.addCards(offerOwner.id, listOf(targetListing.cardId), "market_trade")
                 marketRepository.markListingSold(offer.targetListingId)
                 marketRepository.markListingSold(offer.offeredListingId)
                 marketRepository.acceptTradeOffer(offer.id)
@@ -1910,7 +1923,7 @@ class GameService(
     // ---- Routing ----
 
     internal enum class Action {
-        START, HELP, MENU, NOTIFICATIONS, LANGUAGE, COLLECTION, PACK, FREECARD, CRAFT, BUY, PAYSUPPORT, ANSWER, TRADE, MARKET
+        START, HELP, MENU, NOTIFICATIONS, XP, RANK, LANGUAGE, COLLECTION, PACK, FREECARD, CRAFT, BUY, PAYSUPPORT, ANSWER, TRADE, MARKET
     }
 
     private fun handleCallback(callback: TelegramCallbackQuery, updateId: Long? = null) {
@@ -1950,6 +1963,13 @@ class GameService(
             }
         }
 
+        if (callback.data?.startsWith("rank:") == true) {
+            val page = ChatLeaderboardService.callbackPage(callback.data, chatId)
+            if (page != null && fromGroupChat) sendChatLeaderboard(chatId, user, true, page)
+            else telegramClient.sendMessage(chatId, Messages.t("rank.groupOnly", gameLocale(user)))
+            return
+        }
+
         when (val data = callback.data) {
             "lang:en" -> {
                 userRepository.updateLanguage(user.id, GameLocale.EN.code)
@@ -1961,14 +1981,14 @@ class GameService(
             }
             "menu:collection" -> sendCollectionView(chatId, user, page = 0)
             "menu:pack", "menu:open-pack" -> handlePackOpening(chatId, user, fromGroupChat, updateId)
-            "menu:freecard" -> handleFreeCard(chatId, user, fromGroupChat)
+            "menu:freecard" -> handleFreeCard(chatId, user, fromGroupChat, updateId)
             "menu:craft" -> handleCraft(chatId, user)
             "menu:market" -> handleMarket(chatId, user)
             "menu:buy" -> handleBuy(chatId, user)
             "menu:trade" -> handleTrade(chatId, user)
             "menu:language" -> handleLanguage(chatId, user)
             "menu:notifications" -> notificationService.showSettings(chatId, user.id)
-            "free:card" -> handleFreeCardClaim(chatId, user, fromGroupChat)
+            "free:card" -> handleFreeCard(chatId, user, fromGroupChat, updateId)
             "buy:1" -> handleBuyCallback(chatId, user, 1)
             "buy:3" -> handleBuyCallback(chatId, user, 3)
             "buy:5" -> handleBuyCallback(chatId, user, 5)

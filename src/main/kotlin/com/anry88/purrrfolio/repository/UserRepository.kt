@@ -13,6 +13,7 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
     private val userRowMapper = RowMapper { rs: ResultSet, _: Int ->
         User(
             id = rs.getLong("id"),
+            xp = rs.getLong("xp"),
             telegramUserId = rs.getLong("telegram_user_id"),
             language = rs.getString("language"),
             lastFreePackOpenedAt = rs.getObject("last_free_pack_opened_at", OffsetDateTime::class.java),
@@ -83,7 +84,7 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
     }
 
     fun updateLastFreeCardAt(userId: Long, timestamp: OffsetDateTime) {
-        val sql = "UPDATE users SET last_free_card_at = ?, free_card_notified_for = NULL, notification_retry_at = NULL, updated_at = NOW() WHERE id = ?"
+        val sql = "UPDATE users SET last_free_card_at = ?, free_card_notified_for = NULL, free_card_reminded_at = NULL, notification_retry_at = NULL, updated_at = NOW() WHERE id = ?"
         jdbcTemplate.update(sql, timestamp, userId)
     }
 
@@ -91,7 +92,7 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
         val dueBefore = timestamp.minusHours(intervalHours.toLong())
         val sql = """
             UPDATE users
-            SET last_free_card_at = ?, free_card_notified_for = NULL, notification_retry_at = NULL, updated_at = NOW()
+            SET last_free_card_at = ?, free_card_notified_for = NULL, free_card_reminded_at = NULL, notification_retry_at = NULL, updated_at = NOW()
             WHERE id = ? AND (last_free_card_at IS NULL OR last_free_card_at <= ?)
         """.trimIndent()
         return jdbcTemplate.update(sql, timestamp, userId, dueBefore) == 1

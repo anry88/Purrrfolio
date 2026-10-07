@@ -66,7 +66,7 @@ class MarketListingExpiryServiceTest {
 
         assertEquals(1, expired)
         verify(market).cancelPendingOffersForListing(listingId)
-        verify(userCards).addCards(7, listOf("c1"))
+        verify(userCards).addCards(7, listOf("c1"), "market_expiry_return")
         verify(metrics).marketExpired(1)
         val text = singleMessage(701)
         assertTrue(text.contains("Барсик"), "owner message should list the card, was: $text")
@@ -95,7 +95,7 @@ class MarketListingExpiryServiceTest {
         val expired = service().expireStaleListings(now)
 
         assertEquals(0, expired)
-        verify(userCards, never()).addCards(anyLong(), anyList())
+        verify(userCards, never()).addCards(anyLong(), anyList(), org.mockito.ArgumentMatchers.anyString())
         assertTrue(sentMessages.isEmpty(), "nobody should be notified")
     }
 

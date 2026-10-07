@@ -87,6 +87,42 @@ class NotificationPostgresIntegrationTest {
     }
 
     @Test
+    fun `unclaimed free card repeats every seven days and survives service restart`() {
+        val id = player()
+        assertThat(service().sendDue(now)).isEqualTo(1)
+        val sentAt = notifications.find(id)!!.freeCardRemindedAt!!
+        assertThat(service().sendDue(sentAt.plusDays(7).minusSeconds(1))).isZero()
+        assertThat(service().sendDue(sentAt.plusDays(7))).isEqualTo(1)
+        val secondSentAt = notifications.find(id)!!.freeCardRemindedAt!!
+        assertThat(service().sendDue(secondSentAt.plusDays(7))).isEqualTo(1)
+        assertThat(sent).hasSize(3)
+    }
+
+    @Test
+    fun `weekly reminders wait for quiet mode and permanent disable never resumes`() {
+        val id = player()
+        assertThat(service().sendDue(now)).isEqualTo(1)
+        val sentAt = notifications.find(id)!!.freeCardRemindedAt!!
+        notifications.setPreference(id, true, sentAt.plusDays(9))
+        assertThat(service().sendDue(sentAt.plusDays(7))).isZero()
+        assertThat(service().sendDue(sentAt.plusDays(9))).isEqualTo(1)
+        notifications.setPreference(id, false, null)
+        assertThat(service().sendDue(sentAt.plusDays(100))).isZero()
+        assertThat(sent).hasSize(2)
+    }
+
+    @Test
+    fun `new free claim resets weekly reminder and next ready cycle is notified after three hours`() {
+        val id = player()
+        assertThat(service().sendDue(now)).isEqualTo(1)
+        claim(id, now.plusHours(1))
+        assertThat(notifications.find(id)!!.freeCardRemindedAt).isNull()
+        assertThat(service().sendDue(now.plusHours(4).minusSeconds(1))).isZero()
+        assertThat(service().sendDue(now.plusHours(4))).isEqualTo(1)
+        assertThat(sent).hasSize(2)
+    }
+
+    @Test
     fun `old first card is notified once and marker survives new service instance`() {
         val id = player()
         assertThat(service().sendDue(now.minusHours(1))).isEqualTo(1)
@@ -289,8 +325,8 @@ class NotificationPostgresIntegrationTest {
         Flyway.configure().dataSource(ds).schemas("notification_upgrade").target("18").load().migrate()
         val oldJdbc = JdbcTemplate(ds)
         val oldUsers = UserRepository(oldJdbc)
-        val oldPlayer = oldUsers.create(95001, "en")
-        oldJdbc.update("UPDATE users SET last_free_card_at = ? WHERE id = ?", now.minusDays(30), oldPlayer.id)
+        val oldPlayerId = oldJdbc.queryForObject("INSERT INTO users (telegram_user_id,language) VALUES (95001,'en') RETURNING id", Long::class.java)!!
+        oldJdbc.update("UPDATE users SET last_free_card_at = ? WHERE id = ?", now.minusDays(30), oldPlayerId)
         try {
             Flyway.configure().dataSource(ds).schemas("notification_upgrade").load().migrate()
             val upgradedService = NotificationService(
@@ -299,7 +335,7 @@ class NotificationPostgresIntegrationTest {
             )
             assertThat(upgradedService.sendDue(now)).isEqualTo(1)
             assertThat(upgradedService.sendDue(now.plusDays(1))).isZero()
-            assertThat(oldUsers.findById(oldPlayer.id)!!.lastFreeCardAt).isEqualTo(now.minusDays(30))
+            assertThat(oldUsers.findById(oldPlayerId)!!.lastFreeCardAt).isEqualTo(now.minusDays(30))
         } finally {
             jdbc.execute("DROP SCHEMA notification_upgrade CASCADE")
         }

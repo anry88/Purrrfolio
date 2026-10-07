@@ -9,6 +9,16 @@ enum class CardRarity(val weight: Int, val emoji: String, val labelRu: String, v
     LEGENDARY(2, "🟠", "Легендарная", "Legendary"),
     ;
 
+    /** XP for a newly drawn card, including duplicates. Independent of drop weights. */
+    val xp: Int get() = when (this) {
+        COMMON -> 1
+        UNCOMMON -> 2
+        RARE -> 3
+        EPIC -> 5
+        MYTHIC -> 8
+        LEGENDARY -> 12
+    }
+
     /** Gallery display order: commons first, legendaries last. */
     val displayRank: Int
         get() = when (this) {

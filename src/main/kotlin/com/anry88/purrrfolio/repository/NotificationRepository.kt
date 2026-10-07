@@ -18,13 +18,14 @@ data class NotificationState(
     val packNotificationDate: LocalDate?,
     val packNotificationDueDate: LocalDate?,
     val retryAt: OffsetDateTime?,
+    val freeCardRemindedAt: OffsetDateTime? = null,
 ) {
     fun canNotify(now: OffsetDateTime): Boolean = enabled && blockedAt == null &&
         (snoozeUntil == null || !snoozeUntil.isAfter(now)) &&
         (retryAt == null || !retryAt.isAfter(now))
 
     fun freeCardDue(now: OffsetDateTime, intervalHours: Int): Boolean =
-        freeCardNotifiedFor == null &&
+        (freeCardNotifiedFor == null || freeCardRemindedAt == null || !freeCardRemindedAt.plusDays(7).isAfter(now)) &&
             (lastFreeCardAt == null || !lastFreeCardAt.plusHours(intervalHours.toLong()).isAfter(now))
 }
 
@@ -45,6 +46,7 @@ class NotificationRepository(private val jdbc: JdbcTemplate) {
                 freeCardNotifiedFor = rs.getObject("free_card_notified_for", OffsetDateTime::class.java),
                 packNotificationDate = rs.getObject("pack_notification_date", LocalDate::class.java),
                 packNotificationDueDate = rs.getObject("pack_notification_due_date", LocalDate::class.java),
+                freeCardRemindedAt = rs.getObject("free_card_reminded_at", OffsetDateTime::class.java),
                 retryAt = rs.getObject("notification_retry_at", OffsetDateTime::class.java),
             )
         }, userId,
@@ -57,7 +59,8 @@ class NotificationRepository(private val jdbc: JdbcTemplate) {
           AND (notification_snooze_until IS NULL OR notification_snooze_until <= ?)
           AND (notification_retry_at IS NULL OR notification_retry_at <= ?)
           AND (
-            (free_card_notified_for IS NULL AND (last_free_card_at IS NULL OR last_free_card_at <= ?))
+            ((free_card_notified_for IS NULL OR free_card_reminded_at IS NULL OR free_card_reminded_at <= ?)
+                AND (last_free_card_at IS NULL OR last_free_card_at <= ?))
             OR (pack_notification_due_date = ? AND (pack_notification_date IS NULL OR pack_notification_date < ?)
                 AND (SELECT COALESCE(SUM(quantity), 0) FROM pack_ledger WHERE user_id = u.id) > 0)
           )
@@ -65,7 +68,7 @@ class NotificationRepository(private val jdbc: JdbcTemplate) {
         LIMIT ?
         """.trimIndent(),
         { rs, _ -> rs.getLong("id") },
-        now, now, now.minusHours(intervalHours.toLong()), packDate, packDate, limit,
+        now, now, now.minusDays(7), now.minusHours(intervalHours.toLong()), packDate, packDate, limit,
     )
 
     /** Must run inside a transaction: publish the daily run and its recipients atomically. */
@@ -91,15 +94,16 @@ class NotificationRepository(private val jdbc: JdbcTemplate) {
     }
 
     /** Called under the user lock, after Telegram accepts the message. */
-    fun markSent(state: NotificationState, freeCard: Boolean, packDate: LocalDate?) {
+    fun markSent(state: NotificationState, freeCard: Boolean, packDate: LocalDate?, sentAt: OffsetDateTime) {
         jdbc.update(
             """
             UPDATE users SET
                 free_card_notified_for = CASE WHEN ? THEN ? ELSE free_card_notified_for END,
+                free_card_reminded_at = CASE WHEN ? THEN ? ELSE free_card_reminded_at END,
                 pack_notification_date = COALESCE(?, pack_notification_date),
                 notification_retry_at = NULL
             WHERE id = ?
-            """.trimIndent(), freeCard, state.lastFreeCardAt ?: state.createdAt, packDate, state.userId,
+            """.trimIndent(), freeCard, state.lastFreeCardAt ?: state.createdAt, freeCard, sentAt, packDate, state.userId,
         )
     }
 
