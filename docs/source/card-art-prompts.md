@@ -1,6 +1,27 @@
 # Starter card art (model-generated)
 
 One standalone 1024×1536 PNG per card — no sprite sheets, no script rendering.
+
+Approved inner-art style references: **Sleepy** (`assets/cards/sleepy.png`),
+**Taxi Cab** (`assets/cards/taxi-cab.png`), **March** (`assets/cards/march.png`),
+and **Rooftop Kitty** (`assets/cards/rooftop-kitty.png`). Sleepy is not the only
+permitted anchor. Use suitable references for chubby-cat character, detailed fur,
+tactile materials, lighting and layered scene depth. Taxi Cab is useful for
+vehicle materials/rainy city light; March for daylight nature/seasonal detail;
+Rooftop Kitty for evening city atmosphere and cloth; Sleepy for domestic softness.
+Keep the approved scene and exact title. Select the frame reference by rarity
+separately and preserve the collection's own locked Special marker when needed.
+March is a Calendar Special reference: do not transfer its calendar medallion or
+foil to ordinary cards or to another Special collection. Label each input's role.
+
+For EVERY Special collection, lock one model-generated marker image under
+`assets/special-markers/<collection>.png` and use that same reference for every
+card and every rarity. Preserve its pictogram, face details, colors, outline,
+size and upper-right placement. Never invent per-card variants or recolor it
+with rarity. The owner requires image-model-only edits, without script overlays.
+Before the first drop, visually compare every marker against its master and
+correct mismatches through the model. Separate collections may have different
+markers. The normal rarity frame remains independent of collection identity.
 The starter set was drawn with an image model from the scene briefs below and
 provided by the project owner as final PNGs (`raw pictures/`, kept out of git).
 Rarity for each card is assigned in `src/main/resources/catalog/cards.json`.
@@ -332,6 +353,14 @@ Use the same-rarity ordinary reference for frame/nameplate/lettering and Sleepy
 for cat proportions, fur and painterly materials. Special identity is one smiling
 orange pumpkin inside a round top-right medallion and a thin iridescent inner line;
 rarity frame color stays unchanged. Built-in ImageGen produces each card individually.
+Locked Halloween marker: `assets/special-markers/halloween.png`. Its ivory disc,
+brown outline, rainbow rim, pumpkin face with two upper teeth and one lower tooth,
+and two golden four-point stars INSIDE the circle must match on every card.
+The full-card `halloween-candy-sorter.png` is the marker layout reference
+(approximately 256×256 px at x=736/y=32); copy its placement and scale instead
+of inventing per-card geometry. Full model-only edit
+prompts and references are recorded as `markerEditPrompt` /
+`markerEditReferences` in the plan; do not treat an initial variable badge as final.
 
 | ID | Rarity | Scene |
 | --- | --- | --- |

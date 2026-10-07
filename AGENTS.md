@@ -61,6 +61,8 @@ AI-oriented repository guide for coding assistants and code-review tools.
 3. Prefer the smallest coherent change that matches the implementation spec.
 4. Verify with `./gradlew test` after Kotlin changes.
 5. If you change card art, regenerate with the image model per `docs/source/card-art-prompts.md` and keep `assets/cards/` in sync with `src/main/resources/static/assets/cards/`. No sprite sheets, no script rendering.
+6. Each Special collection must use one locked, image-model-generated marker reference. Every card in that collection must preserve the same pictogram, face, colors, outline, size, and upper-right position regardless of rarity; different collections may use different markers. Save the master under `assets/special-markers/` and mirror it to runtime resources. Include it as an image reference in every generation/edit and compare every result against it before the first drop. The owner explicitly requires image-model-only edits: do not use script overlays to enforce marker identity. Rarity affects the outer frame, not the collection marker.
+7. Approved style references are Sleepy (`sleepy.png`), Taxi Cab (`taxi-cab.png`), March (`march.png`), and Rooftop Kitty (`rooftop-kitty.png`) under `assets/cards/`. Choose a suitable reference for cat character, fur/material texture, light and scene depth; Sleepy is not the only allowed style anchor. Keep frame/rarity and collection marker roles explicit. March is a Calendar Special card: its calendar medallion and foil must not migrate to ordinary cards or another Special collection.
 
 ## Common Change Paths
 

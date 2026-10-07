@@ -378,7 +378,15 @@
       "EPIC": "assets/cards/baker.png",
       "LEGENDARY": "assets/cards/boxie.png",
       "MYTHIC": "assets/cards/dreamweaver.png"
-    }
+    },
+    "allowedInnerArtStyles": [
+      "assets/cards/sleepy.png",
+      "assets/cards/taxi-cab.png",
+      "assets/cards/march.png",
+      "assets/cards/rooftop-kitty.png"
+    ],
+    "styleLibraryApprovedAt": "2026-10-07",
+    "marchRole": "inner-art style only; Calendar special marker must not migrate to ordinary themes"
   },
   "collections": [
     {

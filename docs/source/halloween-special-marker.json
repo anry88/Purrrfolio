@@ -1,0 +1,28 @@
+{
+  "issue": "AND-14",
+  "reference": "assets/special-markers/halloween.png",
+  "runtimeReference": "src/main/resources/static/assets/special-markers/halloween.png",
+  "generatedSource": "/Users/hq-k14lcdcq7d/.codex/generated_images/01a115d4-7dca-79c0-9c35-3f5826b28c84/exec-270065a8-9e50-4f46-9e8d-3f62de12c0db.png",
+  "sourceFormat": "PNG RGBA",
+  "sourceDimensions": [
+    1254,
+    1254
+  ],
+  "generationTool": "built-in image_gen.imagegen",
+  "transparentBackground": true,
+  "prompt": "Use case: precise-object-edit. From the provided Purrrfolio Candy Sorter card, isolate and reproduce ONLY its upper-right Halloween special medallion as ONE reusable master badge on a transparent background. Output a standalone square 1024x1024 PNG with alpha transparency OUTSIDE the badge. The medallion itself must be FULLY OPAQUE: a perfectly circular warm ivory disc with a crisp thin dark brown circular outline and thin continuous iridescent rainbow foil rim. Place ONE large friendly orange jack-o-lantern at the center, with a dark olive curved stem, two identical happy inverted-U dark brown eyes, a small triangular nose and ONE dark brown smiling mouth with two small square teeth. Match the reference's painterly watercolor-gouache texture. Exactly TWO small golden four-point sparkle shapes inside the ivory disc, one on each side above the pumpkin; keep all decoration inside the circular disc. No extra star outside the disc. The full circular disc should fill the square canvas with just 8 px transparent padding on each side; front view, no perspective. Fully opaque ivory interior; no holes or transparency in the pumpkin or disc. No cat, frame, surrounding scene, lettering, title, leaves, watermark or additional symbols. This is a collection identity master that will be reused unchanged on every Halloween card regardless of rarity; do not add rarity colors to it.",
+  "cardEditMethod": "image model only; owner explicitly declined script overlays on 2026-10-07",
+  "layoutReference": "assets/cards/halloween-candy-sorter.png",
+  "identity": {
+    "disc": "warm ivory",
+    "outline": "thin dark brown",
+    "rim": "iridescent rainbow",
+    "pictogram": "single orange smiling pumpkin",
+    "stem": "curved dark olive",
+    "eyes": "two dark happy inverted-U eyes",
+    "nose": "dark triangular",
+    "teeth": "two upper and one lower central",
+    "stars": "two golden outlined four-point stars inside the disc"
+  },
+  "qa": "Compare identity, palette, outline, scale and placement visually; image references alone are not proof of byte-identical or exact-pixel output."
+}

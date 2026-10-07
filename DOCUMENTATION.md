@@ -211,6 +211,14 @@ recorded in `docs/source/card-art-prompts.md`; the full card/collection roster
 with RU/EN names lives in `docs/collections.md`. Keep both PNG trees in sync
 after art changes.
 
+Special collection markers have their own locked master image under
+`assets/special-markers/`, mirrored to
+`src/main/resources/static/assets/special-markers/`. The same image reference
+defines the marker identity, palette, outline, size and upper-right placement
+for every rarity in one collection. The owner requires model-only card edits;
+script overlays are not part of this art workflow. Generated results must be
+visually checked against the master rather than accepting per-card variations.
+
 Collection completion rewards are evaluated against this JSON catalog. A
 SHA-256 hash of each collection's sorted card ids is stored with the reward
 claim, so catalog expansion creates a new eligible version without duplicating
