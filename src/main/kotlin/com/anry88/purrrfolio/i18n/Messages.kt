@@ -7,13 +7,11 @@ object Messages {
         "rank.title" to ("🏆 Experience in this chat" to "🏆 Опыт игроков этого чата"),
         "rank.groupOnly" to ("Use /rank in a group chat to see its players. /xp shows your own experience." to
             "Используй /rank в групповом чате для его рейтинга. /xp покажет твой опыт."),
-        "rank.unavailable" to ("The chat ranking is temporarily unavailable. The bot needs permission to verify membership. Try again later." to
-            "Рейтинг чата временно недоступен. Боту нужно право проверять участников. Попробуй позже."),
-        "rank.empty" to ("No verified players yet. Play in this chat to join." to "Подтверждённых игроков пока нет. Играй в этом чате, чтобы попасть в рейтинг."),
+        "rank.unavailable" to ("The chat ranking is temporarily unavailable. Try again later." to
+            "Рейтинг чата временно недоступен. Попробуй позже."),
+        "rank.empty" to ("The chat ranking is empty. Play in this chat to join." to "Рейтинг чата пока пуст. Играй в этом чате, чтобы попасть в рейтинг."),
         "rank.player" to ("Player" to "Игрок"),
         "rank.page" to ("Page %s of %s" to "Страница %s из %s"),
-        "rank.privacy" to ("Only players known to the bot and currently verified in this chat are shown. Equal XP shares a place." to
-            "Показаны известные боту игроки с подтверждённым членством в этом чате. При равном XP место общее."),
         "cmd.xp" to ("Your experience" to "Твой опыт"),
         "cmd.rank" to ("Experience ranking in this group" to "Рейтинг по опыту в этой группе"),
         "welcome" to (

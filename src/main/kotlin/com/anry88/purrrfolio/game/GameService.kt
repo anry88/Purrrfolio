@@ -613,9 +613,10 @@ class GameService(
                     appendLine()
                     if (result.entries.isEmpty()) appendLine(Messages.t("rank.empty", locale))
                     result.entries.forEach { appendLine("${it.rank}. ${it.name} — ${it.xp} XP") }
-                    appendLine()
-                    appendLine(Messages.t("rank.page", locale, result.page + 1, result.pages))
-                    append(Messages.t("rank.privacy", locale))
+                    if (result.pages > 1) {
+                        appendLine()
+                        append(Messages.t("rank.page", locale, result.page + 1, result.pages))
+                    }
                 }
                 val buttons = mutableListOf<TelegramInlineButton>()
                 if (result.page > 0) buttons += TelegramInlineButton("◀️", callbackData = "rank:$chatId:${result.page - 1}")
