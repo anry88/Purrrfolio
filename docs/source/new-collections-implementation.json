@@ -3083,5 +3083,18 @@
     "assets/cards/rooftop-kitty.png"
   ],
   "generationAttempts": 90,
-  "qa": "All 88 native PNG outputs verified: RGB 1024x1536; source/runtime/native bytes and recorded SHA-256 match. Workers visually checked exact title, rarity frame, scene, cat anatomy, and absence of special markers. Full tests and production release are recorded separately."
+  "qa": "All 88 native PNG outputs verified: RGB 1024x1536; source/runtime/native bytes and recorded SHA-256 match. Workers visually checked exact title, rarity frame, scene, cat anatomy, and absence of special markers. Full tests and production release are recorded separately.",
+  "verification": {
+    "command": "./gradlew test bootJar",
+    "results": {
+      "tests": 167,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "packagedCards": 393,
+    "packagedCollections": 21,
+    "newAndEditedCardPngHashesVerified": 108,
+    "markerHashVerified": true
+  }
 }
