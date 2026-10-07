@@ -1,0 +1,55 @@
+{
+  "release": "xp-ranking-20261007-72833098f3ec",
+  "image": "purrrfolio:xp-ranking-20261007-72833098f3ec",
+  "previous_image": "sha256:7590bc773c69bc6eb14bf71a5abd466c30174d88ef1f0e622c66de4b7ab97875",
+  "source_commit": "57909a9e61a676ffa274be6b27af0bbeabc66661",
+  "jar_sha256": "72833098f3ecac248b0eae13f3e00b225d89e1f21c8e3683f949507e103c4da1",
+  "tests": {
+    "tests": 182,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "cards": 393,
+  "collections": 21,
+  "migrations": [
+    "21",
+    "22"
+  ],
+  "rarity_xp": [
+    1,
+    2,
+    3,
+    5,
+    8,
+    12
+  ],
+  "preflight": {
+    "players": 119,
+    "known_roster_max": 3,
+    "retained_pack_receipts": 182,
+    "unknown_card_ids": 0
+  },
+  "deployment": {
+    "verified_at_utc": "2026-10-07T20:56:42.386006+00:00",
+    "image_id": "sha256:bc65092e0f3c4de019999fde33c9a4b958a72c059b23d62572c349504efcc603",
+    "internal_health": "UP",
+    "external_health": "UP",
+    "webhook_pending": 0,
+    "flyway_version": "22",
+    "game_timezone": "UTC",
+    "notification_send_interval_ms": 250,
+    "xp_journal_mismatches": 0,
+    "missing_reminder_timestamps": 0,
+    "registered_commands": [
+      "xp",
+      "rank"
+    ],
+    "users": 119,
+    "users_with_xp": 109,
+    "total_xp": 3613,
+    "legacy_pack_copies": 546,
+    "legacy_baseline_copies": 1018,
+    "backup": "server-only database-before.dump / prod.env.before / compose.yml.before"
+  }
+}
