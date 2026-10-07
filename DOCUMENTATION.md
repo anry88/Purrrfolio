@@ -63,6 +63,13 @@ Core business logic is split into small packages:
    rarity is selected, so their normal rarity weights remain unchanged.
 7. Friends special cards are included only when the Telegram update comes from a
    `group` or `supergroup`; private-chat rolls exclude them after rarity selection.
+8. Optional paired `availableFrom` / `availableThrough` ISO dates define an
+   inclusive drop window. Pack openings pass the current local date in
+   `purrrfolio.game-timezone`; free-card claims use their claim timestamp's local
+   date in that same zone. The date window, Calendar month and Friends group
+   restrictions are combined after rarity selection. Halloween 2026 uses
+   2026-10-15 through 2026-11-15 and is available in both chat types. Expiry does
+   not remove owned cards or alter persisted pack-opening receipts on retries.
 
 ### Stars purchase
 

@@ -7,6 +7,7 @@ import com.anry88.purrrfolio.i18n.GameLocale
 import com.anry88.purrrfolio.i18n.Messages
 import com.anry88.purrrfolio.i18n.nameFor
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.max
 
@@ -24,14 +25,13 @@ class PackOpeningService(
     fun rollCards(
         count: Int,
         ownedCardIds: Set<String>,
-        month: Int,
+        date: LocalDate,
         isGroupChat: Boolean = false,
     ): List<CardDefinition> {
-        require(month in 1..12) { "month must be between 1 and 12" }
         val random = ThreadLocalRandom.current()
         return buildList {
             repeat(count) {
-                add(drawOne(random, month, isGroupChat))
+                add(drawOne(random, date, isGroupChat))
             }
         }
     }
@@ -46,8 +46,10 @@ class PackOpeningService(
         return "$specialLabel${card.rarity.emoji} *${card.nameFor(locale)}* — $rarityLabel$badge"
     }
 
-    fun isAvailable(card: CardDefinition, month: Int, isGroupChat: Boolean = false): Boolean =
-        (card.availableMonths.isEmpty() || month in card.availableMonths) &&
+    fun isAvailable(card: CardDefinition, date: LocalDate, isGroupChat: Boolean = false): Boolean =
+        (card.availableMonths.isEmpty() || date.monthValue in card.availableMonths) &&
+            (card.availableFrom == null || !date.isBefore(card.availableFrom)) &&
+            (card.availableThrough == null || !date.isAfter(card.availableThrough)) &&
             (!card.groupChatOnly || isGroupChat)
 
     fun rarityForRoll(roll: Int): CardRarity {
@@ -61,17 +63,17 @@ class PackOpeningService(
         error("rarity weights do not cover roll $roll")
     }
 
-    private fun drawOne(random: ThreadLocalRandom, month: Int, isGroupChat: Boolean): CardDefinition {
+    private fun drawOne(random: ThreadLocalRandom, date: LocalDate, isGroupChat: Boolean): CardDefinition {
         val totalWeight = CardRarity.entries.sumOf { it.weight }
         val chosenRarity = rarityForRoll(random.nextInt(max(totalWeight, 1)))
         
         // Find a rarity with available cards
-        var pool = cardCatalog.cardsByRarity(chosenRarity).filter { isAvailable(it, month, isGroupChat) }
+        var pool = cardCatalog.cardsByRarity(chosenRarity).filter { isAvailable(it, date, isGroupChat) }
         if (pool.isEmpty()) {
             // Fallback to any available rarity with cards
             pool = CardRarity.entries
-                .map { rarity -> cardCatalog.cardsByRarity(rarity).filter { isAvailable(it, month, isGroupChat) } }
-                .firstOrNull { it.isNotEmpty() } ?: listOf(cardCatalog.card("sleepy"))
+                .map { rarity -> cardCatalog.cardsByRarity(rarity).filter { isAvailable(it, date, isGroupChat) } }
+                .firstOrNull { it.isNotEmpty() } ?: error("No cards available on $date")
         }
         
         return pool[random.nextInt(pool.size)]

@@ -6,7 +6,7 @@ The repository contains a working command-only bot backend: JDBC persistence,
 pack and free-card claims, collection galleries, crafting, random trades, a
 card-for-card marketplace, Telegram Stars purchases and refunds, group raffles,
 Prometheus metrics, and a private TikTok API demo surface for marketing review.
-The JSON catalog currently contains 285 cards across 16 collections.
+The JSON catalog currently contains 305 cards across 17 collections.
 
 ![Starter cards](assets/cards/sleepy.png)
 
@@ -51,6 +51,12 @@ Special collections have their own drop conditions: Calendar Cats follow the
 current month or season; Friends cards can drop only from pack or free-card
 requests made in a Telegram group or supergroup. Special status does not alter
 the configured rarity odds.
+
+Halloween 2026 contains 20 special cards about festive activities, decorations,
+and costumes. They can drop from packs and free-card claims from October 15
+through November 15, 2026, inclusive, in the configured game timezone, in both
+private and group chats. Collected cards remain available for galleries and
+trading after the event. The 2026 window does not automatically repeat next year.
 
 Completing a themed collection grants one free pack. The reward is tracked per
 catalog version: if new cards are later added to that collection, completing

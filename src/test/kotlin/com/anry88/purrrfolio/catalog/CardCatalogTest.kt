@@ -5,13 +5,53 @@ import com.fasterxml.jackson.module.kotlin.kotlinModule
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import javax.imageio.ImageIO
+import org.springframework.core.io.ClassPathResource
 
 class CardCatalogTest {
     private val catalog = CardCatalog(ObjectMapper().registerModule(kotlinModule()))
 
     @Test
+    fun halloweenArtIsPackagedAsStandalonePortraitPngs() {
+        for (card in catalog.cardsByCollection("halloween")) {
+            ClassPathResource("static${card.imagePath}").inputStream.use { stream ->
+                ImageIO.createImageInputStream(stream).use { input ->
+                    val reader = ImageIO.getImageReaders(input).next()
+                    try {
+                        reader.input = input
+                        assertEquals("png", reader.formatName.lowercase(), card.id)
+                        assertEquals(1024, reader.getWidth(0), card.id)
+                        assertEquals(1536, reader.getHeight(0), card.id)
+                    } finally {
+                        reader.dispose()
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun halloweenCatalogHasCompleteSpecialMetadataAndEveryRarity() {
+        val cards = catalog.cardsByCollection("halloween")
+        assertEquals("Halloween", catalog.collection("halloween").nameEn)
+        assertEquals(20, cards.size)
+        assertTrue(cards.all { it.special && it.limited && it.event == "halloween" })
+        assertTrue(cards.none { it.groupChatOnly })
+        assertTrue(cards.all { it.availableMonths.isEmpty() })
+        assertTrue(cards.all { it.availableFrom == LocalDate.of(2026, 10, 15) })
+        assertTrue(cards.all { it.availableThrough == LocalDate.of(2026, 11, 15) })
+        assertEquals(
+            mapOf(CardRarity.COMMON to 6, CardRarity.UNCOMMON to 5, CardRarity.RARE to 4,
+                CardRarity.EPIC to 3, CardRarity.MYTHIC to 1, CardRarity.LEGENDARY to 1),
+            cards.groupingBy { it.rarity }.eachCount(),
+        )
+        assertEquals((0..19).toList(), cards.map { it.sortOrder }.sorted())
+    }
+
+    @Test
     fun loadsStarterCardsAndCollections() {
-        assertEquals(285, catalog.cards.size)
+        assertEquals(305, catalog.cards.size)
         assertTrue(catalog.collections.isNotEmpty())
         assertEquals("Соня", catalog.card("sleepy").nameRu)
         assertEquals(CardRarity.EPIC, catalog.card("baker").rarity)

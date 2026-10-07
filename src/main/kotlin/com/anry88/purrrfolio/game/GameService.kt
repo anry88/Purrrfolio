@@ -52,6 +52,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import org.springframework.web.client.HttpClientErrorException
 import java.time.Duration
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.security.MessageDigest
@@ -534,7 +535,7 @@ class GameService(
 
     private fun handlePackOpening(chatId: Long, user: User, fromGroupChat: Boolean = false, updateId: Long? = null) {
         val locale = gameLocale(user)
-        when (val attempt = packOpeningTransactionService.open(user.id, currentGameMonth(), fromGroupChat, updateId)) {
+        when (val attempt = packOpeningTransactionService.open(user.id, currentGameDate(), fromGroupChat, updateId)) {
             PackOpeningAttempt.NoPacks -> {
                 telegramClient.sendMessage(
                     chatId,
@@ -592,7 +593,7 @@ class GameService(
             return
         }
         val owned = userCardRepository.findByUserId(fresh.id).map { it.cardId }.toSet()
-        val card = packOpeningService.rollCards(1, owned, currentGameMonth(), fromGroupChat).firstOrNull()
+        val card = packOpeningService.rollCards(1, owned, now.toLocalDate(), fromGroupChat).firstOrNull()
         if (card == null) {
             telegramClient.sendMessage(chatId, Messages.t("error.general", locale), mainMenuKeyboard(locale, packLedgerRepository.getTotalAvailablePacks(user.id)))
             return
@@ -776,8 +777,8 @@ class GameService(
         )
     }
 
-    private fun currentGameMonth(): Int =
-        OffsetDateTime.now(ZoneId.of(properties.gameTimezone)).monthValue
+    private fun currentGameDate(): LocalDate =
+        LocalDate.now(ZoneId.of(properties.gameTimezone))
 
     private fun knownTelegramFileId(cardId: String): String? = knownFileIds[cardId]
         ?: runCatching { telegramCardFileRepository.findFileId(cardId) }

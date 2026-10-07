@@ -16,6 +16,7 @@ import com.anry88.purrrfolio.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
+import java.time.LocalDate
 
 sealed interface PackOpeningAttempt {
     data object NoPacks : PackOpeningAttempt
@@ -48,7 +49,7 @@ class PackOpeningTransactionService(
      * Serializes openings for one player by locking their user row. The balance
      * check, debit, inventory upsert, and completion reward all commit together.
      */
-    fun open(userId: Long, month: Int, fromGroupChat: Boolean, updateId: Long? = null): PackOpeningAttempt =
+    fun open(userId: Long, date: LocalDate, fromGroupChat: Boolean, updateId: Long? = null): PackOpeningAttempt =
         transactionTemplate.execute {
             check(userRepository.lockById(userId)) { "Player $userId does not exist" }
             if (updateId != null) {
@@ -65,7 +66,7 @@ class PackOpeningTransactionService(
             val cards = packOpeningService.rollCards(
                 properties.economy.cardsPerPack,
                 inventoryBefore,
-                month,
+                date,
                 fromGroupChat,
             )
             check(cards.size == properties.economy.cardsPerPack) {

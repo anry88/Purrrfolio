@@ -45,6 +45,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
+import java.time.LocalDate
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -244,7 +245,7 @@ class PackOpeningPostgresIntegrationTest {
             val attempts = (1..2).map {
                 executor.submit<PackOpeningAttempt> {
                     start.await()
-                    openingService.open(user.id, month = 9, fromGroupChat = false)
+                    openingService.open(user.id, date = LocalDate.of(2026, 9, 1), fromGroupChat = false)
                 }
             }
             start.countDown()
@@ -263,13 +264,31 @@ class PackOpeningPostgresIntegrationTest {
     fun `retrying the same Telegram update restores cards without another debit`() {
         val user = registrationService.registerIfMissing(7004, "en", "direct").user
 
-        val first = openingService.open(user.id, month = 9, fromGroupChat = false, updateId = 9100)
-        val retry = openingService.open(user.id, month = 9, fromGroupChat = false, updateId = 9100)
+        val first = openingService.open(user.id, date = LocalDate.of(2026, 9, 1), fromGroupChat = false, updateId = 9100)
+        val retry = openingService.open(user.id, date = LocalDate.of(2026, 9, 1), fromGroupChat = false, updateId = 9100)
 
         assertThat(first).isInstanceOf(PackOpeningAttempt.Opened::class.java)
         assertThat(retry).isInstanceOf(PackOpeningAttempt.Opened::class.java)
         assertThat((retry as PackOpeningAttempt.Opened).cards.map { it.id })
             .containsExactlyElementsOf((first as PackOpeningAttempt.Opened).cards.map { it.id })
+        assertThat(packLedgerRepository.getTotalAvailablePacks(user.id)).isZero()
+        assertThat(userCardRepository.findByUserId(user.id).sumOf { it.quantity }).isEqualTo(3)
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM pack_opening_receipts", Int::class.java)).isEqualTo(1)
+    }
+
+    @Test
+    fun `retry after Halloween expiry restores event cards without another grant`() {
+        val user = registrationService.registerIfMissing(7005, "en", "direct").user
+        val cardIds = listOf("halloween-candy-sorter", "halloween-dragon-costume", "halloween-midnight-parade")
+        packLedgerRepository.addPacks(user.id, PackOpeningTransactionService.OPENED_PACK_SOURCE, -1)
+        userCardRepository.addCards(user.id, cardIds)
+        packOpeningReceiptRepository.insert(9101, user.id, cardIds, cardIds.toSet(), emptyList())
+
+        val retry = openingService.open(
+            user.id, date = LocalDate.of(2026, 11, 16), fromGroupChat = false, updateId = 9101,
+        ) as PackOpeningAttempt.Opened
+
+        assertThat(retry.cards.map { it.id }).containsExactlyElementsOf(cardIds)
         assertThat(packLedgerRepository.getTotalAvailablePacks(user.id)).isZero()
         assertThat(userCardRepository.findByUserId(user.id).sumOf { it.quantity }).isEqualTo(3)
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM pack_opening_receipts", Int::class.java)).isEqualTo(1)

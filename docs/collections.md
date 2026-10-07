@@ -1,6 +1,6 @@
 # Purrrfolio — коллекции и карточки
 
-Каталог: 165 карточек в 12 коллекциях. Названия на картах — английские, интерфейс бота — RU/EN.
+Каталог: 305 карточек в 17 коллекциях. Названия на картах — английские, интерфейс бота — RU/EN.
 Редкости: Common ⚪ → Uncommon 🟢 → Rare 🔵 → Epic 🟣 → Mythic 🔴 → Legendary 🟠.
 
 ## Cozy Home / Уютный дом (`cozy-home`, 10 карт)
@@ -383,3 +383,33 @@ Autumn — сентябрь, октябрь и ноябрь. При выпаде
 - **Lantern Makers** / Мастера фонариков — Epic 🟣 — Друзья мастерят светящиеся фонарики
 - **Treehouse Gang** / Друзья из домика — Legendary 🟠 — Компания в волшебном домике на дереве
 - **Friendship Festival** / Фестиваль дружбы — Mythic 🔴 — Большой сияющий праздник друзей
+
+
+## Halloween / Хэллоуин (`halloween`, 20 special-карт)
+
+Дроп: 15 октября — 15 ноября 2026 включительно в игровом часовом поясе.
+Доступны в личных и групповых запросах `/pack` и `/freecard`.
+Собранные карты сохраняются после сезона; специальный медальон — улыбающаяся тыква.
+
+| ID | EN / RU | Редкость |
+| --- | --- | --- |
+| halloween-candy-sorter | Candy Sorter / Сортировщик сладостей | COMMON |
+| halloween-paper-bats | Paper Bats / Бумажные летучие мыши | COMMON |
+| halloween-sheet-ghost | Sheet Ghost / Привидение в простыне | COMMON |
+| halloween-pumpkin-carver | Pumpkin Carver / Резчик тыкв | COMMON |
+| halloween-costume-stitcher | Costume Stitcher / Портной костюмов | COMMON |
+| halloween-window-webs | Window Webs / Паутинки на окне | COMMON |
+| halloween-witch-hat | Witch Hat / Ведьмина шляпа | UNCOMMON |
+| halloween-vampire-cape | Vampire Cape / Плащ вампира | UNCOMMON |
+| halloween-pumpkin-garland | Pumpkin Garland / Тыквенная гирлянда | UNCOMMON |
+| halloween-treat-basket | Treat Basket / Корзинка угощений | UNCOMMON |
+| halloween-bat-wings | Bat Wings / Крылья летучей мыши | UNCOMMON |
+| halloween-lantern-path | Lantern Path / Тропа фонариков | RARE |
+| halloween-mummy-wrap | Mummy Wrap / Костюм мумии | RARE |
+| halloween-cookie-decorator | Spooky Cookies / Праздничное печенье | RARE |
+| halloween-scarecrow-pal | Scarecrow Pal / Друг пугала | RARE |
+| halloween-dragon-costume | Dragon Costume / Костюм дракона | EPIC |
+| halloween-shadow-theatre | Shadow Theatre / Театр теней | EPIC |
+| halloween-haunted-cottage | Haunted Cottage / Праздничный домик | EPIC |
+| halloween-masquerade-host | Masquerade Host / Хозяин маскарада | LEGENDARY |
+| halloween-midnight-parade | Midnight Parade / Полночное шествие | MYTHIC |

@@ -1,5 +1,7 @@
 package com.anry88.purrrfolio.catalog
 
+import java.time.LocalDate
+
 data class CardDefinition(
     val id: String,
     val nameRu: String,
@@ -14,7 +16,18 @@ data class CardDefinition(
     val availableMonths: List<Int> = emptyList(),
     val groupChatOnly: Boolean = false,
     val sortOrder: Int = 0,
-)
+    val availableFrom: LocalDate? = null,
+    val availableThrough: LocalDate? = null,
+) {
+    init {
+        require((availableFrom == null) == (availableThrough == null)) {
+            "Card $id must specify both availability dates or neither"
+        }
+        require(availableFrom == null || !availableThrough!!.isBefore(availableFrom)) {
+            "Card $id availability ends before it starts"
+        }
+    }
+}
 
 data class ThemeDefinition(
     val id: String,

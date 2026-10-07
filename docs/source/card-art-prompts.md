@@ -320,3 +320,38 @@ Thirty ordinary cards cover North America, Central America, South America and th
 | americas-chile | Epic | Patagonian granite peaks, glacial lake and araucaria |
 | americas-argentina | Legendary | golden pampas opening toward dramatic Patagonian peaks |
 | americas-brazil | Mythic | Rio bay, Sugarloaf Mountain, tropical orchids and a green-gold carnival-mask icon |
+
+
+## Halloween 2026 — AND-14
+
+Twenty standalone special-card PNGs, 1024×1536, no sprite sheets or script rendering.
+Full per-card English prompts and reference paths are recorded in
+[halloween-2026-plan.json](halloween-2026-plan.json). Scenes cover seven festive
+activities, six decoration scenes and seven costume/preparation scenes.
+Use the same-rarity ordinary reference for frame/nameplate/lettering and Sleepy
+for cat proportions, fur and painterly materials. Special identity is one smiling
+orange pumpkin inside a round top-right medallion and a thin iridescent inner line;
+rarity frame color stays unchanged. Built-in ImageGen produces each card individually.
+
+| ID | Rarity | Scene |
+| --- | --- | --- |
+| halloween-candy-sorter | COMMON | A ginger chubby cat sorts wrapped sweets into three little bowls on a cozy wooden kitchen table, one paw lifting a candy, orange dusk through a window. No letters on wrappers. |
+| halloween-paper-bats | COMMON | A fluffy tabby folds a black paper bat at a craft table, a few completed bats and warm pumpkin-shaped lamps behind, scissors resting on the table. |
+| halloween-sheet-ghost | COMMON | A chubby calico wears a short friendly white ghost sheet with ears and fluffy paws peeking out, playfully lifting the hem in a cozy hallway with amber light. |
+| halloween-pumpkin-carver | COMMON | A ginger fluffy cat scoops seeds from a pumpkin whose smiling face is already carved, spoon in one paw, bowl of seeds, glowing fireplace behind. |
+| halloween-costume-stitcher | COMMON | A cream cat stitches a tiny star patch onto a purple Halloween cape at a sewing table, soft cloth and warm desk lamp, one clearly held needle. |
+| halloween-window-webs | COMMON | A gray fluffy cat attaches a soft yarn spiderweb to a window corner with one paw, friendly tiny felt spider, warm indoor light and autumn dusk outside. |
+| halloween-witch-hat | UNCOMMON | A black fluffy cat tries on an oversized purple witch hat before a low wooden mirror, ears and eyes visible, striped stockings and a pumpkin beside the mirror. |
+| halloween-vampire-cape | UNCOMMON | A tuxedo chubby cat fastens the ribbon on a burgundy vampire cape in a softly lit dressing nook, tiny rounded toy fangs and happy expression, velvet fabric and candles. |
+| halloween-pumpkin-garland | UNCOMMON | A tabby cat on a low stool hangs a garland of small smiling paper pumpkins across a cottage doorway, paws clearly gripping ribbon, golden porch light. |
+| halloween-treat-basket | UNCOMMON | A ginger-white chubby cat presents a small pumpkin-shaped basket of wrapped sweets at a friendly doorstep, orange lanterns and a cozy neighborhood beyond, no writing. |
+| halloween-bat-wings | UNCOMMON | A fluffy gray cat stretches small felt bat wings attached to a cozy costume, rounded ears and paws, moonlit garden path with a warm lantern close by. |
+| halloween-lantern-path | RARE | A cream cat sets a smiling pumpkin lantern on a garden path, several warm lanterns lead into the distance, rich autumn leaves and soft blue evening light. |
+| halloween-mummy-wrap | RARE | A chubby tabby in a loose soft mummy costume tidies a bandage ribbon around its forepaw, face and whiskers visible, warm dressing room with fabric baskets. |
+| halloween-cookie-decorator | RARE | A calico cat pipes icing onto one friendly ghost-shaped cookie at a wooden kitchen table, pumpkin and bat biscuits on a tray, apron texture and oven glow. |
+| halloween-scarecrow-pal | RARE | A ginger fluffy cat ties a scarf around a tiny friendly straw scarecrow in a decorated autumn yard, fabric patches, pumpkins and gentle golden light. |
+| halloween-dragon-costume | EPIC | A fluffy gray cat proudly wears a plush green dragon onesie with rounded horns and soft wings, paws emerging from costume, glowing Halloween porch and embroidered textile details. |
+| halloween-shadow-theatre | EPIC | A tabby cat operates one bat-shaped shadow puppet beside a glowing lamp, its silhouette falls on a small cream curtain, cozy attic theater and pumpkin lanterns behind. |
+| halloween-haunted-cottage | EPIC | A calico cat opens the gate to a warmly decorated cottage with smiling pumpkin lamps, paper ghosts and soft yarn webs, layered evening garden, friendly festive mood. |
+| halloween-masquerade-host | LEGENDARY | A golden fluffy cat in an elegant orange-and-plum masquerade costume lifts a small pumpkin mask away from its face, welcoming guests at a cozy illuminated hall, velvet and embroidered details. |
+| halloween-midnight-parade | MYTHIC | A large fluffy white cat leads a friendly Halloween lantern parade holding one glowing pumpkin lamp, tiny distant cats in costumes on a winding village street, rich amber lantern light against deep plum night. |

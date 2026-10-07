@@ -3,6 +3,7 @@ package com.anry88.purrrfolio.catalog
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class CardCatalog(
@@ -28,6 +29,8 @@ class CardCatalog(
         val availableMonths: List<Int> = emptyList(),
         val groupChatOnly: Boolean = false,
         val sortOrder: Int = 0,
+        val availableFrom: String? = null,
+        val availableThrough: String? = null,
     )
 
     private val payload: CatalogPayload =
@@ -49,6 +52,8 @@ class CardCatalog(
             availableMonths = it.availableMonths,
             groupChatOnly = it.groupChatOnly,
             sortOrder = it.sortOrder,
+            availableFrom = it.availableFrom?.let(LocalDate::parse),
+            availableThrough = it.availableThrough?.let(LocalDate::parse),
         )
     }
 
