@@ -1,0 +1,1304 @@
+{
+  "schemaVersion": 1,
+  "issue": "AND-11",
+  "status": "audit_complete_recommendation_pending_owner_review",
+  "date": "2026-10-07",
+  "source": {
+    "path": "/Users/hq-k14lcdcq7d/.gemini/antigravity-ide/brain/74184e66-fa8e-4799-822b-860e393e9eb1/new_collections_ideas.md",
+    "snapshot": "docs/source/new-collections-ideas-original.md",
+    "sha256": "e7484c670c6fe75c7062e4dbc25037622435f861e5a2fe8be3322dc64d688e55",
+    "originalCards": [
+      {
+        "id": "potion-maker",
+        "nameRu": "Зельевар",
+        "nameEn": "Potion Maker",
+        "rarity": "Common",
+        "sceneRu": "Рыжий котик в маленькой шляпе ведьмы помешивает пурпурное зелье в котле в уютной деревянной хижине, полки с зельями, пучки трав, свечи"
+      },
+      {
+        "id": "mushroom-picker",
+        "nameRu": "Грибник",
+        "nameEn": "Mushroom Picker",
+        "rarity": "Common",
+        "sceneRu": "Полосатый котик с корзинкой собирает волшебные светящиеся грибы в сказочном лесу, утренний туман, мох, маленькие феечки"
+      },
+      {
+        "id": "tower-princess",
+        "nameRu": "Принцесса в башне",
+        "nameEn": "Tower Princess",
+        "rarity": "Common",
+        "sceneRu": "Белый пушистый котик в маленькой тиаре сидит у окна высокой каменной башни, обвитой плющом, смотрит на закатное королевство внизу"
+      },
+      {
+        "id": "forest-witch",
+        "nameRu": "Лесная ведьма",
+        "nameEn": "Forest Witch",
+        "rarity": "Uncommon",
+        "sceneRu": "Чёрный котик в остроконечной шляпе у уютного домика на курьих ножках, фонарики из тыквок, магические книги, сова на ветке"
+      },
+      {
+        "id": "little-knight",
+        "nameRu": "Маленький рыцарь",
+        "nameEn": "Little Knight",
+        "rarity": "Uncommon",
+        "sceneRu": "Серый котик в блестящих миниатюрных доспехах с крошечным мечом стоит у ворот сказочного замка, знамёна, тёплый рассвет"
+      },
+      {
+        "id": "magic-librarian",
+        "nameRu": "Волшебный библиотекарь",
+        "nameEn": "Magic Librarian",
+        "rarity": "Rare",
+        "sceneRu": "Табби-котик в мантии и очках в парящей библиотеке, книги летают вокруг, магические руны светятся, уютные лампы"
+      },
+      {
+        "id": "fairy-healer",
+        "nameRu": "Сказочный лекарь",
+        "nameEn": "Fairy Healer",
+        "rarity": "Rare",
+        "sceneRu": "Рыже-белый котик с сумкой травника лечит раненого единорожка в лунной поляне, светлячки, мягкий зелёный свет"
+      },
+      {
+        "id": "dragon-rider",
+        "nameRu": "Наездник на драконе",
+        "nameEn": "Dragon Rider",
+        "rarity": "Epic",
+        "sceneRu": "Серый котик в красном плаще верхом на милом дракончике над сказочным замком в облаках, фонарики, закат"
+      },
+      {
+        "id": "enchanted-bard",
+        "nameRu": "Зачарованный бард",
+        "nameEn": "Enchanted Bard",
+        "rarity": "Epic",
+        "sceneRu": "Калико-котик играет на маленькой лютне на мосту к волшебному замку, магические ноты создают иллюзии, северное сияние"
+      },
+      {
+        "id": "wish-granter",
+        "nameRu": "Исполнитель желаний",
+        "nameEn": "Wish Granter",
+        "rarity": "Legendary",
+        "sceneRu": "Золотистый котик с волшебной палочкой в тронном зале зачарованного дворца, звёздная пыль, парящие кристаллы, лунный свет"
+      },
+      {
+        "id": "enchanted-king",
+        "nameRu": "Зачарованный король",
+        "nameEn": "Enchanted King",
+        "rarity": "Mythic",
+        "sceneRu": "Белый кот-король в золотой короне и пурпурной мантии на троне из ветвей с цветами в волшебном лесу, светлячки, руины"
+      },
+      {
+        "id": "tide-pool-kitty",
+        "nameRu": "Котик в лужице",
+        "nameEn": "Tide Pool Kitty",
+        "rarity": "Common",
+        "sceneRu": "Маленький рыжий котик осторожно трогает лапкой морскую звезду в приливной лужице, ракушки, водоросли, солнечные блики"
+      },
+      {
+        "id": "seashell-collector",
+        "nameRu": "Собиратель ракушек",
+        "nameEn": "Seashell Collector",
+        "rarity": "Common",
+        "sceneRu": "Серый котик с ведёрком на песчаном дне собирает разноцветные ракушки, маленькие рыбки, солнечные лучи в воде"
+      },
+      {
+        "id": "bubble-rider",
+        "nameRu": "Наездник на пузыре",
+        "nameEn": "Bubble Rider",
+        "rarity": "Common",
+        "sceneRu": "Белый котик сидит внутри гигантского радужного мыльного пузыря, плывущего среди кораллов и рыб"
+      },
+      {
+        "id": "pearl-diver",
+        "nameRu": "Ныряльщик за жемчугом",
+        "nameEn": "Pearl Diver",
+        "rarity": "Uncommon",
+        "sceneRu": "Рыже-белый котик в водолазном шлеме парит среди кораллов с жемчужиной в лапках, тропические рыбки"
+      },
+      {
+        "id": "kelp-forest-scout",
+        "nameRu": "Разведчик водорослей",
+        "nameEn": "Kelp Forest Scout",
+        "rarity": "Uncommon",
+        "sceneRu": "Полосатый котик плывёт через величественный лес из гигантских водорослей, лучи света, морские коньки"
+      },
+      {
+        "id": "shipwreck-explorer",
+        "nameRu": "Исследователь кораблей",
+        "nameEn": "Shipwreck Explorer",
+        "rarity": "Rare",
+        "sceneRu": "Рыжий котик с фонариком исследует затонувший пиратский корабль, сундук с сокровищами, осьминог, рыбки"
+      },
+      {
+        "id": "jellyfish-dancer",
+        "nameRu": "Танцор с медузами",
+        "nameEn": "Jellyfish Dancer",
+        "rarity": "Rare",
+        "sceneRu": "Белый котик грациозно танцует в кольце из светящихся медуз, глубоководный синий свет, биолюминесценция"
+      },
+      {
+        "id": "coral-guardian",
+        "nameRu": "Страж кораллов",
+        "nameEn": "Coral Guardian",
+        "rarity": "Epic",
+        "sceneRu": "Тукседо-котик в короне из ракушек на троне из гигантской розовой раковины, светящиеся кораллы, медузы"
+      },
+      {
+        "id": "submarine-captain",
+        "nameRu": "Капитан субмарины",
+        "nameEn": "Submarine Captain",
+        "rarity": "Epic",
+        "sceneRu": "Серый котик-капитан в иллюминаторе маленькой жёлтой подводной лодки, глубоководные рыбы, светящийся планктон"
+      },
+      {
+        "id": "leviathan-whisperer",
+        "nameRu": "Шёпот левиафана",
+        "nameEn": "Leviathan Whisperer",
+        "rarity": "Legendary",
+        "sceneRu": "Синий котик на носу затонувшего корабля общается с гигантским китом, лунный свет пробивается сквозь воду"
+      },
+      {
+        "id": "abyss-monarch",
+        "nameRu": "Монарх бездны",
+        "nameEn": "Abyss Monarch",
+        "rarity": "Mythic",
+        "sceneRu": "Серебристо-голубой кот в короне из водорослей с самоцветами верхом на гигантской черепахе, подводные руины, киты, северное сияние под водой"
+      },
+      {
+        "id": "street-guitarist",
+        "nameRu": "Уличный гитарист",
+        "nameEn": "Street Guitarist",
+        "rarity": "Common",
+        "sceneRu": "Рыжий котик сидит на каменных ступенях уютной европейской улочки, играет на гитаре, шляпа с монетками, закат, гирлянды, цветы"
+      },
+      {
+        "id": "tambourine-kitten",
+        "nameRu": "Котик с бубном",
+        "nameEn": "Tambourine Kitten",
+        "rarity": "Common",
+        "sceneRu": "Весёлый полосатый котик танцует с бубном на цветочной площади, конфетти, другие коты хлопают"
+      },
+      {
+        "id": "music-box",
+        "nameRu": "Музыкальная шкатулка",
+        "nameEn": "Music Box",
+        "rarity": "Common",
+        "sceneRu": "Маленький белый котик сидит на старинной музыкальной шкатулке с крутящейся балериной, уютная полка, мягкий свет"
+      },
+      {
+        "id": "jazz-cat",
+        "nameRu": "Джазовый кот",
+        "nameEn": "Jazz Cat",
+        "rarity": "Uncommon",
+        "sceneRu": "Чёрный котик в шляпе-федоре играет на саксофоне в задымлённом джаз-баре, мягкий жёлтый свет, ноты в воздухе"
+      },
+      {
+        "id": "violin-dreamer",
+        "nameRu": "Скрипач-мечтатель",
+        "nameEn": "Violin Dreamer",
+        "rarity": "Uncommon",
+        "sceneRu": "Серый котик играет на скрипке на крыше дома лунной ночью, звёзды, огни города, нотки превращаются в светлячков"
+      },
+      {
+        "id": "prima-ballerina",
+        "nameRu": "Прима-балерина",
+        "nameEn": "Prima Ballerina",
+        "rarity": "Rare",
+        "sceneRu": "Белый длинношёрстный котик в розовой пачке танцует пируэт на сцене, прожектор, лепестки роз, люстра"
+      },
+      {
+        "id": "flamenco-rose",
+        "nameRu": "Роза фламенко",
+        "nameEn": "Flamenco Rose",
+        "rarity": "Rare",
+        "sceneRu": "Чёрная кошечка в красном платье танцует фламенко с розой, испанский дворик, фонари, гитара у стены"
+      },
+      {
+        "id": "opera-diva",
+        "nameRu": "Оперная дива",
+        "nameEn": "Opera Diva",
+        "rarity": "Epic",
+        "sceneRu": "Пушистая белая кошечка в вечернем платье поёт на сцене оперного театра, золотые ложи, красный бархат, овации"
+      },
+      {
+        "id": "northern-piper",
+        "nameRu": "Северный волынщик",
+        "nameEn": "Northern Piper",
+        "rarity": "Epic",
+        "sceneRu": "Шотландский котик в килте играет на волынке на вершине туманного холма, замок вдали, вереск, рассвет"
+      },
+      {
+        "id": "symphony-maestro",
+        "nameRu": "Маэстро симфонии",
+        "nameEn": "Symphony Maestro",
+        "rarity": "Legendary",
+        "sceneRu": "Чёрный кот во фраке дирижирует оркестром в золотом концертном зале, магические ноты из дирижёрской палочки"
+      },
+      {
+        "id": "celestial-harmonist",
+        "nameRu": "Небесный гармонист",
+        "nameEn": "Celestial Harmonist",
+        "rarity": "Mythic",
+        "sceneRu": "Серебристый котик играет на арфе из лунного света на облаке, созвездия слушают, космическая симфония, северное сияние"
+      },
+      {
+        "id": "seedling-planter",
+        "nameRu": "Сажальщик семян",
+        "nameEn": "Seedling Planter",
+        "rarity": "Common",
+        "sceneRu": "Рыжий котик в соломенной шляпке сажает семечко в горшочек на солнечном подоконнике, лейка, пакетики семян"
+      },
+      {
+        "id": "watering-helper",
+        "nameRu": "Помощник с лейкой",
+        "nameEn": "Watering Helper",
+        "rarity": "Common",
+        "sceneRu": "Серый котик поливает из маленькой лейки цветочную грядку, радуга в каплях воды, бабочки, улитка"
+      },
+      {
+        "id": "worm-friend",
+        "nameRu": "Друг червячков",
+        "nameEn": "Worm Friend",
+        "rarity": "Common",
+        "sceneRu": "Полосатый котик с лупой разглядывает забавных дождевых червячков в грядке, тыквы, морковки торчат из земли"
+      },
+      {
+        "id": "strawberry-guardian",
+        "nameRu": "Страж клубники",
+        "nameEn": "Strawberry Guardian",
+        "rarity": "Uncommon",
+        "sceneRu": "Рыже-белый котик в фартуке охраняет грядку с гигантской спелой клубникой, птички пытаются склевать, забавная битва"
+      },
+      {
+        "id": "butterfly-catcher",
+        "nameRu": "Ловец бабочек",
+        "nameEn": "Butterfly Catcher",
+        "rarity": "Uncommon",
+        "sceneRu": "Белый котик с сачком среди цветущей лаванды, разноцветные бабочки, пчёлки, тёплый летний свет"
+      },
+      {
+        "id": "pumpkin-grower",
+        "nameRu": "Тыквенный фермер",
+        "nameEn": "Pumpkin Grower",
+        "rarity": "Rare",
+        "sceneRu": "Оранжевый котик обнимает огромную тыкву в осеннем саду, листопад, тачка, фонарики, уютный закат"
+      },
+      {
+        "id": "rose-keeper",
+        "nameRu": "Хранитель роз",
+        "nameEn": "Rose Keeper",
+        "rarity": "Rare",
+        "sceneRu": "Чёрный котик с секатором ухаживает за великолепным розовым кустом в витражной оранжерее, радужный свет"
+      },
+      {
+        "id": "sunflower-giant",
+        "nameRu": "Подсолнуховый гигант",
+        "nameEn": "Sunflower Giant",
+        "rarity": "Epic",
+        "sceneRu": "Маленький котик карабкается по стеблю гигантского подсолнуха к самому верху, вид на золотое поле подсолнухов, облака"
+      },
+      {
+        "id": "greenhouse-wizard",
+        "nameRu": "Волшебник теплицы",
+        "nameEn": "Greenhouse Wizard",
+        "rarity": "Epic",
+        "sceneRu": "Котик в садовых перчатках и очках выращивает светящиеся волшебные растения в стеклянной теплице, магические ростки"
+      },
+      {
+        "id": "ancient-tree-keeper",
+        "nameRu": "Хранитель древнего древа",
+        "nameEn": "Ancient Tree Keeper",
+        "rarity": "Legendary",
+        "sceneRu": "Мудрый серый котик сидит в дупле огромного тысячелетнего дерева, фонарики на ветвях, светлячки, лунный свет"
+      },
+      {
+        "id": "garden-of-dreams",
+        "nameRu": "Сад мечты",
+        "nameEn": "Garden of Dreams",
+        "rarity": "Mythic",
+        "sceneRu": "Белый котик в центре невероятного сада, где растут светящиеся цветы всех цветов радуги, каждый лепесток излучает свет, парящие острова с садами, водопады, бабочки-созвездия"
+      }
+    ],
+    "images": [
+      {
+        "file": "fairy_tale_dragon_rider_1790936990403.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "width": 848,
+        "height": 1264,
+        "sha256": "f4788cb8ee92d117dc0bc063c43e7a401e4e4ae19cfe667d7e06d1c130ac946a"
+      },
+      {
+        "file": "fairy_tale_enchanted_king_1790937002864.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "width": 848,
+        "height": 1264,
+        "sha256": "d37234d182c8d072ba6b32bbfa16fb92f8dac964f9739b014912f3e92a253014"
+      },
+      {
+        "file": "fairy_tale_potion_maker_1790936975463.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "width": 848,
+        "height": 1264,
+        "sha256": "ef5910f79183bac2f64e65c61cf8b82f843d8d3049a24b254edc15cc1e32b2ea"
+      },
+      {
+        "file": "underwater_abyss_monarch_1790937090938.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "width": 848,
+        "height": 1264,
+        "sha256": "617b0f2cad93161962bdac2723a12c0ccf42af2eb68131e64e585a7bc3fa02bb"
+      },
+      {
+        "file": "underwater_coral_guardian_1790937076422.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "width": 848,
+        "height": 1264,
+        "sha256": "bff5d75301c09480136936c0d00d60851518f4e127fc3a8296afd8ca38c0944b"
+      },
+      {
+        "file": "underwater_pearl_diver_1790937060739.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "width": 848,
+        "height": 1264,
+        "sha256": "52e5b2311cb4b0984ea828c3fff3981676d995ead80d31e389b5d25d78b387f1"
+      }
+    ]
+  },
+  "references": {
+    "characterAndTexture": "assets/cards/sleepy.png",
+    "frames": {
+      "COMMON": "assets/cards/sleepy.png",
+      "UNCOMMON": "assets/cards/window-kitty.png",
+      "RARE": "assets/cards/fireplace-friend.png",
+      "EPIC": "assets/cards/baker.png",
+      "LEGENDARY": "assets/cards/boxie.png",
+      "MYTHIC": "assets/cards/dreamweaver.png"
+    }
+  },
+  "collections": [
+    {
+      "id": "fairy-tales",
+      "nameRu": "Сказки и легенды",
+      "nameEn": "Fairy Tales",
+      "special": false,
+      "sourceCardCount": 11,
+      "targetCardCount": 24,
+      "cards": [
+        {
+          "id": "potion-maker",
+          "nameRu": "Зельевар",
+          "nameEn": "Potion Maker",
+          "rarity": "COMMON",
+          "sortOrder": 0,
+          "sourceCardId": "potion-maker",
+          "decision": "retain",
+          "sceneRu": "Рыжий кот помешивает зелье деревянной ложкой в небольшой хижине; крупные пушистые лапы, тёплые свечи, травы на заднем плане."
+        },
+        {
+          "id": "mushroom-picker",
+          "nameRu": "Грибник",
+          "nameEn": "Mushroom Picker",
+          "rarity": "COMMON",
+          "sortOrder": 1,
+          "sourceCardId": "mushroom-picker",
+          "decision": "retain",
+          "sceneRu": "Полосатый кот наклоняется за одним светящимся грибом у мшистого пня; корзинка впереди, мягкий утренний туман вдали."
+        },
+        {
+          "id": "tower-princess",
+          "nameRu": "Принцесса в башне",
+          "nameEn": "Tower Princess",
+          "rarity": "COMMON",
+          "sortOrder": 2,
+          "sourceCardId": "tower-princess",
+          "decision": "rework",
+          "sceneRu": "Белая кошечка в тиаре спускает из окна башни корзинку с письмом маленькой птице; плющ и закатный замок на дальнем плане."
+        },
+        {
+          "id": "breadcrumb-trail",
+          "nameRu": "Дорожка из крошек",
+          "nameEn": "Breadcrumb Trail",
+          "rarity": "COMMON",
+          "sortOrder": 3,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Калико выкладывает крошки на лесной развилке; одна птица у лап, уютный домик заметен между стволами."
+        },
+        {
+          "id": "acorn-messenger",
+          "nameRu": "Желудёвый почтальон",
+          "nameEn": "Acorn Messenger",
+          "rarity": "COMMON",
+          "sortOrder": 4,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Серый кот вручает крошечный свиток белочке у дверцы в дубе; сумка из желудёвой шляпки, солнечные пятна на мху."
+        },
+        {
+          "id": "gingerbread-builder",
+          "nameRu": "Пряничный строитель",
+          "nameEn": "Gingerbread Builder",
+          "rarity": "COMMON",
+          "sortOrder": 5,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот вяжет ленточкой две пряничные балки маленького домика; сахарная крыша в фокусе, лес и кухонное полотенце сзади."
+        },
+        {
+          "id": "well-listener",
+          "nameRu": "Слушатель колодца",
+          "nameEn": "Well Listener",
+          "rarity": "COMMON",
+          "sortOrder": 6,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот у старого каменного колодца слушает эхо через ракушку; золотистые блики в воде, верёвочное ведёрко сбоку."
+        },
+        {
+          "id": "forest-witch",
+          "nameRu": "Лесная ведьма",
+          "nameEn": "Forest Witch",
+          "rarity": "UNCOMMON",
+          "sortOrder": 7,
+          "sourceCardId": "forest-witch",
+          "decision": "rework",
+          "sceneRu": "Чёрная кошечка выводит живую избушку на курьих ножках по лесной тропе, держа фонарь; сова на плече, без котла и тыквенных лиц."
+        },
+        {
+          "id": "little-knight",
+          "nameRu": "Маленький рыцарь",
+          "nameEn": "Little Knight",
+          "rarity": "UNCOMMON",
+          "sortOrder": 8,
+          "sourceCardId": "little-knight",
+          "decision": "rework",
+          "sceneRu": "Серый кот в мягко блестящих доспехах прикрывает щитом утёнка у ворот замка; меч в ножнах, тёплый рассвет."
+        },
+        {
+          "id": "lantern-fairy",
+          "nameRu": "Фонарная фея",
+          "nameEn": "Lantern Fairy",
+          "rarity": "UNCOMMON",
+          "sortOrder": 9,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот приоткрывает старый переносной фонарь, выпуская одну светящуюся фею; крупная лапа на дверце, маленький лесной мостик сзади."
+        },
+        {
+          "id": "bridge-troll",
+          "nameRu": "Мостовой тролль",
+          "nameEn": "Bridge Troll",
+          "rarity": "UNCOMMON",
+          "sortOrder": 10,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Пушистый кот в моховой жилетке поднимает доску лесного мостика, помогая ежонку перейти ручей; округлые камни и солнечная вода."
+        },
+        {
+          "id": "cloak-stitcher",
+          "nameRu": "Швея плащей",
+          "nameEn": "Cloak Stitcher",
+          "rarity": "UNCOMMON",
+          "sortOrder": 11,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кошечка пришивает застёжку к волшебному плащу, чей край мягко парит над столом; нитки и лампа в лесной мастерской."
+        },
+        {
+          "id": "mirror-messenger",
+          "nameRu": "Зеркальный вестник",
+          "nameEn": "Mirror Messenger",
+          "rarity": "UNCOMMON",
+          "sortOrder": 12,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот прикладывает лапу к овальному зеркалу, в котором маленький дракон передаёт светящийся конверт; уютная комната и ясное отражение."
+        },
+        {
+          "id": "spell-restorer",
+          "nameRu": "Реставратор заклинаний",
+          "nameEn": "Spell Restorer",
+          "rarity": "RARE",
+          "sortOrder": 13,
+          "sourceCardId": "magic-librarian",
+          "decision": "replace",
+          "sceneRu": "Табби в очках соединяет порванные края волшебного свитка; светящиеся линии сходятся под кисточкой, книги остаются фоном мастерской."
+        },
+        {
+          "id": "fairy-healer",
+          "nameRu": "Сказочный лекарь",
+          "nameEn": "Fairy Healer",
+          "rarity": "RARE",
+          "sortOrder": 14,
+          "sourceCardId": "fairy-healer",
+          "decision": "retain",
+          "sceneRu": "Рыже-белый кот перевязывает лапу маленькому единорогу в лунной поляне; травяная сумка рядом, светлячки и мягкий зелёный отблеск."
+        },
+        {
+          "id": "story-spinner",
+          "nameRu": "Пряха сказок",
+          "nameEn": "Story Spinner",
+          "rarity": "RARE",
+          "sortOrder": 15,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кошечка за прялкой вытягивает ленту с маленькими силуэтами лесной сказки; одна лапа на колесе, тёплый свет очага."
+        },
+        {
+          "id": "dream-door",
+          "nameRu": "Дверь в сон",
+          "nameEn": "Dream Door",
+          "rarity": "RARE",
+          "sortOrder": 16,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот приоткрывает крошечную светящуюся дверь в корнях дерева; внутри видна миниатюрная уютная долина, ключ в другой лапе."
+        },
+        {
+          "id": "crystal-wayfinder",
+          "nameRu": "Хрустальный проводник",
+          "nameEn": "Crystal Wayfinder",
+          "rarity": "RARE",
+          "sortOrder": 17,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот поворачивает кристалл на развилке пещеры, и отражённый луч указывает выход; пушистый герой крупно, мягкие каменные слои вдали."
+        },
+        {
+          "id": "dragon-rider",
+          "nameRu": "Наездник на драконе",
+          "nameEn": "Dragon Rider",
+          "rarity": "EPIC",
+          "sortOrder": 18,
+          "sourceCardId": "dragon-rider",
+          "decision": "rework",
+          "sceneRu": "Серый кот в красном тканевом плаще крупно на спине дружелюбного дракончика; оба летят рядом с башнями, облака слоями и закатный свет."
+        },
+        {
+          "id": "puppet-enchanter",
+          "nameRu": "Чародей кукольного театра",
+          "nameEn": "Puppet Enchanter",
+          "rarity": "EPIC",
+          "sortOrder": 19,
+          "sourceCardId": "enchanted-bard",
+          "decision": "replace",
+          "sceneRu": "Калико поднимает одну деревянную куклу, оживающую на миниатюрной сцене; бархатная штора, светящиеся нити, замковые стены вдали."
+        },
+        {
+          "id": "cloud-castle-keeper",
+          "nameRu": "Хранитель облачного замка",
+          "nameEn": "Cloud Keeper",
+          "rarity": "EPIC",
+          "sortOrder": 20,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот вращает ручку ворот облачного замка, свивая облачный мост для маленькой птицы; крупная поза, перила и мягкие золотистые облака."
+        },
+        {
+          "id": "phoenix-nursery",
+          "nameRu": "Ясли феникса",
+          "nameEn": "Phoenix Nursery",
+          "rarity": "EPIC",
+          "sortOrder": 21,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кошечка укрывает маленького светящегося феникса лоскутным одеялом в гнезде у очага; медные отблески на шерсти и пушистые искры."
+        },
+        {
+          "id": "wish-granter",
+          "nameRu": "Исполнитель желаний",
+          "nameEn": "Wish Granter",
+          "rarity": "LEGENDARY",
+          "sortOrder": 22,
+          "sourceCardId": "wish-granter",
+          "decision": "rework",
+          "sceneRu": "Золотистый кот касается палочкой единственного светящегося бутона на дереве желаний; из бутона появляется подарочный свёрток, дворец далеко."
+        },
+        {
+          "id": "enchanted-king",
+          "nameRu": "Зачарованный король",
+          "nameEn": "Enchanted King",
+          "rarity": "MYTHIC",
+          "sortOrder": 23,
+          "sourceCardId": "enchanted-king",
+          "decision": "rework",
+          "sceneRu": "Белый кот-король открывает живые ворота из ветвей посохом; по арке загораются цветы и фонари, плащ и шерсть крупно, лесное королевство вдали."
+        }
+      ]
+    },
+    {
+      "id": "underwater-world",
+      "nameRu": "Подводный мир",
+      "nameEn": "Underwater World",
+      "special": false,
+      "sourceCardCount": 11,
+      "targetCardCount": 24,
+      "cards": [
+        {
+          "id": "tide-pool-kitty",
+          "nameRu": "Котик в приливной лужице",
+          "nameEn": "Tide Pool Kitty",
+          "rarity": "COMMON",
+          "sortOrder": 0,
+          "sourceCardId": "tide-pool-kitty",
+          "decision": "retain",
+          "sceneRu": "Рыжий кот осторожно касается морской звезды в мелкой приливной лужице; пушистая лапа и прозрачные солнечные блики крупно."
+        },
+        {
+          "id": "seashell-collector",
+          "nameRu": "Собиратель ракушек",
+          "nameEn": "Seashell Collector",
+          "rarity": "COMMON",
+          "sortOrder": 1,
+          "sourceCardId": "seashell-collector",
+          "decision": "retain",
+          "sceneRu": "Серый кот кладёт одну ракушку в маленькое ведёрко на песчаном морском дне; рыбки и лучи света на заднем плане."
+        },
+        {
+          "id": "bubble-rider",
+          "nameRu": "Наездник на пузыре",
+          "nameEn": "Bubble Rider",
+          "rarity": "COMMON",
+          "sortOrder": 2,
+          "sourceCardId": "bubble-rider",
+          "decision": "retain",
+          "sceneRu": "Белый кот удобно сидит внутри прозрачного радужного пузыря между кораллами; видны лапы и шерсть, отражения не закрывают лицо."
+        },
+        {
+          "id": "sandcastle-architect",
+          "nameRu": "Строитель песчаных замков",
+          "nameEn": "Sandcastle Builder",
+          "rarity": "COMMON",
+          "sortOrder": 3,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот прижимает ракушкой песчаную башенку под водой; несколько простых башен впереди, тёплые солнечные лучи сверху."
+        },
+        {
+          "id": "hermit-helper",
+          "nameRu": "Помощник отшельника",
+          "nameEn": "Hermit Helper",
+          "rarity": "COMMON",
+          "sortOrder": 4,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот предлагает раку-отшельнику новую пустую раковину на раскрытой лапе; крупные персонажи, песок и водоросли вдалеке."
+        },
+        {
+          "id": "anemone-neighbor",
+          "nameRu": "Сосед актинии",
+          "nameEn": "Anemone Neighbor",
+          "rarity": "COMMON",
+          "sortOrder": 5,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот выглядывает из своего прозрачного пузыря и здоровается с рыбкой у актинии; мягкие щупальца обрамляют нижний план."
+        },
+        {
+          "id": "reef-mosaic",
+          "nameRu": "Рифовая мозаика",
+          "nameEn": "Reef Mosaic",
+          "rarity": "COMMON",
+          "sortOrder": 6,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот складывает цветные камешки в простую мозаику морской звезды; одна лапа укладывает последний камень, небольшие рыбки сбоку."
+        },
+        {
+          "id": "pearl-diver",
+          "nameRu": "Ныряльщик за жемчугом",
+          "nameEn": "Pearl Diver",
+          "rarity": "UNCOMMON",
+          "sortOrder": 7,
+          "sourceCardId": "pearl-diver",
+          "decision": "retain",
+          "sceneRu": "Рыже-белый кот в стеклянном водолазном шлеме держит одну жемчужину среди кораллов; объёмная шерсть, металлические крепления, преломлённый солнечный свет."
+        },
+        {
+          "id": "kelp-forest-scout",
+          "nameRu": "Разведчик водорослей",
+          "nameEn": "Kelp Scout",
+          "rarity": "UNCOMMON",
+          "sortOrder": 8,
+          "sourceCardId": "kelp-forest-scout",
+          "decision": "retain",
+          "sceneRu": "Табби разводит лапой широкие листья водорослей, открывая светлую тропу; морской конёк возле плеча, глубокие слои зелёного леса."
+        },
+        {
+          "id": "seahorse-courier",
+          "nameRu": "Курьер морских коньков",
+          "nameEn": "Seahorse Courier",
+          "rarity": "UNCOMMON",
+          "sortOrder": 9,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот привязывает маленький свиток к сумочке морского конька; коралловая почтовая ниша сзади, лучи на ткани сумки."
+        },
+        {
+          "id": "octopus-puzzle",
+          "nameRu": "Загадка осьминога",
+          "nameEn": "Octopus Puzzle",
+          "rarity": "UNCOMMON",
+          "sortOrder": 10,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот и маленький осьминог совмещают две половинки ракушечного пазла на каменной плите; ясные лапы и два заметных щупальца."
+        },
+        {
+          "id": "sponge-house",
+          "nameRu": "Домик в губке",
+          "nameEn": "Sponge House",
+          "rarity": "UNCOMMON",
+          "sortOrder": 11,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот в прозрачном пузыре прикрепляет круглую дверцу к домику в большой морской губке; крошечное окно светится тёплым светом."
+        },
+        {
+          "id": "reef-nurse",
+          "nameRu": "Рифовая няня",
+          "nameEn": "Reef Nurse",
+          "rarity": "UNCOMMON",
+          "sortOrder": 12,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот подаёт корм маленькому косяку рыб из раскрытой баночки; мягкий шлем, каменная ниша, солнечное бирюзовое освещение."
+        },
+        {
+          "id": "shipwreck-explorer",
+          "nameRu": "Исследователь кораблей",
+          "nameEn": "Wreck Explorer",
+          "rarity": "RARE",
+          "sortOrder": 13,
+          "sourceCardId": "shipwreck-explorer",
+          "decision": "retain",
+          "sceneRu": "Рыжий кот светит фонарём в полуоткрытый сундук затонувшего корабля; доски корпуса создают глубину, осьминог выглядывает из иллюминатора."
+        },
+        {
+          "id": "jellyfish-dancer",
+          "nameRu": "Танцор с медузами",
+          "nameEn": "Jellyfish Dancer",
+          "rarity": "RARE",
+          "sortOrder": 14,
+          "sourceCardId": "jellyfish-dancer",
+          "decision": "retain",
+          "sceneRu": "Белый кот плавно поворачивается между несколькими светящимися медузами; крупный герой, синие мягкие градиенты и тёплые блики на шерсти."
+        },
+        {
+          "id": "manta-glider",
+          "nameRu": "Полёт со скатом",
+          "nameEn": "Manta Glider",
+          "rarity": "RARE",
+          "sortOrder": 15,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот в стеклянном шлеме скользит рядом с дружелюбной мантой над рифовой долиной; обе фигуры близко, световые полосы подчёркивают движение."
+        },
+        {
+          "id": "glow-cave-explorer",
+          "nameRu": "Светящаяся пещера",
+          "nameEn": "Glow Cave",
+          "rarity": "RARE",
+          "sortOrder": 16,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот приподнимает фонарь у входа в пещеру, где загораются биолюминесцентные стены; лапа и камень на переднем плане, арки уходят вдаль."
+        },
+        {
+          "id": "reef-archivist",
+          "nameRu": "Рифовый летописец",
+          "nameEn": "Reef Archivist",
+          "rarity": "RARE",
+          "sortOrder": 17,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот мягкой щёточкой очищает рельеф на древней каменной табличке; узор из ракушек без букв, глубоководный тёплый фонарь."
+        },
+        {
+          "id": "coral-guardian",
+          "nameRu": "Страж кораллов",
+          "nameEn": "Coral Guardian",
+          "rarity": "EPIC",
+          "sortOrder": 18,
+          "sourceCardId": "coral-guardian",
+          "decision": "rework",
+          "sceneRu": "Тукседо-кот в ракушечной короне закрепляет молодой коралл на старом рифе; большой герой вместо трона, рядом раскрытая розовая раковина и мягкие медузы."
+        },
+        {
+          "id": "submarine-captain",
+          "nameRu": "Капитан субмарины",
+          "nameEn": "Sub Captain",
+          "rarity": "EPIC",
+          "sortOrder": 19,
+          "sourceCardId": "submarine-captain",
+          "decision": "rework",
+          "sceneRu": "Серый кот внутри кабины маленькой жёлтой субмарины поворачивает штурвал; крупное лицо через иллюминатор, тканевая фуражка и глубинные огоньки."
+        },
+        {
+          "id": "lost-bell-keeper",
+          "nameRu": "Затонувший колокол",
+          "nameEn": "Sunken Bell",
+          "rarity": "EPIC",
+          "sortOrder": 20,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот расчищает водоросли вокруг большого бронзового колокола в затонувшей арке; отражённый свет идёт по металлу, рыбки обрамляют сцену."
+        },
+        {
+          "id": "ocean-tea-party",
+          "nameRu": "Подводное чаепитие",
+          "nameEn": "Ocean Tea Party",
+          "rarity": "EPIC",
+          "sortOrder": 21,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Пушистый кот в большом прозрачном пузыре подаёт чашку маленькой дружелюбной акуле в соседнем пузыре; ракушечный стол и светящийся риф вдали."
+        },
+        {
+          "id": "leviathan-whisperer",
+          "nameRu": "Собеседник кита",
+          "nameEn": "Whale Whisperer",
+          "rarity": "LEGENDARY",
+          "sortOrder": 22,
+          "sourceCardId": "leviathan-whisperer",
+          "decision": "rework",
+          "sceneRu": "Голубой кот в шлеме прикладывает лапу к носу огромного спокойного кита; видны лица обоих, далёкий корабль и мягкий золотистый свет воды."
+        },
+        {
+          "id": "abyss-monarch",
+          "nameRu": "Монарх бездны",
+          "nameEn": "Abyss Monarch",
+          "rarity": "MYTHIC",
+          "sortOrder": 23,
+          "sourceCardId": "abyss-monarch",
+          "decision": "rework",
+          "sceneRu": "Серебристо-голубой пушистый кот с короной крупно на панцире дружелюбной черепахи; голова черепахи внизу, светящийся затонувший город глубоко позади, без подводного северного сияния."
+        }
+      ]
+    },
+    {
+      "id": "music-dance",
+      "nameRu": "Музыка и танцы",
+      "nameEn": "Music & Dance",
+      "special": false,
+      "sourceCardCount": 11,
+      "targetCardCount": 20,
+      "cards": [
+        {
+          "id": "street-guitarist",
+          "nameRu": "Уличный гитарист",
+          "nameEn": "Street Guitarist",
+          "rarity": "COMMON",
+          "sortOrder": 0,
+          "sourceCardId": "street-guitarist",
+          "decision": "rework",
+          "sceneRu": "Рыжий кот играет на гитаре на низких солнечных ступенях; открытый футляр с цветком, гирлянды и дневная улица, без крыши и магических нот."
+        },
+        {
+          "id": "tambourine-kitten",
+          "nameRu": "Котик с бубном",
+          "nameEn": "Tambourine Kitten",
+          "rarity": "COMMON",
+          "sortOrder": 1,
+          "sourceCardId": "tambourine-kitten",
+          "decision": "retain",
+          "sceneRu": "Табби поднимает маленький бубен во время танцевального шага; цветочная площадь, две мягкие фигуры зрителей вдали, герой крупно."
+        },
+        {
+          "id": "music-box",
+          "nameRu": "Музыкальная шкатулка",
+          "nameEn": "Music Box",
+          "rarity": "COMMON",
+          "sortOrder": 2,
+          "sourceCardId": "music-box",
+          "decision": "rework",
+          "sceneRu": "Белый кот аккуратно заводит ключ старинной музыкальной шкатулки, глядя на маленькую балерину; деревянный стол и тёплый домашний свет."
+        },
+        {
+          "id": "triangle-player",
+          "nameRu": "Музыкант с треугольником",
+          "nameEn": "Triangle Player",
+          "rarity": "COMMON",
+          "sortOrder": 3,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот касается палочкой подвешенного музыкального треугольника; простой ритмический уголок, тканевые занавески, солнечный блик на металле."
+        },
+        {
+          "id": "tap-dancer",
+          "nameRu": "Танцор чечётки",
+          "nameEn": "Tap Dancer",
+          "rarity": "COMMON",
+          "sortOrder": 4,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кошечка в маленьких туфельках отбивает шаг на деревянном помосте; одна поднятая лапа, звук обозначен движением, без надписей."
+        },
+        {
+          "id": "record-spinner",
+          "nameRu": "Хранитель пластинок",
+          "nameEn": "Record Spinner",
+          "rarity": "COMMON",
+          "sortOrder": 5,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот бережно опускает иглу на виниловую пластинку; уютная комната, деревянный проигрыватель и тёплая лампа, этикетка без букв."
+        },
+        {
+          "id": "jazz-cat",
+          "nameRu": "Джазовый кот",
+          "nameEn": "Jazz Cat",
+          "rarity": "UNCOMMON",
+          "sortOrder": 6,
+          "sourceCardId": "jazz-cat",
+          "decision": "rework",
+          "sceneRu": "Чёрный кот в федоре играет на саксофоне в маленьком джаз-клубе; медные блики, бархатная штора, мягкий свет ламп вместо дымной сцены."
+        },
+        {
+          "id": "violin-dreamer",
+          "nameRu": "Скрипач-мечтатель",
+          "nameEn": "Violin Dreamer",
+          "rarity": "UNCOMMON",
+          "sortOrder": 7,
+          "sourceCardId": "violin-dreamer",
+          "decision": "rework",
+          "sceneRu": "Серый кот ведёт смычком по скрипке в репетиционной комнате; деревянный пюпитр с абстрактными нотными линиями, дождливое окно и настольный свет."
+        },
+        {
+          "id": "accordion-waltz",
+          "nameRu": "Вальс с аккордеоном",
+          "nameEn": "Accordion Waltz",
+          "rarity": "UNCOMMON",
+          "sortOrder": 8,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот растягивает меха аккордеона в садовой беседке; цветущие ветви, деревянная скамья, тёплый вечерний свет."
+        },
+        {
+          "id": "handpan-rain",
+          "nameRu": "Дождь и ханг",
+          "nameEn": "Handpan Rain",
+          "rarity": "UNCOMMON",
+          "sortOrder": 9,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот касается двух впадин ханга под навесом; капли дождя на листьях сзади, округлый инструмент и тёплый фонарь крупно."
+        },
+        {
+          "id": "rhythm-workshop",
+          "nameRu": "Мастерская ритма",
+          "nameEn": "Rhythm Workshop",
+          "rarity": "UNCOMMON",
+          "sortOrder": 10,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот натягивает новую кожу на небольшой барабан в мастерской инструментов; ключ для креплений и ткань на переднем плане, полки вдали."
+        },
+        {
+          "id": "prima-ballerina",
+          "nameRu": "Прима-балерина",
+          "nameEn": "Prima Ballerina",
+          "rarity": "RARE",
+          "sortOrder": 11,
+          "sourceCardId": "prima-ballerina",
+          "decision": "retain",
+          "sceneRu": "Белая пушистая кошечка в розовой пачке делает пируэт на сцене; ясные лапы, мягкий прожектор, несколько лепестков и дальняя люстра."
+        },
+        {
+          "id": "flamenco-rose",
+          "nameRu": "Роза фламенко",
+          "nameEn": "Flamenco Rose",
+          "rarity": "RARE",
+          "sortOrder": 12,
+          "sourceCardId": "flamenco-rose",
+          "decision": "retain",
+          "sceneRu": "Чёрная кошечка в красном платье делает выразительный шаг фламенко; роза у уха, солнечный дворик, складки ткани и тёплые фонари."
+        },
+        {
+          "id": "a-cappella",
+          "nameRu": "Песня без инструментов",
+          "nameEn": "A Cappella",
+          "rarity": "RARE",
+          "sortOrder": 13,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот поёт у круглого микрофона в акустической комнате; два маленьких силуэта подпевающих котов сзади, крупная мордочка и мягкие панели, без оркестра."
+        },
+        {
+          "id": "ribbon-dancer",
+          "nameRu": "Танец с лентой",
+          "nameEn": "Ribbon Dancer",
+          "rarity": "RARE",
+          "sortOrder": 14,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кошечка в сценическом костюме описывает лентой одну широкую дугу на небольшой сцене; поза танца, тёплый прожектор и синий бархат."
+        },
+        {
+          "id": "opera-diva",
+          "nameRu": "Оперная дива",
+          "nameEn": "Opera Diva",
+          "rarity": "EPIC",
+          "sortOrder": 15,
+          "sourceCardId": "opera-diva",
+          "decision": "retain",
+          "sceneRu": "Белая кошечка поёт на оперной сцене; крупный герой, вечернее платье с мягкой фактурой, золотые ложи и красный бархат вдали."
+        },
+        {
+          "id": "northern-piper",
+          "nameRu": "Северный волынщик",
+          "nameEn": "Northern Piper",
+          "rarity": "EPIC",
+          "sortOrder": 16,
+          "sourceCardId": "northern-piper",
+          "decision": "retain",
+          "sceneRu": "Пушистый кот в килте играет на волынке на вересковом холме; понятное положение лап на трубках, тёплый рассвет, замок едва виден в тумане."
+        },
+        {
+          "id": "stage-drummer",
+          "nameRu": "Сценический барабанщик",
+          "nameEn": "Stage Drummer",
+          "rarity": "EPIC",
+          "sortOrder": 17,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот ударяет палочкой по малому барабану на камерной сцене; одна тарелка ловит свет, тканевый жилет и мягкие праздничные огоньки."
+        },
+        {
+          "id": "symphony-composer",
+          "nameRu": "Создатель симфонии",
+          "nameEn": "Symphony Composer",
+          "rarity": "LEGENDARY",
+          "sortOrder": 18,
+          "sourceCardId": "symphony-maestro",
+          "decision": "replace",
+          "sceneRu": "Чёрный кот во фраке сочиняет мелодию за письменным столом; перо над абстрактным нотным листом, световые мотивы отражаются в инструментальных футлярах, без дирижирования."
+        },
+        {
+          "id": "celestial-harmonist",
+          "nameRu": "Небесный арфист",
+          "nameEn": "Celestial Harpist",
+          "rarity": "MYTHIC",
+          "sortOrder": 19,
+          "sourceCardId": "celestial-harmonist",
+          "decision": "rework",
+          "sceneRu": "Серебристый пушистый кот перебирает струны большой арфы в уютном концертном зале; световые волны поднимаются под купол, крупные лапы и струны, без космического пейзажа."
+        }
+      ]
+    },
+    {
+      "id": "little-garden",
+      "nameRu": "Маленький сад",
+      "nameEn": "Little Garden",
+      "special": false,
+      "sourceCardCount": 11,
+      "targetCardCount": 20,
+      "cards": [
+        {
+          "id": "seedling-planter",
+          "nameRu": "Сажальщик семян",
+          "nameEn": "Seedling Planter",
+          "rarity": "COMMON",
+          "sortOrder": 0,
+          "sourceCardId": "seedling-planter",
+          "decision": "rework",
+          "sceneRu": "Рыжий кот кладёт семечко в рассадную ячейку на уличном садовом столе; крупная лапа, мешочек земли и весеннее солнце, без подоконника."
+        },
+        {
+          "id": "watering-helper",
+          "nameRu": "Помощник с лейкой",
+          "nameEn": "Watering Helper",
+          "rarity": "COMMON",
+          "sortOrder": 1,
+          "sourceCardId": "watering-helper",
+          "decision": "rework",
+          "sceneRu": "Серый кот наполняет лейку у дождевой бочки перед поливом; капли на кране, две глиняные ёмкости и солнечная грядка сзади."
+        },
+        {
+          "id": "worm-friend",
+          "nameRu": "Друг червячков",
+          "nameEn": "Worm Friend",
+          "rarity": "COMMON",
+          "sortOrder": 2,
+          "sourceCardId": "worm-friend",
+          "decision": "retain",
+          "sceneRu": "Табби рассматривает червячка через лупу у края грядки; крупная пушистая лапа и комочки земли, морковная ботва на заднем плане."
+        },
+        {
+          "id": "carrot-harvester",
+          "nameRu": "Морковный урожай",
+          "nameEn": "Carrot Harvest",
+          "rarity": "COMMON",
+          "sortOrder": 3,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот вытягивает морковку из рыхлой земли обеими лапами; корзинка ещё почти пуста, крупная ботва, мягкий дневной свет."
+        },
+        {
+          "id": "compost-helper",
+          "nameRu": "Помощник компоста",
+          "nameEn": "Compost Helper",
+          "rarity": "COMMON",
+          "sortOrder": 4,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот складывает сухие листья в небольшой компостный ящик; деревянные доски, совок сбоку и садовая дорожка вдалеке."
+        },
+        {
+          "id": "leaf-sweeper",
+          "nameRu": "Собиратель листьев",
+          "nameEn": "Leaf Sweeper",
+          "rarity": "COMMON",
+          "sortOrder": 5,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот подметает садовую дорожку короткой метёлкой, собирая несколько золотистых листьев; низкая лавочка и солнечная осень."
+        },
+        {
+          "id": "strawberry-guardian",
+          "nameRu": "Страж клубники",
+          "nameEn": "Strawberry Guardian",
+          "rarity": "UNCOMMON",
+          "sortOrder": 6,
+          "sourceCardId": "strawberry-guardian",
+          "decision": "rework",
+          "sceneRu": "Рыже-белый кот закрепляет тканевую сетку над клубничной грядкой; птица сидит рядом, крупные ягоды на ветке, без сцены битвы и еды в чашке."
+        },
+        {
+          "id": "butterfly-host",
+          "nameRu": "Друг бабочек",
+          "nameEn": "Butterfly Host",
+          "rarity": "UNCOMMON",
+          "sortOrder": 7,
+          "sourceCardId": "butterfly-catcher",
+          "decision": "replace",
+          "sceneRu": "Белый кот протягивает лапу бабочке в лавандовом уголке; раскрытые крылья крупно, мягкий солнечный свет, без сачка."
+        },
+        {
+          "id": "bee-hotel-builder",
+          "nameRu": "Домик для пчёл",
+          "nameEn": "Bee Hotel",
+          "rarity": "UNCOMMON",
+          "sortOrder": 8,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот вставляет полую тростинку в маленький деревянный домик для пчёл; одна пчёлка у цветка, садовый стол и тактильная древесина."
+        },
+        {
+          "id": "trellis-weaver",
+          "nameRu": "Плетельщик шпалер",
+          "nameEn": "Trellis Weaver",
+          "rarity": "UNCOMMON",
+          "sortOrder": 9,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот подвязывает горошек к бамбуковой шпалере мягкой лентой; крупный узел и лапы, стручки, солнечная зелень вдали."
+        },
+        {
+          "id": "apple-grafter",
+          "nameRu": "Мастер яблоневых прививок",
+          "nameEn": "Apple Grafter",
+          "rarity": "UNCOMMON",
+          "sortOrder": 10,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот оборачивает лентой соединение двух яблоневых веточек; ясная работа лап, маленькие садовые ножницы на столе, весенний сад."
+        },
+        {
+          "id": "pumpkin-grower",
+          "nameRu": "Тыквенный фермер",
+          "nameEn": "Pumpkin Grower",
+          "rarity": "RARE",
+          "sortOrder": 11,
+          "sourceCardId": "pumpkin-grower",
+          "decision": "rework",
+          "sceneRu": "Оранжевый кот измеряет ленточкой огромную целую тыкву на грядке; тачка и осенние листья, без вырезанного лица и хэллоуинских фонарей."
+        },
+        {
+          "id": "rose-keeper",
+          "nameRu": "Хранитель роз",
+          "nameEn": "Rose Keeper",
+          "rarity": "RARE",
+          "sortOrder": 12,
+          "sourceCardId": "rose-keeper",
+          "decision": "retain",
+          "sceneRu": "Чёрный кот секатором снимает сухую веточку с розового куста; витражная оранжерея, крупные лепестки и радужные пятна света."
+        },
+        {
+          "id": "bonsai-shaper",
+          "nameRu": "Мастер бонсай",
+          "nameEn": "Bonsai Shaper",
+          "rarity": "RARE",
+          "sortOrder": 13,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот мягко направляет одну веточку миниатюрного деревца проволокой; неглубокий горшок на садовой скамье, спокойное утреннее освещение."
+        },
+        {
+          "id": "lily-pond-watcher",
+          "nameRu": "Пруд с кувшинками",
+          "nameEn": "Lily Pond",
+          "rarity": "RARE",
+          "sortOrder": 14,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот на низком камне наблюдает распускающуюся кувшинку и маленькую лягушку; отражения, пушистые лапы над водой, сад в мягкой глубине."
+        },
+        {
+          "id": "sunflower-giant",
+          "nameRu": "Подсолнуховый гигант",
+          "nameEn": "Sunflower Giant",
+          "rarity": "EPIC",
+          "sortOrder": 15,
+          "sourceCardId": "sunflower-giant",
+          "decision": "rework",
+          "sceneRu": "Кот на листе гигантского подсолнуха крупно держится за стебель; золотой цветок над плечом, поле далеко внизу и тёплый рассеянный свет."
+        },
+        {
+          "id": "greenhouse-wizard",
+          "nameRu": "Волшебник теплицы",
+          "nameEn": "Greenhouse Wizard",
+          "rarity": "EPIC",
+          "sortOrder": 16,
+          "sourceCardId": "greenhouse-wizard",
+          "decision": "rework",
+          "sceneRu": "Кот в перчатках переносит один сияющий росток в стеклянный рассадный купол; свет от корней на лапах, теплица глубоко сзади, без обычного подоконного сада."
+        },
+        {
+          "id": "rain-garden-keeper",
+          "nameRu": "Дождевой сад",
+          "nameEn": "Rain Garden",
+          "rarity": "EPIC",
+          "sortOrder": 17,
+          "sourceCardId": null,
+          "decision": "add",
+          "sceneRu": "Кот открывает деревянную заслонку, направляя дождевую воду по извилистому ручью к цветущим грядкам; мокрые камни и тёплый фонарь."
+        },
+        {
+          "id": "ancient-tree-keeper",
+          "nameRu": "Хранитель древнего древа",
+          "nameEn": "Ancient Tree Keeper",
+          "rarity": "LEGENDARY",
+          "sortOrder": 18,
+          "sourceCardId": "ancient-tree-keeper",
+          "decision": "rework",
+          "sceneRu": "Мудрый серый кот укладывает проросший жёлудь в землю внутри огромного старого дупла; молодой росток крупно, древесные кольца, золотые светлячки."
+        },
+        {
+          "id": "garden-of-dreams",
+          "nameRu": "Сад мечты",
+          "nameEn": "Garden of Dreams",
+          "rarity": "MYTHIC",
+          "sortOrder": 19,
+          "sourceCardId": "garden-of-dreams",
+          "decision": "rework",
+          "sceneRu": "Белый кот сажает один сияющий цветок на переднем плане; от него тянутся световые дорожки к парящим садовым террасам вдали, ограниченная сиренево-золотая палитра вместо радужного шума."
+        }
+      ]
+    }
+  ]
+}
