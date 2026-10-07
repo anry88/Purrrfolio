@@ -33,6 +33,9 @@ class WebhookController(
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 <title>Purrrfolio - Telegram Cat Card Collection Game</title>
                 <meta name="description" content="Purrrfolio is a Telegram collectible card game about cozy kawaii cats. Open packs, collect themed cards, trade duplicates, and share your favorite cats.">
+                <link rel="icon" href="/favicon.ico" sizes="any">
+                <link rel="icon" href="/favicon.png" type="image/png">
+                <link rel="apple-touch-icon" href="/apple-touch-icon.png">
                 <style>
                     :root {
                         color-scheme: light;
@@ -77,9 +80,8 @@ class WebhookController(
                         width: 44px;
                         height: 44px;
                         border-radius: 14px;
-                        display: grid;
-                        place-items: center;
-                        background: linear-gradient(135deg, #ffe4f2, #ffe9bf);
+                        display: block;
+                        object-fit: cover;
                         border: 1px solid var(--line);
                     }
                     nav {
@@ -207,7 +209,7 @@ class WebhookController(
             </head>
             <body>
                 <header>
-                    <div class="brand"><span class="logo">🐾</span><span>Purrrfolio</span></div>
+                    <div class="brand"><img class="logo" src="/assets/purrrfolio-icon.png" alt="Purrrfolio app icon"><span>Purrrfolio</span></div>
                     <nav aria-label="Main navigation">
                         <a href="$botUrl">Play on Telegram</a>
                         <a href="/privacy">Privacy Policy</a>
