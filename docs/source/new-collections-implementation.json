@@ -1,6 +1,6 @@
 {
   "issue": "AND-12",
-  "status": "implemented_art_verified",
+  "status": "released",
   "approvedAt": "2026-10-07",
   "sourceShortlist": "docs/source/new-collections-shortlist.json",
   "sourceShortlistSha256": "1195b99e582d8863056bd72f242cb4f61a37786c343b9e754f73defc9b47dd73",
@@ -3096,5 +3096,28 @@
     "packagedCollections": 21,
     "newAndEditedCardPngHashesVerified": 108,
     "markerHashVerified": true
+  },
+  "release": {
+    "release": "collections-20261007-87b56c8a1ba3",
+    "image": "purrrfolio:collections-20261007-87b56c8a1ba3",
+    "jar_sha256": "87b56c8a1ba37895a4acbe414b2f5abf5535599f79c9e49c25b11124d7e686f7",
+    "git_commit": "f677cff8ad8d120e176819b7cdefcfda414b318e",
+    "deployed_at_utc": "2026-10-07T19:50:27.455425+00:00",
+    "running_image_id": "sha256:7590bc773c69bc6eb14bf71a5abd466c30174d88ef1f0e622c66de4b7ab97875",
+    "verification": {
+      "internalHealth": "UP",
+      "externalHealth": "UP",
+      "runningJarSha256Matches": true,
+      "flywayLatestVersion": "20",
+      "flywayLatestSuccess": true,
+      "webhookPendingUpdates": 0,
+      "gameTimezone": "UTC",
+      "notificationSendIntervalMs": 250,
+      "publicPngHashMatches": [
+        "potion-maker",
+        "anemone-neighbor",
+        "halloween-candy-sorter"
+      ]
+    }
   }
 }
