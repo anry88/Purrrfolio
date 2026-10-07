@@ -10,7 +10,7 @@ COPY build.gradle.kts .
 RUN ./gradlew dependencies --no-daemon || true
 
 COPY src src
-RUN ./gradlew build -x test --no-daemon
+RUN ./gradlew build -x test --no-daemon -Pkotlin.compiler.execution.strategy=in-process
 
 FROM eclipse-temurin:17-jre@sha256:c6f2875c05ea10f16398bdc5f73405c384991506f2f1ead8bcc6582ae8adea79
 WORKDIR /app
