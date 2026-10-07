@@ -211,6 +211,11 @@ recorded in `docs/source/card-art-prompts.md`; the full card/collection roster
 with RU/EN names lives in `docs/collections.md`. Keep both PNG trees in sync
 after art changes.
 
+Approved inner-art style anchors are Sleepy, Taxi Cab, March and Rooftop Kitty
+under `assets/cards/`. Choose the rarity frame separately; March contributes
+scene/style only, without transferring Calendar medallions or foil to ordinary
+cards or another Special collection.
+
 Special collection markers have their own locked master image under
 `assets/special-markers/`, mirrored to
 `src/main/resources/static/assets/special-markers/`. The same image reference

@@ -1,6 +1,6 @@
 # Purrrfolio — коллекции и карточки
 
-Каталог: 305 карточек в 17 коллекциях. Названия на картах — английские, интерфейс бота — RU/EN.
+Каталог: 393 карточки в 21 коллекции. Названия на картах — английские, интерфейс бота — RU/EN.
 Редкости: Common ⚪ → Uncommon 🟢 → Rare 🔵 → Epic 🟣 → Mythic 🔴 → Legendary 🟠.
 
 ## Cozy Home / Уютный дом (`cozy-home`, 10 карт)
@@ -413,3 +413,123 @@ Autumn — сентябрь, октябрь и ноябрь. При выпаде
 | halloween-haunted-cottage | Haunted Cottage / Праздничный домик | EPIC |
 | halloween-masquerade-host | Masquerade Host / Хозяин маскарада | LEGENDARY |
 | halloween-midnight-parade | Midnight Parade / Полночное шествие | MYTHIC |
+
+
+## Fairy Tales / Сказки и легенды (`fairy-tales`, 24 карт)
+
+Обычная постоянная коллекция; все карты доступны в личных и групповых чатах.
+
+| ID | EN / RU | Редкость |
+| --- | --- | --- |
+| potion-maker | Potion Maker / Зельевар | COMMON |
+| mushroom-picker | Mushroom Picker / Грибник | COMMON |
+| tower-princess | Tower Princess / Принцесса в башне | COMMON |
+| breadcrumb-trail | Breadcrumb Trail / Дорожка из крошек | COMMON |
+| acorn-messenger | Acorn Messenger / Желудёвый почтальон | COMMON |
+| gingerbread-builder | Gingerbread Builder / Пряничный строитель | COMMON |
+| well-listener | Well Listener / Слушатель колодца | COMMON |
+| forest-witch | Forest Witch / Лесная ведьма | UNCOMMON |
+| little-knight | Little Knight / Маленький рыцарь | UNCOMMON |
+| lantern-fairy | Lantern Fairy / Фонарная фея | UNCOMMON |
+| bridge-troll | Bridge Troll / Мостовой тролль | UNCOMMON |
+| cloak-stitcher | Cloak Stitcher / Швея плащей | UNCOMMON |
+| mirror-messenger | Mirror Messenger / Зеркальный вестник | UNCOMMON |
+| spell-restorer | Spell Restorer / Реставратор заклинаний | RARE |
+| fairy-healer | Fairy Healer / Сказочный лекарь | RARE |
+| story-spinner | Story Spinner / Пряха сказок | RARE |
+| dream-door | Dream Door / Дверь в сон | RARE |
+| crystal-wayfinder | Crystal Wayfinder / Хрустальный проводник | RARE |
+| dragon-rider | Dragon Rider / Наездник на драконе | EPIC |
+| puppet-enchanter | Puppet Enchanter / Чародей кукольного театра | EPIC |
+| cloud-castle-keeper | Cloud Keeper / Хранитель облачного замка | EPIC |
+| phoenix-nursery | Phoenix Nursery / Ясли феникса | EPIC |
+| wish-granter | Wish Granter / Исполнитель желаний | LEGENDARY |
+| enchanted-king | Enchanted King / Зачарованный король | MYTHIC |
+
+
+## Underwater World / Подводный мир (`underwater-world`, 24 карт)
+
+Обычная постоянная коллекция; все карты доступны в личных и групповых чатах.
+
+| ID | EN / RU | Редкость |
+| --- | --- | --- |
+| tide-pool-kitty | Tide Pool Kitty / Котик в приливной лужице | COMMON |
+| seashell-collector | Seashell Collector / Собиратель ракушек | COMMON |
+| bubble-rider | Bubble Rider / Наездник на пузыре | COMMON |
+| sandcastle-architect | Sandcastle Builder / Строитель песчаных замков | COMMON |
+| hermit-helper | Hermit Helper / Помощник отшельника | COMMON |
+| anemone-neighbor | Anemone Neighbor / Сосед актинии | COMMON |
+| reef-mosaic | Reef Mosaic / Рифовая мозаика | COMMON |
+| pearl-diver | Pearl Diver / Ныряльщик за жемчугом | UNCOMMON |
+| kelp-forest-scout | Kelp Scout / Разведчик водорослей | UNCOMMON |
+| seahorse-courier | Seahorse Courier / Курьер морских коньков | UNCOMMON |
+| octopus-puzzle | Octopus Puzzle / Загадка осьминога | UNCOMMON |
+| sponge-house | Sponge House / Домик в губке | UNCOMMON |
+| reef-nurse | Reef Nurse / Рифовая няня | UNCOMMON |
+| shipwreck-explorer | Wreck Explorer / Исследователь кораблей | RARE |
+| jellyfish-dancer | Jellyfish Dancer / Танцор с медузами | RARE |
+| manta-glider | Manta Glider / Полёт со скатом | RARE |
+| glow-cave-explorer | Glow Cave / Светящаяся пещера | RARE |
+| reef-archivist | Reef Archivist / Рифовый летописец | RARE |
+| coral-guardian | Coral Guardian / Страж кораллов | EPIC |
+| submarine-captain | Sub Captain / Капитан субмарины | EPIC |
+| lost-bell-keeper | Sunken Bell / Затонувший колокол | EPIC |
+| ocean-tea-party | Ocean Tea Party / Подводное чаепитие | EPIC |
+| leviathan-whisperer | Whale Whisperer / Собеседник кита | LEGENDARY |
+| abyss-monarch | Abyss Monarch / Монарх бездны | MYTHIC |
+
+
+## Music & Dance / Музыка и танцы (`music-dance`, 20 карт)
+
+Обычная постоянная коллекция; все карты доступны в личных и групповых чатах.
+
+| ID | EN / RU | Редкость |
+| --- | --- | --- |
+| street-guitarist | Street Guitarist / Уличный гитарист | COMMON |
+| tambourine-kitten | Tambourine Kitten / Котик с бубном | COMMON |
+| music-box | Music Box / Музыкальная шкатулка | COMMON |
+| triangle-player | Triangle Player / Музыкант с треугольником | COMMON |
+| tap-dancer | Tap Dancer / Танцор чечётки | COMMON |
+| record-spinner | Record Spinner / Хранитель пластинок | COMMON |
+| jazz-cat | Jazz Cat / Джазовый кот | UNCOMMON |
+| violin-dreamer | Violin Dreamer / Скрипач-мечтатель | UNCOMMON |
+| accordion-waltz | Accordion Waltz / Вальс с аккордеоном | UNCOMMON |
+| handpan-rain | Handpan Rain / Дождь и ханг | UNCOMMON |
+| rhythm-workshop | Rhythm Workshop / Мастерская ритма | UNCOMMON |
+| prima-ballerina | Prima Ballerina / Прима-балерина | RARE |
+| flamenco-rose | Flamenco Rose / Роза фламенко | RARE |
+| a-cappella | A Cappella / Песня без инструментов | RARE |
+| ribbon-dancer | Ribbon Dancer / Танец с лентой | RARE |
+| opera-diva | Opera Diva / Оперная дива | EPIC |
+| northern-piper | Northern Piper / Северный волынщик | EPIC |
+| stage-drummer | Stage Drummer / Сценический барабанщик | EPIC |
+| symphony-composer | Symphony Composer / Создатель симфонии | LEGENDARY |
+| celestial-harmonist | Celestial Harpist / Небесный арфист | MYTHIC |
+
+
+## Little Garden / Маленький сад (`little-garden`, 20 карт)
+
+Обычная постоянная коллекция; все карты доступны в личных и групповых чатах.
+
+| ID | EN / RU | Редкость |
+| --- | --- | --- |
+| seedling-planter | Seedling Planter / Сажальщик семян | COMMON |
+| watering-helper | Watering Helper / Помощник с лейкой | COMMON |
+| worm-friend | Worm Friend / Друг червячков | COMMON |
+| carrot-harvester | Carrot Harvest / Морковный урожай | COMMON |
+| compost-helper | Compost Helper / Помощник компоста | COMMON |
+| leaf-sweeper | Leaf Sweeper / Собиратель листьев | COMMON |
+| strawberry-guardian | Strawberry Guardian / Страж клубники | UNCOMMON |
+| butterfly-host | Butterfly Host / Друг бабочек | UNCOMMON |
+| bee-hotel-builder | Bee Hotel / Домик для пчёл | UNCOMMON |
+| trellis-weaver | Trellis Weaver / Плетельщик шпалер | UNCOMMON |
+| apple-grafter | Apple Grafter / Мастер яблоневых прививок | UNCOMMON |
+| pumpkin-grower | Pumpkin Grower / Тыквенный фермер | RARE |
+| rose-keeper | Rose Keeper / Хранитель роз | RARE |
+| bonsai-shaper | Bonsai Shaper / Мастер бонсай | RARE |
+| lily-pond-watcher | Lily Pond / Пруд с кувшинками | RARE |
+| sunflower-giant | Sunflower Giant / Подсолнуховый гигант | EPIC |
+| greenhouse-wizard | Greenhouse Wizard / Волшебник теплицы | EPIC |
+| rain-garden-keeper | Rain Garden / Дождевой сад | EPIC |
+| ancient-tree-keeper | Ancient Tree Keeper / Хранитель древнего древа | LEGENDARY |
+| garden-of-dreams | Garden of Dreams / Сад мечты | MYTHIC |

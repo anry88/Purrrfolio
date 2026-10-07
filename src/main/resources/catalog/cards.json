@@ -101,6 +101,30 @@
       "nameRu": "Хэллоуин",
       "nameEn": "Halloween",
       "sortOrder": 16
+    },
+    {
+      "id": "fairy-tales",
+      "nameRu": "Сказки и легенды",
+      "nameEn": "Fairy Tales",
+      "sortOrder": 17
+    },
+    {
+      "id": "underwater-world",
+      "nameRu": "Подводный мир",
+      "nameEn": "Underwater World",
+      "sortOrder": 18
+    },
+    {
+      "id": "music-dance",
+      "nameRu": "Музыка и танцы",
+      "nameEn": "Music & Dance",
+      "sortOrder": 19
+    },
+    {
+      "id": "little-garden",
+      "nameRu": "Маленький сад",
+      "nameEn": "Little Garden",
+      "sortOrder": 20
     }
   ],
   "packs": [
@@ -3069,6 +3093,798 @@
       "sortOrder": 19,
       "availableFrom": "2026-10-15",
       "availableThrough": "2026-11-15"
+    },
+    {
+      "id": "potion-maker",
+      "nameRu": "Зельевар",
+      "nameEn": "Potion Maker",
+      "themeId": "fairy-tales",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/potion-maker.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "mushroom-picker",
+      "nameRu": "Грибник",
+      "nameEn": "Mushroom Picker",
+      "themeId": "fairy-tales",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/mushroom-picker.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "tower-princess",
+      "nameRu": "Принцесса в башне",
+      "nameEn": "Tower Princess",
+      "themeId": "fairy-tales",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/tower-princess.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "breadcrumb-trail",
+      "nameRu": "Дорожка из крошек",
+      "nameEn": "Breadcrumb Trail",
+      "themeId": "fairy-tales",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/breadcrumb-trail.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "acorn-messenger",
+      "nameRu": "Желудёвый почтальон",
+      "nameEn": "Acorn Messenger",
+      "themeId": "fairy-tales",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/acorn-messenger.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "gingerbread-builder",
+      "nameRu": "Пряничный строитель",
+      "nameEn": "Gingerbread Builder",
+      "themeId": "fairy-tales",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/gingerbread-builder.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "well-listener",
+      "nameRu": "Слушатель колодца",
+      "nameEn": "Well Listener",
+      "themeId": "fairy-tales",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/well-listener.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "forest-witch",
+      "nameRu": "Лесная ведьма",
+      "nameEn": "Forest Witch",
+      "themeId": "fairy-tales",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/forest-witch.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "little-knight",
+      "nameRu": "Маленький рыцарь",
+      "nameEn": "Little Knight",
+      "themeId": "fairy-tales",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/little-knight.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "lantern-fairy",
+      "nameRu": "Фонарная фея",
+      "nameEn": "Lantern Fairy",
+      "themeId": "fairy-tales",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/lantern-fairy.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "bridge-troll",
+      "nameRu": "Мостовой тролль",
+      "nameEn": "Bridge Troll",
+      "themeId": "fairy-tales",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/bridge-troll.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "cloak-stitcher",
+      "nameRu": "Швея плащей",
+      "nameEn": "Cloak Stitcher",
+      "themeId": "fairy-tales",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/cloak-stitcher.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "mirror-messenger",
+      "nameRu": "Зеркальный вестник",
+      "nameEn": "Mirror Messenger",
+      "themeId": "fairy-tales",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/mirror-messenger.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "spell-restorer",
+      "nameRu": "Реставратор заклинаний",
+      "nameEn": "Spell Restorer",
+      "themeId": "fairy-tales",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/spell-restorer.png",
+      "sortOrder": 13
+    },
+    {
+      "id": "fairy-healer",
+      "nameRu": "Сказочный лекарь",
+      "nameEn": "Fairy Healer",
+      "themeId": "fairy-tales",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/fairy-healer.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "story-spinner",
+      "nameRu": "Пряха сказок",
+      "nameEn": "Story Spinner",
+      "themeId": "fairy-tales",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/story-spinner.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "dream-door",
+      "nameRu": "Дверь в сон",
+      "nameEn": "Dream Door",
+      "themeId": "fairy-tales",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/dream-door.png",
+      "sortOrder": 16
+    },
+    {
+      "id": "crystal-wayfinder",
+      "nameRu": "Хрустальный проводник",
+      "nameEn": "Crystal Wayfinder",
+      "themeId": "fairy-tales",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/crystal-wayfinder.png",
+      "sortOrder": 17
+    },
+    {
+      "id": "dragon-rider",
+      "nameRu": "Наездник на драконе",
+      "nameEn": "Dragon Rider",
+      "themeId": "fairy-tales",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/dragon-rider.png",
+      "sortOrder": 18
+    },
+    {
+      "id": "puppet-enchanter",
+      "nameRu": "Чародей кукольного театра",
+      "nameEn": "Puppet Enchanter",
+      "themeId": "fairy-tales",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/puppet-enchanter.png",
+      "sortOrder": 19
+    },
+    {
+      "id": "cloud-castle-keeper",
+      "nameRu": "Хранитель облачного замка",
+      "nameEn": "Cloud Keeper",
+      "themeId": "fairy-tales",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/cloud-castle-keeper.png",
+      "sortOrder": 20
+    },
+    {
+      "id": "phoenix-nursery",
+      "nameRu": "Ясли феникса",
+      "nameEn": "Phoenix Nursery",
+      "themeId": "fairy-tales",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/phoenix-nursery.png",
+      "sortOrder": 21
+    },
+    {
+      "id": "wish-granter",
+      "nameRu": "Исполнитель желаний",
+      "nameEn": "Wish Granter",
+      "themeId": "fairy-tales",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/wish-granter.png",
+      "sortOrder": 22
+    },
+    {
+      "id": "enchanted-king",
+      "nameRu": "Зачарованный король",
+      "nameEn": "Enchanted King",
+      "themeId": "fairy-tales",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/enchanted-king.png",
+      "sortOrder": 23
+    },
+    {
+      "id": "tide-pool-kitty",
+      "nameRu": "Котик в приливной лужице",
+      "nameEn": "Tide Pool Kitty",
+      "themeId": "underwater-world",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/tide-pool-kitty.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "seashell-collector",
+      "nameRu": "Собиратель ракушек",
+      "nameEn": "Seashell Collector",
+      "themeId": "underwater-world",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/seashell-collector.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "bubble-rider",
+      "nameRu": "Наездник на пузыре",
+      "nameEn": "Bubble Rider",
+      "themeId": "underwater-world",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/bubble-rider.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "sandcastle-architect",
+      "nameRu": "Строитель песчаных замков",
+      "nameEn": "Sandcastle Builder",
+      "themeId": "underwater-world",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/sandcastle-architect.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "hermit-helper",
+      "nameRu": "Помощник отшельника",
+      "nameEn": "Hermit Helper",
+      "themeId": "underwater-world",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/hermit-helper.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "anemone-neighbor",
+      "nameRu": "Сосед актинии",
+      "nameEn": "Anemone Neighbor",
+      "themeId": "underwater-world",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/anemone-neighbor.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "reef-mosaic",
+      "nameRu": "Рифовая мозаика",
+      "nameEn": "Reef Mosaic",
+      "themeId": "underwater-world",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/reef-mosaic.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "pearl-diver",
+      "nameRu": "Ныряльщик за жемчугом",
+      "nameEn": "Pearl Diver",
+      "themeId": "underwater-world",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/pearl-diver.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "kelp-forest-scout",
+      "nameRu": "Разведчик водорослей",
+      "nameEn": "Kelp Scout",
+      "themeId": "underwater-world",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/kelp-forest-scout.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "seahorse-courier",
+      "nameRu": "Курьер морских коньков",
+      "nameEn": "Seahorse Courier",
+      "themeId": "underwater-world",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/seahorse-courier.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "octopus-puzzle",
+      "nameRu": "Загадка осьминога",
+      "nameEn": "Octopus Puzzle",
+      "themeId": "underwater-world",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/octopus-puzzle.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "sponge-house",
+      "nameRu": "Домик в губке",
+      "nameEn": "Sponge House",
+      "themeId": "underwater-world",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/sponge-house.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "reef-nurse",
+      "nameRu": "Рифовая няня",
+      "nameEn": "Reef Nurse",
+      "themeId": "underwater-world",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/reef-nurse.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "shipwreck-explorer",
+      "nameRu": "Исследователь кораблей",
+      "nameEn": "Wreck Explorer",
+      "themeId": "underwater-world",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/shipwreck-explorer.png",
+      "sortOrder": 13
+    },
+    {
+      "id": "jellyfish-dancer",
+      "nameRu": "Танцор с медузами",
+      "nameEn": "Jellyfish Dancer",
+      "themeId": "underwater-world",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/jellyfish-dancer.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "manta-glider",
+      "nameRu": "Полёт со скатом",
+      "nameEn": "Manta Glider",
+      "themeId": "underwater-world",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/manta-glider.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "glow-cave-explorer",
+      "nameRu": "Светящаяся пещера",
+      "nameEn": "Glow Cave",
+      "themeId": "underwater-world",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/glow-cave-explorer.png",
+      "sortOrder": 16
+    },
+    {
+      "id": "reef-archivist",
+      "nameRu": "Рифовый летописец",
+      "nameEn": "Reef Archivist",
+      "themeId": "underwater-world",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/reef-archivist.png",
+      "sortOrder": 17
+    },
+    {
+      "id": "coral-guardian",
+      "nameRu": "Страж кораллов",
+      "nameEn": "Coral Guardian",
+      "themeId": "underwater-world",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/coral-guardian.png",
+      "sortOrder": 18
+    },
+    {
+      "id": "submarine-captain",
+      "nameRu": "Капитан субмарины",
+      "nameEn": "Sub Captain",
+      "themeId": "underwater-world",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/submarine-captain.png",
+      "sortOrder": 19
+    },
+    {
+      "id": "lost-bell-keeper",
+      "nameRu": "Затонувший колокол",
+      "nameEn": "Sunken Bell",
+      "themeId": "underwater-world",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/lost-bell-keeper.png",
+      "sortOrder": 20
+    },
+    {
+      "id": "ocean-tea-party",
+      "nameRu": "Подводное чаепитие",
+      "nameEn": "Ocean Tea Party",
+      "themeId": "underwater-world",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/ocean-tea-party.png",
+      "sortOrder": 21
+    },
+    {
+      "id": "leviathan-whisperer",
+      "nameRu": "Собеседник кита",
+      "nameEn": "Whale Whisperer",
+      "themeId": "underwater-world",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/leviathan-whisperer.png",
+      "sortOrder": 22
+    },
+    {
+      "id": "abyss-monarch",
+      "nameRu": "Монарх бездны",
+      "nameEn": "Abyss Monarch",
+      "themeId": "underwater-world",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/abyss-monarch.png",
+      "sortOrder": 23
+    },
+    {
+      "id": "street-guitarist",
+      "nameRu": "Уличный гитарист",
+      "nameEn": "Street Guitarist",
+      "themeId": "music-dance",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/street-guitarist.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "tambourine-kitten",
+      "nameRu": "Котик с бубном",
+      "nameEn": "Tambourine Kitten",
+      "themeId": "music-dance",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/tambourine-kitten.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "music-box",
+      "nameRu": "Музыкальная шкатулка",
+      "nameEn": "Music Box",
+      "themeId": "music-dance",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/music-box.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "triangle-player",
+      "nameRu": "Музыкант с треугольником",
+      "nameEn": "Triangle Player",
+      "themeId": "music-dance",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/triangle-player.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "tap-dancer",
+      "nameRu": "Танцор чечётки",
+      "nameEn": "Tap Dancer",
+      "themeId": "music-dance",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/tap-dancer.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "record-spinner",
+      "nameRu": "Хранитель пластинок",
+      "nameEn": "Record Spinner",
+      "themeId": "music-dance",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/record-spinner.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "jazz-cat",
+      "nameRu": "Джазовый кот",
+      "nameEn": "Jazz Cat",
+      "themeId": "music-dance",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/jazz-cat.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "violin-dreamer",
+      "nameRu": "Скрипач-мечтатель",
+      "nameEn": "Violin Dreamer",
+      "themeId": "music-dance",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/violin-dreamer.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "accordion-waltz",
+      "nameRu": "Вальс с аккордеоном",
+      "nameEn": "Accordion Waltz",
+      "themeId": "music-dance",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/accordion-waltz.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "handpan-rain",
+      "nameRu": "Дождь и ханг",
+      "nameEn": "Handpan Rain",
+      "themeId": "music-dance",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/handpan-rain.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "rhythm-workshop",
+      "nameRu": "Мастерская ритма",
+      "nameEn": "Rhythm Workshop",
+      "themeId": "music-dance",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/rhythm-workshop.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "prima-ballerina",
+      "nameRu": "Прима-балерина",
+      "nameEn": "Prima Ballerina",
+      "themeId": "music-dance",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/prima-ballerina.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "flamenco-rose",
+      "nameRu": "Роза фламенко",
+      "nameEn": "Flamenco Rose",
+      "themeId": "music-dance",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/flamenco-rose.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "a-cappella",
+      "nameRu": "Песня без инструментов",
+      "nameEn": "A Cappella",
+      "themeId": "music-dance",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/a-cappella.png",
+      "sortOrder": 13
+    },
+    {
+      "id": "ribbon-dancer",
+      "nameRu": "Танец с лентой",
+      "nameEn": "Ribbon Dancer",
+      "themeId": "music-dance",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/ribbon-dancer.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "opera-diva",
+      "nameRu": "Оперная дива",
+      "nameEn": "Opera Diva",
+      "themeId": "music-dance",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/opera-diva.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "northern-piper",
+      "nameRu": "Северный волынщик",
+      "nameEn": "Northern Piper",
+      "themeId": "music-dance",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/northern-piper.png",
+      "sortOrder": 16
+    },
+    {
+      "id": "stage-drummer",
+      "nameRu": "Сценический барабанщик",
+      "nameEn": "Stage Drummer",
+      "themeId": "music-dance",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/stage-drummer.png",
+      "sortOrder": 17
+    },
+    {
+      "id": "symphony-composer",
+      "nameRu": "Создатель симфонии",
+      "nameEn": "Symphony Composer",
+      "themeId": "music-dance",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/symphony-composer.png",
+      "sortOrder": 18
+    },
+    {
+      "id": "celestial-harmonist",
+      "nameRu": "Небесный арфист",
+      "nameEn": "Celestial Harpist",
+      "themeId": "music-dance",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/celestial-harmonist.png",
+      "sortOrder": 19
+    },
+    {
+      "id": "seedling-planter",
+      "nameRu": "Сажальщик семян",
+      "nameEn": "Seedling Planter",
+      "themeId": "little-garden",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/seedling-planter.png",
+      "sortOrder": 0
+    },
+    {
+      "id": "watering-helper",
+      "nameRu": "Помощник с лейкой",
+      "nameEn": "Watering Helper",
+      "themeId": "little-garden",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/watering-helper.png",
+      "sortOrder": 1
+    },
+    {
+      "id": "worm-friend",
+      "nameRu": "Друг червячков",
+      "nameEn": "Worm Friend",
+      "themeId": "little-garden",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/worm-friend.png",
+      "sortOrder": 2
+    },
+    {
+      "id": "carrot-harvester",
+      "nameRu": "Морковный урожай",
+      "nameEn": "Carrot Harvest",
+      "themeId": "little-garden",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/carrot-harvester.png",
+      "sortOrder": 3
+    },
+    {
+      "id": "compost-helper",
+      "nameRu": "Помощник компоста",
+      "nameEn": "Compost Helper",
+      "themeId": "little-garden",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/compost-helper.png",
+      "sortOrder": 4
+    },
+    {
+      "id": "leaf-sweeper",
+      "nameRu": "Собиратель листьев",
+      "nameEn": "Leaf Sweeper",
+      "themeId": "little-garden",
+      "rarity": "COMMON",
+      "imagePath": "/assets/cards/leaf-sweeper.png",
+      "sortOrder": 5
+    },
+    {
+      "id": "strawberry-guardian",
+      "nameRu": "Страж клубники",
+      "nameEn": "Strawberry Guardian",
+      "themeId": "little-garden",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/strawberry-guardian.png",
+      "sortOrder": 6
+    },
+    {
+      "id": "butterfly-host",
+      "nameRu": "Друг бабочек",
+      "nameEn": "Butterfly Host",
+      "themeId": "little-garden",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/butterfly-host.png",
+      "sortOrder": 7
+    },
+    {
+      "id": "bee-hotel-builder",
+      "nameRu": "Домик для пчёл",
+      "nameEn": "Bee Hotel",
+      "themeId": "little-garden",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/bee-hotel-builder.png",
+      "sortOrder": 8
+    },
+    {
+      "id": "trellis-weaver",
+      "nameRu": "Плетельщик шпалер",
+      "nameEn": "Trellis Weaver",
+      "themeId": "little-garden",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/trellis-weaver.png",
+      "sortOrder": 9
+    },
+    {
+      "id": "apple-grafter",
+      "nameRu": "Мастер яблоневых прививок",
+      "nameEn": "Apple Grafter",
+      "themeId": "little-garden",
+      "rarity": "UNCOMMON",
+      "imagePath": "/assets/cards/apple-grafter.png",
+      "sortOrder": 10
+    },
+    {
+      "id": "pumpkin-grower",
+      "nameRu": "Тыквенный фермер",
+      "nameEn": "Pumpkin Grower",
+      "themeId": "little-garden",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/pumpkin-grower.png",
+      "sortOrder": 11
+    },
+    {
+      "id": "rose-keeper",
+      "nameRu": "Хранитель роз",
+      "nameEn": "Rose Keeper",
+      "themeId": "little-garden",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/rose-keeper.png",
+      "sortOrder": 12
+    },
+    {
+      "id": "bonsai-shaper",
+      "nameRu": "Мастер бонсай",
+      "nameEn": "Bonsai Shaper",
+      "themeId": "little-garden",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/bonsai-shaper.png",
+      "sortOrder": 13
+    },
+    {
+      "id": "lily-pond-watcher",
+      "nameRu": "Пруд с кувшинками",
+      "nameEn": "Lily Pond",
+      "themeId": "little-garden",
+      "rarity": "RARE",
+      "imagePath": "/assets/cards/lily-pond-watcher.png",
+      "sortOrder": 14
+    },
+    {
+      "id": "sunflower-giant",
+      "nameRu": "Подсолнуховый гигант",
+      "nameEn": "Sunflower Giant",
+      "themeId": "little-garden",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/sunflower-giant.png",
+      "sortOrder": 15
+    },
+    {
+      "id": "greenhouse-wizard",
+      "nameRu": "Волшебник теплицы",
+      "nameEn": "Greenhouse Wizard",
+      "themeId": "little-garden",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/greenhouse-wizard.png",
+      "sortOrder": 16
+    },
+    {
+      "id": "rain-garden-keeper",
+      "nameRu": "Дождевой сад",
+      "nameEn": "Rain Garden",
+      "themeId": "little-garden",
+      "rarity": "EPIC",
+      "imagePath": "/assets/cards/rain-garden-keeper.png",
+      "sortOrder": 17
+    },
+    {
+      "id": "ancient-tree-keeper",
+      "nameRu": "Хранитель древнего древа",
+      "nameEn": "Ancient Tree Keeper",
+      "themeId": "little-garden",
+      "rarity": "LEGENDARY",
+      "imagePath": "/assets/cards/ancient-tree-keeper.png",
+      "sortOrder": 18
+    },
+    {
+      "id": "garden-of-dreams",
+      "nameRu": "Сад мечты",
+      "nameEn": "Garden of Dreams",
+      "themeId": "little-garden",
+      "rarity": "MYTHIC",
+      "imagePath": "/assets/cards/garden-of-dreams.png",
+      "sortOrder": 19
     }
   ]
 }

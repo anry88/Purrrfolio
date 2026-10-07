@@ -6,7 +6,7 @@ The repository contains a working command-only bot backend: JDBC persistence,
 pack and free-card claims, collection galleries, crafting, random trades, a
 card-for-card marketplace, Telegram Stars purchases and refunds, group raffles,
 Prometheus metrics, and a private TikTok API demo surface for marketing review.
-The JSON catalog currently contains 305 cards across 17 collections.
+The JSON catalog currently contains 393 cards across 21 collections.
 
 ![Starter cards](assets/cards/sleepy.png)
 
@@ -46,6 +46,10 @@ a pause ends; old unclaimed free cards are included. Blocked or unreachable
 recipients are excluded until they contact the bot privately or unblock it.
 Reminder messages are paced; Telegram rate limits pause the broadcast until
 sending is allowed again.
+
+Four permanent collections add 88 cards: Fairy Tales (24), Underwater World (24),
+Music & Dance (20), and Little Garden (20). All six rarities are represented in
+each collection. They use the usual rarity odds and collection reward.
 
 Special collections have their own drop conditions: Calendar Cats follow the
 current month or season; Friends cards can drop only from pack or free-card

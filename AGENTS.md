@@ -15,7 +15,7 @@ AI-oriented repository guide for coding assistants and code-review tools.
 
 - This repository contains a working command-only Telegram collectible card bot backend.
 - Implemented today: JDBC persistence, Flyway migrations, retryable update claims, atomic registration/starter and monthly-capped referrer grants, concurrency-safe transactional pack openings, idempotent pack-opening receipts, free cards, photo reveals and galleries, collection progress and versioned completion rewards, cached-photo inline card sharing with named referral links, crafting, random-trade matching, marketplace settlement, paginated market lists (5 per page), daily expiry returning 7-day-old listings to owners, Telegram Stars purchases/refunds, payment support, group raffles, campaign/referral-source attribution, private TikTok marketing API review flow, and metrics.
-- The JSON catalog currently contains 305 cards in 17 collections, including Calendar, group-only Friends, and date-limited Halloween 2026 special collections; standalone card art is mirrored into the runtime resources.
+- The JSON catalog currently contains 393 cards in 21 collections, including Calendar, group-only Friends, and date-limited Halloween 2026 special collections; standalone card art is mirrored into the runtime resources.
 - Known gaps: Telegram delivery is at-least-once (a crash between Telegram accepting a message and the local acknowledgement can duplicate that message); PostgreSQL integration coverage does not yet cover every trade/payment/raffle path; referral abuse across multiple Telegram accounts is not identity-verified beyond one reward per newly registered account.
 - Do not describe planned behavior as shipped until code and tests support the claim.
 

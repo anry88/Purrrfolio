@@ -12,9 +12,41 @@ import org.springframework.core.io.ClassPathResource
 class CardCatalogTest {
     private val catalog = CardCatalog(ObjectMapper().registerModule(kotlinModule()))
 
+    private val newOrdinaryCollectionSizes = mapOf(
+        "fairy-tales" to 24, "underwater-world" to 24,
+        "music-dance" to 20, "little-garden" to 20,
+    )
+
+    @Test
+    fun approvedNewCollectionsHaveEveryRarityAndStayPermanentOrdinaryCards() {
+        for ((themeId, expectedSize) in newOrdinaryCollectionSizes) {
+            val cards = catalog.cardsByCollection(themeId)
+            assertEquals(expectedSize, cards.size, themeId)
+            assertTrue(cards.none { it.special || it.limited || it.groupChatOnly }, themeId)
+            assertTrue(cards.all { it.event == null && it.availableMonths.isEmpty() }, themeId)
+            assertTrue(cards.all { it.availableFrom == null && it.availableThrough == null }, themeId)
+            val counts = if (expectedSize == 24) listOf(7, 6, 5, 4, 1, 1) else listOf(6, 5, 4, 3, 1, 1)
+            val rarities = listOf(CardRarity.COMMON, CardRarity.UNCOMMON, CardRarity.RARE,
+                CardRarity.EPIC, CardRarity.MYTHIC, CardRarity.LEGENDARY)
+            assertEquals(rarities.zip(counts).toMap(), cards.groupingBy { it.rarity }.eachCount(), themeId)
+            assertEquals((0 until expectedSize).toList(), cards.map { it.sortOrder }.sorted(), themeId)
+        }
+        assertEquals(catalog.cards.size, catalog.cards.map { it.id }.distinct().size)
+        assertEquals(21, catalog.collections.size)
+    }
+
+    @Test
+    fun newOrdinaryCollectionArtIsPackagedAsStandalonePortraitPngs() {
+        assertPackagedArt(newOrdinaryCollectionSizes.keys.flatMap(catalog::cardsByCollection))
+    }
+
     @Test
     fun halloweenArtIsPackagedAsStandalonePortraitPngs() {
-        for (card in catalog.cardsByCollection("halloween")) {
+        assertPackagedArt(catalog.cardsByCollection("halloween"))
+    }
+
+    private fun assertPackagedArt(cards: List<CardDefinition>) {
+        for (card in cards) {
             ClassPathResource("static${card.imagePath}").inputStream.use { stream ->
                 ImageIO.createImageInputStream(stream).use { input ->
                     val reader = ImageIO.getImageReaders(input).next()
@@ -51,7 +83,7 @@ class CardCatalogTest {
 
     @Test
     fun loadsStarterCardsAndCollections() {
-        assertEquals(305, catalog.cards.size)
+        assertEquals(393, catalog.cards.size)
         assertTrue(catalog.collections.isNotEmpty())
         assertEquals("Соня", catalog.card("sleepy").nameRu)
         assertEquals(CardRarity.EPIC, catalog.card("baker").rarity)

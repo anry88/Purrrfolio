@@ -384,3 +384,14 @@ prompts and references are recorded as `markerEditPrompt` /
 | halloween-haunted-cottage | EPIC | A calico cat opens the gate to a warmly decorated cottage with smiling pumpkin lamps, paper ghosts and soft yarn webs, layered evening garden, friendly festive mood. |
 | halloween-masquerade-host | LEGENDARY | A golden fluffy cat in an elegant orange-and-plum masquerade costume lifts a small pumpkin mask away from its face, welcoming guests at a cozy illuminated hall, velvet and embroidered details. |
 | halloween-midnight-parade | MYTHIC | A large fluffy white cat leads a friendly Halloween lantern parade holding one glowing pumpkin lamp, tiny distant cats in costumes on a winding village street, rich amber lantern light against deep plum night. |
+
+
+## AND-12 permanent collections (2026-10-07)
+
+88 standalone model-generated cards: Fairy Tales 24, Underwater World 24,
+Music & Dance 20, Little Garden 20. All ordinary, no Special medallion/foil.
+Exact per-card scene, title, rarity frame, requested prompt/references, actual
+model attempts/native output paths and SHA-256 are retained in
+[new-collections-implementation.json](new-collections-implementation.json);
+[approved shortlist](new-collections-shortlist.json) retains the audit mapping.
+No cropping, scripted rendering or overlays were used.
