@@ -44,6 +44,8 @@ at 12:00 in the configured game timezone, and a free card once when it becomes
 available. Pauses and delivery state survive restarts. A ready card waits until
 a pause ends; old unclaimed free cards are included. Blocked or unreachable
 recipients are excluded until they contact the bot privately or unblock it.
+Reminder messages are paced; Telegram rate limits pause the broadcast until
+sending is allowed again.
 
 Special collections have their own drop conditions: Calendar Cats follow the
 current month or season; Friends cards can drop only from pack or free-card

@@ -132,7 +132,21 @@ success before committing. Claims, pack openings and preference updates serializ
 on the same row. This prevents concurrent sends and normal restart duplicates;
 the existing Telegram accept-before-local-commit crash window remains at-least-once.
 Temporary failures retain pending state and back off at least 5 minutes, respecting
-longer Telegram `retry_after`. `purrrfolio.notification{result=...}` counts outcomes.
+longer Telegram `retry_after`. `NotificationPacer` waits at least 250 ms between completion of one reminder attempt
+and the next attempt per instance by default (`send-interval-ms`, forwarded through
+Compose as `NOTIFICATIONS_SEND_INTERVAL_MS`). It uses a monotonic clock, waits
+before acquiring a player lock, serializes batch calls in one instance,
+and preserves the full quiet interval even after slow requests or failures.
+
+A Telegram 429 stops the batch immediately. `notification_dispatch_state.paused_until`
+stores a shared reminder pause for `retry_after` seconds from receipt of the error;
+missing `retry_after` uses `retry-minutes` as fallback. Workers check this state
+before each recipient, and a restart cannot bypass the pause. Longer pauses are
+never shortened. Remaining recipients keep their pending state and resume on a
+later tick. Individual failed recipients also retain their existing retry delay.
+`purrrfolio.notification{result=...}` counts outcomes, including `rate_limited`
+and `paused`. The conservative pacing leaves headroom below the
+[Telegram broadcast limit](https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this).
 
 `TelegramClient` persists terminal private-message/photo failures in
 `users.telegram_blocked_at`; subsequent calls fail locally with the existing
@@ -160,7 +174,7 @@ All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strin
 
 ## Persistence
 
-PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V19). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, referral rewards, persisted Telegram card file ids, the capped-referrer reward flag, the private TikTok review schema (`V18`), durable notification preferences/delivery state and daily pack snapshots (`V19`), and the market-listing expiry backfill/index (`V17`: `created_at IS NULL → NOW()`, index on `(status, created_at)`).
+PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V20). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, referral rewards, persisted Telegram card file ids, the capped-referrer reward flag, the private TikTok review schema (`V18`), durable notification preferences/delivery state and daily pack snapshots (`V19`), the shared notification dispatch pause (`V20`), and the market-listing expiry backfill/index (`V17`: `created_at IS NULL → NOW()`, index on `(status, created_at)`).
 
 Main tables:
 

@@ -16,10 +16,12 @@ data class NotificationProperties(
     val enabled: Boolean = true,
     val batchSize: Int = 100,
     val retryMinutes: Long = 5,
+    val sendIntervalMs: Long = 250,
 ) {
     init {
         require(batchSize in 1..1000)
         require(retryMinutes > 0)
+        require(sendIntervalMs in 50..10_000)
     }
 }
 

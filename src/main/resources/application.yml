@@ -34,6 +34,7 @@ purrrfolio:
     poll-interval-ms: ${NOTIFICATIONS_POLL_INTERVAL_MS:60000}
     batch-size: ${NOTIFICATIONS_BATCH_SIZE:100}
     retry-minutes: ${NOTIFICATIONS_RETRY_MINUTES:5}
+    send-interval-ms: ${NOTIFICATIONS_SEND_INTERVAL_MS:250}
   telegram:
     bot-token: ${TELEGRAM_BOT_TOKEN:}
     webhook-secret: ${TELEGRAM_WEBHOOK_SECRET:}

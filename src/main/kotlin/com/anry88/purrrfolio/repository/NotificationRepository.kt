@@ -106,4 +106,12 @@ class NotificationRepository(private val jdbc: JdbcTemplate) {
     fun retryAfter(userId: Long, retryAt: OffsetDateTime) {
         jdbc.update("UPDATE users SET notification_retry_at = ? WHERE id = ?", retryAt, userId)
     }
+
+    fun dispatchAllowed(now: OffsetDateTime): Boolean = jdbc.queryForObject(
+        "SELECT paused_until FROM notification_dispatch_state WHERE id = 1", OffsetDateTime::class.java,
+    )?.isAfter(now) != true
+
+    fun pauseDispatchUntil(until: OffsetDateTime) {
+        jdbc.update("UPDATE notification_dispatch_state SET paused_until = GREATEST(paused_until, ?) WHERE id = 1", until)
+    }
 }

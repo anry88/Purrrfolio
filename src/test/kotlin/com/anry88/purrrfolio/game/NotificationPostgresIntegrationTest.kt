@@ -54,6 +54,7 @@ class NotificationPostgresIntegrationTest {
         Flyway.configure().dataSource(ds).load().migrate()
         jdbc = JdbcTemplate(ds)
         jdbc.execute("TRUNCATE users, notification_daily_runs CASCADE")
+        jdbc.update("UPDATE notification_dispatch_state SET paused_until = NULL")
         transactions = DataSourceTransactionManager(ds)
         users = UserRepository(jdbc)
         notifications = NotificationRepository(jdbc)
@@ -232,11 +233,12 @@ class NotificationPostgresIntegrationTest {
         deliveryError = telegramError(HttpStatus.TOO_MANY_REQUESTS, "rate limited", ",\"parameters\":{\"retry_after\":900}")
         assertThat(service().sendDue(now)).isZero()
         assertThat(users.isTelegramBlocked(91001)).isFalse()
-        assertThat(notifications.find(id)!!.retryAt).isEqualTo(now.plusMinutes(15))
+        val retryAt = notifications.find(id)!!.retryAt!!
+        assertThat(retryAt).isBetween(now.plusMinutes(15), now.plusMinutes(15).plusSeconds(2))
         assertThat(notifications.find(id)!!.freeCardNotifiedFor).isNull()
         deliveryError = null
         assertThat(service().sendDue(now.plusMinutes(14))).isZero()
-        assertThat(service().sendDue(now.plusMinutes(15))).isEqualTo(1)
+        assertThat(service().sendDue(retryAt.plusNanos(1_000_000))).isEqualTo(1)
     }
 
     @Test
@@ -244,9 +246,10 @@ class NotificationPostgresIntegrationTest {
         val id = player()
         deliveryError = IllegalStateException("connection lost")
         assertThat(service().sendDue(now)).isZero()
-        assertThat(notifications.find(id)!!.retryAt).isEqualTo(now.plusMinutes(5))
+        val retryAt = notifications.find(id)!!.retryAt!!
+        assertThat(retryAt).isBetween(now.plusMinutes(5), now.plusMinutes(5).plusSeconds(2))
         deliveryError = null
-        assertThat(service().sendDue(now.plusMinutes(5))).isEqualTo(1)
+        assertThat(service().sendDue(retryAt.plusNanos(1_000_000))).isEqualTo(1)
     }
 
     @Test
@@ -312,6 +315,55 @@ class NotificationPostgresIntegrationTest {
         assertThat(sent).isEmpty()
         `when`(telegram.isConfigured()).thenReturn(true)
         assertThat(service().sendDue(now)).isEqualTo(1)
+    }
+
+    @Test
+    fun `whole broadcast stops on 429 and another worker respects persisted pause`() {
+        val first = player()
+        val second = users.create(91002, "en").id
+        var attempts = 0
+        duringSend = { attempts++ }
+        deliveryError = telegramError(HttpStatus.TOO_MANY_REQUESTS, "rate limited", ",\"parameters\":{\"retry_after\":10}")
+        assertThat(service().sendDue(now)).isZero()
+        assertThat(attempts).isEqualTo(1)
+        assertThat(notifications.find(first)!!.retryAt).isNotNull()
+        assertThat(notifications.find(second)!!.retryAt).isNull()
+        assertThat(notifications.find(second)!!.freeCardNotifiedFor).isNull()
+        deliveryError = null
+        assertThat(service().sendDue(now.plusSeconds(9))).isZero()
+        assertThat(attempts).isEqualTo(1)
+        val pausedUntil = jdbc.queryForObject("SELECT paused_until FROM notification_dispatch_state", OffsetDateTime::class.java)!!
+        assertThat(service().sendDue(pausedUntil.plusSeconds(1))).isEqualTo(1)
+        assertThat(attempts).isEqualTo(2)
+        assertThat(notifications.find(second)!!.freeCardNotifiedFor).isNotNull()
+    }
+
+    @Test
+    fun `429 without retry_after uses fallback and never shortens a longer pause`() {
+        player()
+        deliveryError = telegramError(HttpStatus.TOO_MANY_REQUESTS, "rate limited")
+        assertThat(service().sendDue(now)).isZero()
+        val pausedUntil = jdbc.queryForObject("SELECT paused_until FROM notification_dispatch_state", OffsetDateTime::class.java)!!
+        assertThat(pausedUntil).isBetween(now.plusMinutes(5), now.plusMinutes(5).plusSeconds(2))
+        notifications.pauseDispatchUntil(now.plusMinutes(30))
+        notifications.pauseDispatchUntil(now.plusMinutes(10))
+        assertThat(notifications.dispatchAllowed(now.plusMinutes(29))).isFalse()
+        assertThat(notifications.dispatchAllowed(now.plusMinutes(30))).isTrue()
+    }
+
+    @Test
+    fun `real service spaces attempts within a batch including failed deliveries`() {
+        repeat(3) { users.create(96000L + it, "en") }
+        val starts = mutableListOf<Long>()
+        duringSend = {
+            starts.add(System.nanoTime())
+            deliveryError = if (starts.size == 1) IllegalStateException("transient failure") else null
+        }
+        assertThat(service().sendDue(now)).isEqualTo(2)
+        assertThat(starts).hasSize(3)
+        starts.zipWithNext().forEach { (before, after) ->
+            assertThat(TimeUnit.NANOSECONDS.toMillis(after - before)).isGreaterThanOrEqualTo(250)
+        }
     }
 
     private fun telegramError(status: HttpStatus, description: String, extra: String = "") = HttpClientErrorException.create(

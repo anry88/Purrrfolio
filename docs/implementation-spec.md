@@ -255,9 +255,16 @@ Inline-кнопки открытия, галереи, биржи и `/menu` ос
   и фото. Статус сбрасывает личное обращение или `my_chat_member` о разблокировке;
   групповая активность его не сбрасывает. Временные ошибки повторяются минимум
   через 5 минут, с учётом большего `retry_after` от Telegram.
+- Между попытками рассылки выдерживается минимум 250 мс на экземпляр приложения
+  (не больше 4 попыток в секунду). Ожидание выполняется до блокировки строки игрока;
+  пауза начинается после завершения попытки, включая медленные запросы и ошибки. При 429 текущий проход сразу
+  прекращается. Общая пауза `notification_dispatch_state.paused_until` хранится
+  в PostgreSQL и действует на все воркеры, в том числе после рестарта. Длительность —
+  `retry_after` с момента получения ошибки; если его нет, используется retry-minutes.
+  Необработанные игроки сохраняют pending-состояние и догоняются позже.
 - Конфигурация `purrrfolio.notifications.*`: общий enabled, poll-interval-ms,
-  batch-size и retry-minutes. Метрика `purrrfolio.notification` различает
-  отправки freecard/packs/combined, skipped, retry, blocked и error.
+  batch-size, retry-minutes и send-interval-ms (NOTIFICATIONS_SEND_INTERVAL_MS). Метрика `purrrfolio.notification` различает
+  отправки freecard/packs/combined, skipped, retry, blocked, error, rate_limited и paused.
 
 ### Крафтер паков
 
