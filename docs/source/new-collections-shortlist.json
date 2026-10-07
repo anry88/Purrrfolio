@@ -1,7 +1,8 @@
 {
   "schemaVersion": 1,
   "issue": "AND-11",
-  "status": "audit_complete_recommendation_pending_owner_review",
+  "status": "approved_for_AND-12",
+  "ownerApprovedAt": "2026-10-07",
   "date": "2026-10-07",
   "source": {
     "path": "/Users/hq-k14lcdcq7d/.gemini/antigravity-ide/brain/74184e66-fa8e-4799-822b-860e393e9eb1/new_collections_ideas.md",
