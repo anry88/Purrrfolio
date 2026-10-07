@@ -30,6 +30,7 @@ AI-oriented repository guide for coding assistants and code-review tools.
 - `src/main/kotlin/com/anry88/purrrfolio/trade/`: trade/market models and policy constants.
 - `src/main/kotlin/com/anry88/purrrfolio/telegram/`: Telegram client and update DTOs.
 - `src/main/kotlin/com/anry88/purrrfolio/game/`: command routing and player-facing copy.
+- `game/NotificationService.kt` and `repository/NotificationRepository.kt`: PostgreSQL-backed player reminders and preferences; no external queue.
 - `src/main/kotlin/com/anry88/purrrfolio/marketing/tiktok/`: private TikTok OAuth/content-posting demo flow for app review and marketing automation.
 - `src/main/kotlin/com/anry88/purrrfolio/observability/`: Micrometer counters and database gauges.
 - `src/main/kotlin/com/anry88/purrrfolio/web/`: health endpoints and webhook controller.
@@ -47,6 +48,8 @@ AI-oriented repository guide for coding assistants and code-review tools.
 - There is no in-game currency. Pack availability is derived from positive and negative rows in `pack_ledger`; duplicate crafting uses `users.craft_points`.
 - Card definitions, collection metadata, pack definitions, and rarity weights are data-driven through `cards.json`; economy timing and Stars prices live under `purrrfolio.economy.*` in application configuration.
 - Webhook endpoint: `POST /bot` with `X-Telegram-Bot-Api-Secret-Token`.
+- Persistent reply keyboards are private-only; group replies remove them. `/menu` summons inline actions; `/help` clears a legacy group keyboard.
+- `/notifications` controls reminders (10h/24h/72h pause or permanent opt-out). Pack reminders snapshot positive balances daily at 12:00 game time; free-card reminders poll every minute and survive restarts, pauses, and concurrent workers. Terminal delivery failures persist in `users.telegram_blocked_at`, cleared only by private contact or an unblock update.
 - Actuator/prometheus on `${MANAGEMENT_PORT:9090}`.
 - Secrets and privileged identifiers (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `PAYMENT_PAYLOAD_SECRET`, `ADMIN_TG_ID`, `MARKETING_ADMIN_TOKEN`, `TIKTOK_CLIENT_SECRET`, DB credentials) belong in environment or local profile files only.
 

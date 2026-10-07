@@ -23,6 +23,8 @@ Open [`@PurrrfolioBot`](https://t.me/PurrrfolioBot) and use:
 - `/trade` — random trade of a duplicate from the shared pool
 - `/market` — list duplicates, browse others, offer card-for-card trades (listings paginate 5 per page; unsold listings return to the owner after 7 days)
 - `/language` — switch between English and Russian
+- `/menu` — show action buttons under a message
+- `/notifications` — enable reminders or pause them for 10 hours, 1 day, 3 days, or forever
 - `/help` — command help
 - `/paysupport` — select a Stars purchase and request an admin-approved refund
 
@@ -33,7 +35,15 @@ text aliases.
 Common actions also work as plain chat words in both languages: `pack` / `набор`,
 `craft` / `крафт`, `market` / `биржа`, and `card`, `cat`, `kitty`, `kitten` /
 `карточка`, `котик`, `кот`, `котейка`, `кошка`, `котёнок` for the free card.
-`/help` also provides inline action buttons.
+`/menu` provides inline action buttons. The persistent reply keyboard is kept in
+private chats; group and supergroup replies remove it. Existing group keyboards
+can be cleared with `/help`, without a separate service message.
+
+Reminders are enabled by default and sent privately: unopened packs once daily
+at 12:00 in the configured game timezone, and a free card once when it becomes
+available. Pauses and delivery state survive restarts. A ready card waits until
+a pause ends; old unclaimed free cards are included. Blocked or unreachable
+recipients are excluded until they contact the bot privately or unblock it.
 
 Special collections have their own drop conditions: Calendar Cats follow the
 current month or season; Friends cards can drop only from pack or free-card

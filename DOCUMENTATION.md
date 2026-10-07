@@ -109,6 +109,44 @@ Core business logic is split into small packages:
    aggregated notification in their language (lists truncated with a "…and N more" tail).
    Counter `purrrfolio.market.expired` tracks returned cards.
 
+### Player reminders and chat menus
+
+`game/NotificationService` polls PostgreSQL every minute (100 players per tick
+by default). After 12:00 in the game timezone, `NotificationRepository.preparePacks`
+atomically claims the current date in `notification_daily_runs` and snapshots
+eligible pack balances into `users.pack_notification_due_date`. Later grants do
+not trigger same-day reminders; current balances are checked again before sending.
+Downtime catches up the current day's snapshot without replaying past days.
+
+The free-card cycle is `last_free_card_at`, or `created_at` for the first card.
+`free_card_notified_for` starts NULL for existing and new players, is set after
+delivery, and is cleared atomically by the next successful free-card claim. This
+covers overdue cards without a separate queue, Redis, or in-memory timers.
+Preferences (`notifications_enabled`, `notification_snooze_until`), retry time,
+and delivery markers live in PostgreSQL. No reminder writes `updated_at`, so
+background delivery does not count as player activity.
+
+Each send locks one user with `FOR UPDATE SKIP LOCKED`, rechecks availability and
+preferences, sends the combined localized message when appropriate, and records
+success before committing. Claims, pack openings and preference updates serialize
+on the same row. This prevents concurrent sends and normal restart duplicates;
+the existing Telegram accept-before-local-commit crash window remains at-least-once.
+Temporary failures retain pending state and back off at least 5 minutes, respecting
+longer Telegram `retry_after`. `purrrfolio.notification{result=...}` counts outcomes.
+
+`TelegramClient` persists terminal private-message/photo failures in
+`users.telegram_blocked_at`; subsequent calls fail locally with the existing
+unreachable-recipient classification, preserving marketplace compensation logic
+without another HTTP request. Incoming private messages/callbacks or unblocking
+`my_chat_member` updates clear the marker. Group activity does not. A group-only
+player who has never started the bot is attempted once and then excluded.
+
+The private reply keyboard remains. The client replaces reply keyboards and
+ordinary markup in negative-ID group chats with `ReplyKeyboardRemove`; contextual
+inline buttons remain. `/help` explicitly removes legacy group keyboards, and
+`/menu` summons inline navigation. See [Telegram keyboard investigation](docs/telegram-keyboards.md)
+for API constraints and remaining real-client acceptance checks.
+
 ## Localization
 
 All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strings, resolved through `Messages.t(key, locale, vararg args)`.
@@ -122,7 +160,7 @@ All player-facing copy is centralized in `i18n/Messages.kt` as EN/RU keyed strin
 
 ## Persistence
 
-PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V17). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, referral rewards, persisted Telegram card file ids, the capped-referrer reward flag, and the market-listing expiry backfill/index (`V17`: `created_at IS NULL → NOW()`, index on `(status, created_at)`).
+PostgreSQL schema is defined in `src/main/resources/db/migration/` (currently V1–V19). V1 is the legacy fish schema; V3 introduces the command-only Stars schema; later migrations fix card/ledger types and add free-card timing, crafting, registration attribution, payment support, versioned collection rewards, group raffles, update-claim lifecycle, idempotent pack-opening receipts, referral rewards, persisted Telegram card file ids, the capped-referrer reward flag, the private TikTok review schema (`V18`), durable notification preferences/delivery state and daily pack snapshots (`V19`), and the market-listing expiry backfill/index (`V17`: `created_at IS NULL → NOW()`, index on `(status, created_at)`).
 
 Main tables:
 

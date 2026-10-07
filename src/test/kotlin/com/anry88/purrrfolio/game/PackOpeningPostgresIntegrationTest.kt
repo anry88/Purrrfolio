@@ -35,6 +35,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.mockingDetails
 import org.springframework.jdbc.core.JdbcTemplate
@@ -412,6 +414,84 @@ class PackOpeningPostgresIntegrationTest {
         assertThat(referrerMessages.single().arguments[1] as String).contains("Новый игрок").contains("5")
     }
 
+    @ParameterizedTest
+    @CsvSource("private,94001", "group,-94001", "supergroup,-10094001")
+    fun `help removes old keyboard in groups and menu retains inline actions`(type: String, chatId: Long) {
+        val telegram = mock(TelegramClient::class.java)
+        val game = createGameService(telegram)
+        val user = registrationService.registerIfMissing(94001, "en", "direct").user
+        game.handle(TelegramUpdate(message = TelegramMessage(
+            chat = TelegramChat(chatId, type), from = TelegramUser(id = 94001), text = "/help",
+        )))
+        var messages = mockingDetails(telegram).invocations.filter { it.method.name == "sendMessage" }
+        assertThat(messages).hasSize(1)
+        val helpMarkup = messages.single().arguments[2] as TelegramReplyMarkup
+        if (type == "private") {
+            assertThat(helpMarkup.inlineKeyboard).isNotEmpty()
+        } else {
+            assertThat(helpMarkup.removeKeyboard).isTrue()
+            assertThat(helpMarkup.keyboard).isNull()
+        }
+        game.handle(TelegramUpdate(message = TelegramMessage(
+            chat = TelegramChat(chatId, type), from = TelegramUser(id = 94001), text = "/menu",
+        )))
+        messages = mockingDetails(telegram).invocations.filter { it.method.name == "sendMessage" }
+        assertThat(messages).hasSize(2)
+        val menuMarkup = messages.last().arguments[2] as TelegramReplyMarkup
+        assertThat(menuMarkup.keyboard).isNull()
+        assertThat(menuMarkup.inlineKeyboard!!.flatten().map { it.callbackData })
+            .contains("menu:pack", "menu:freecard", "menu:notifications", "menu:trade", "menu:collection")
+        assertThat(userRepository.findById(user.id)).isNotNull()
+    }
+
+    @Test
+    fun `notification command and button route to persisted settings`() {
+        val telegram = mock(TelegramClient::class.java)
+        val game = createGameService(telegram)
+        val user = registrationService.registerIfMissing(94001, "en", "direct").user
+        game.handle(TelegramUpdate(message = TelegramMessage(
+            chat = TelegramChat(94001, "private"), from = TelegramUser(id = 94001), text = "/notifications",
+        )))
+        val reply = mockingDetails(telegram).invocations.single { it.method.name == "sendMessage" }
+        assertThat((reply.arguments[2] as TelegramReplyMarkup).inlineKeyboard!!.flatten().map { it.callbackData })
+            .containsExactly("notify:${user.id}:10h", "notify:${user.id}:1d", "notify:${user.id}:3d", "notify:${user.id}:off")
+        game.handle(TelegramUpdate(callbackQuery = com.anry88.purrrfolio.telegram.TelegramCallbackQuery(
+            id = "settings", from = TelegramUser(id = 94001), data = "notify:${user.id}:off",
+            message = TelegramMessage(chat = TelegramChat(94001, "private")),
+        )))
+        assertThat(com.anry88.purrrfolio.repository.NotificationRepository(jdbc).find(user.id)!!.enabled).isFalse()
+    }
+
+    @Test
+    fun `group activity does not clear blocked marker but private contact does`() {
+        registrationService.registerIfMissing(94001, "en", "direct")
+        val game = createGameService(mock(TelegramClient::class.java))
+        userRepository.markTelegramBlocked(94001)
+        game.handle(TelegramUpdate(message = TelegramMessage(
+            chat = TelegramChat(-10094001, "supergroup"), from = TelegramUser(id = 94001), text = "/help",
+        )))
+        assertThat(userRepository.isTelegramBlocked(94001)).isTrue()
+        game.handle(TelegramUpdate(message = TelegramMessage(
+            chat = TelegramChat(94001, "private"), from = TelegramUser(id = 94001), text = "/help",
+        )))
+        assertThat(userRepository.isTelegramBlocked(94001)).isFalse()
+    }
+
+    @Test
+    fun `Telegram membership updates persist block and unblock`() {
+        registrationService.registerIfMissing(94001, "en", "direct")
+        val game = createGameService(mock(TelegramClient::class.java))
+        val mapper = ObjectMapper().registerModule(kotlinModule())
+        fun membership(status: String) = mapper.readValue(
+            """{"my_chat_member":{"chat":{"id":94001,"type":"private"},"new_chat_member":{"status":"$status"}}}""",
+            TelegramUpdate::class.java,
+        )
+        game.handle(membership("kicked"))
+        assertThat(userRepository.isTelegramBlocked(94001)).isTrue()
+        game.handle(membership("member"))
+        assertThat(userRepository.isTelegramBlocked(94001)).isFalse()
+    }
+
     private fun createGameService(telegramClient: TelegramClient) =
         GameService(
             properties = properties,
@@ -436,6 +516,7 @@ class PackOpeningPostgresIntegrationTest {
             starsRefundService = mock(StarsRefundService::class.java),
             gameMetrics = mock(GameMetrics::class.java),
             telegramClient = telegramClient,
+            notificationService = NotificationService(properties, com.anry88.purrrfolio.repository.NotificationRepository(jdbc), packLedgerRepository, userRepository, telegramClient, mock(GameMetrics::class.java), transactionManager),
             transactionManager = transactionManager,
         )
 

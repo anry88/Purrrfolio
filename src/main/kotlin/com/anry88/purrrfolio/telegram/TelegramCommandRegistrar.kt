@@ -42,6 +42,8 @@ class TelegramCommandRegistrar(private val telegramClient: TelegramClient) {
         TelegramBotCommand("market", Messages.t("cmd.market", locale)),
         TelegramBotCommand("language", Messages.t("cmd.language", locale)),
         TelegramBotCommand("help", Messages.t("cmd.help", locale)),
+        TelegramBotCommand("menu", Messages.t("cmd.menu", locale)),
+        TelegramBotCommand("notifications", Messages.t("cmd.notifications", locale)),
         TelegramBotCommand("paysupport", Messages.t("cmd.paysupport", locale)),
     )
 }

@@ -100,6 +100,10 @@ class GameMetrics(
         registry.counter("purrrfolio.market.expired").increment(count.toDouble())
     }
 
+    fun notification(result: String) {
+        registry.counter("purrrfolio.notification", "result", result).increment()
+    }
+
     @Scheduled(initialDelay = 5_000, fixedDelay = 60_000)
     fun refreshDatabaseGauges() {
         runCatching {
@@ -233,6 +237,7 @@ class GameMetrics(
             raw.trim().lowercase().takeIf { it in CARD_SOURCES } ?: "unknown"
 
         fun callbackAction(data: String): String = when {
+            data.startsWith("notify:") -> "notifications"
             data.startsWith("gal:") || data.startsWith("col:page:") -> "gallery"
             data.startsWith("trade:") -> "trade"
             data.startsWith("m:") || data.startsWith("market:") -> "market"
@@ -246,7 +251,7 @@ class GameMetrics(
 
         private val KNOWN_COMMANDS = setOf(
             "start", "collection", "pack", "freecard", "craft", "buy",
-            "trade", "market", "language", "help", "paysupport", "answer",
+            "trade", "market", "language", "help", "paysupport", "answer", "menu", "notifications",
         )
         private val CARD_RARITIES = setOf("common", "uncommon", "rare", "epic", "mythic", "legendary")
         private val CARD_SOURCES = setOf("pack", "free")

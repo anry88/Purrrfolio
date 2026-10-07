@@ -29,6 +29,11 @@ management:
 purrrfolio:
   public-base-url: ${PUBLIC_BASE_URL:http://localhost:8080}
   game-timezone: ${GAME_TIMEZONE:UTC}
+  notifications:
+    enabled: ${NOTIFICATIONS_ENABLED:true}
+    poll-interval-ms: ${NOTIFICATIONS_POLL_INTERVAL_MS:60000}
+    batch-size: ${NOTIFICATIONS_BATCH_SIZE:100}
+    retry-minutes: ${NOTIFICATIONS_RETRY_MINUTES:5}
   telegram:
     bot-token: ${TELEGRAM_BOT_TOKEN:}
     webhook-secret: ${TELEGRAM_WEBHOOK_SECRET:}

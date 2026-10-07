@@ -1,12 +1,15 @@
 package com.anry88.purrrfolio.telegram
 
 import com.anry88.purrrfolio.config.PurrrfolioProperties
+import com.anry88.purrrfolio.repository.UserRepository
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.Resource
 import org.springframework.http.MediaType
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
@@ -17,6 +20,7 @@ class TelegramClient(
     properties: PurrrfolioProperties,
     restClientBuilder: RestClient.Builder,
     private val objectMapper: ObjectMapper,
+    private val userRepository: UserRepository,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val botToken = properties.telegram.botToken
@@ -67,18 +71,18 @@ class TelegramClient(
             logger.warn("Telegram bot token is not configured; skipping sendMessage")
             return
         }
-        restClient.post()
+        deliver(chatId) { restClient.post()
             .uri("sendMessage")
             .body(
                 TelegramSendMessageRequest(
                     chatId = chatId,
                     text = text,
                     parseMode = parseMode,
-                    replyMarkup = replyMarkup,
+                    replyMarkup = markupForChat(chatId, replyMarkup),
                 ),
             )
             .retrieve()
-            .toBodilessEntity()
+            .toBodilessEntity() }
     }
 
     fun answerCallbackQuery(callbackQueryId: String) {
@@ -177,20 +181,21 @@ class TelegramClient(
             bodyBuilder.part("caption", caption)
             bodyBuilder.part("parse_mode", "Markdown")
         }
-        if (replyMarkup != null) {
-            bodyBuilder.part("reply_markup", objectMapper.writeValueAsString(replyMarkup))
+        val markup = markupForChat(chatId, replyMarkup)
+        if (markup != null) {
+            bodyBuilder.part("reply_markup", objectMapper.writeValueAsString(markup))
                 .contentType(MediaType.APPLICATION_JSON)
         }
 
         try {
-            return restClient.post()
+            return deliver(chatId) { restClient.post()
                 .uri("sendPhoto")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(bodyBuilder.build())
                 .retrieve()
                 .body(TelegramMessageResponse::class.java)
                 ?.takeIf { it.ok }
-                ?.result
+                ?.result }
         } catch (e: Exception) {
             logger.warn("Failed to send photo to chat {}", chatId, e)
             throw e
@@ -276,7 +281,33 @@ class TelegramClient(
         }
     }
 
+    private fun <T> deliver(chatId: Long, action: () -> T): T {
+        if (chatId > 0 && userRepository.isTelegramBlocked(chatId)) {
+            // Preserve marketplace compensation paths while avoiding another HTTP attempt.
+            throw HttpClientErrorException.create(HttpStatus.FORBIDDEN, "Recipient unavailable",
+                HttpHeaders.EMPTY, "chat_write_forbidden".toByteArray(), Charsets.UTF_8)
+        }
+        try {
+            return action()
+        } catch (error: Exception) {
+            if (chatId > 0 && isUnreachableRecipient(error)) userRepository.markTelegramBlocked(chatId)
+            throw error
+        }
+    }
+
     companion object {
+        /** Telegram private chat IDs are positive; group/supergroup IDs are negative.
+         * Inline messages keep their contextual actions. Ordinary group replies remove
+         * the old persistent keyboard without emitting an extra service message.
+         */
+        fun markupForChat(chatId: Long, markup: TelegramReplyMarkup?): TelegramReplyMarkup? =
+            if (chatId < 0 && markup?.inlineKeyboard == null) TelegramReplyMarkup(removeKeyboard = true) else markup
+
+        fun retryAfterSeconds(error: Throwable): Long? = (error as? HttpClientErrorException)
+            ?.takeIf { it.statusCode.value() == 429 }
+            ?.responseBodyAsString
+            ?.let { Regex("\"retry_after\"\\s*:\\s*(\\d+)").find(it)?.groupValues?.get(1)?.toLongOrNull() }
+
         /**
          * Telegram error descriptions that mean messages can never reach this recipient:
          * blocked/deleted bot, missing chat, deactivated user. Anything else (429, 5xx,

@@ -83,7 +83,7 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
     }
 
     fun updateLastFreeCardAt(userId: Long, timestamp: OffsetDateTime) {
-        val sql = "UPDATE users SET last_free_card_at = ?, updated_at = NOW() WHERE id = ?"
+        val sql = "UPDATE users SET last_free_card_at = ?, free_card_notified_for = NULL, notification_retry_at = NULL, updated_at = NOW() WHERE id = ?"
         jdbcTemplate.update(sql, timestamp, userId)
     }
 
@@ -91,7 +91,7 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
         val dueBefore = timestamp.minusHours(intervalHours.toLong())
         val sql = """
             UPDATE users
-            SET last_free_card_at = ?, updated_at = NOW()
+            SET last_free_card_at = ?, free_card_notified_for = NULL, notification_retry_at = NULL, updated_at = NOW()
             WHERE id = ? AND (last_free_card_at IS NULL OR last_free_card_at <= ?)
         """.trimIndent()
         return jdbcTemplate.update(sql, timestamp, userId, dueBefore) == 1
@@ -100,5 +100,26 @@ class UserRepository(private val jdbcTemplate: JdbcTemplate) {
     fun updateCraftPoints(userId: Long, points: Int) {
         val sql = "UPDATE users SET craft_points = ?, updated_at = NOW() WHERE id = ? AND ? >= 0"
         jdbcTemplate.update(sql, points, userId, points)
+    }
+
+    fun isTelegramBlocked(telegramUserId: Long): Boolean =
+        jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM users WHERE telegram_user_id = ? AND telegram_blocked_at IS NOT NULL",
+            Int::class.java, telegramUserId,
+        ) != 0
+
+    fun markTelegramBlocked(telegramUserId: Long) {
+        jdbcTemplate.update(
+            "UPDATE users SET telegram_blocked_at = COALESCE(telegram_blocked_at, NOW()) WHERE telegram_user_id = ?",
+            telegramUserId,
+        )
+    }
+
+    // Only a private incoming update establishes that the bot can contact this player again.
+    fun markTelegramReachable(telegramUserId: Long) {
+        jdbcTemplate.update(
+            "UPDATE users SET telegram_blocked_at = NULL, notification_retry_at = NULL WHERE telegram_user_id = ? AND telegram_blocked_at IS NOT NULL",
+            telegramUserId,
+        )
     }
 }

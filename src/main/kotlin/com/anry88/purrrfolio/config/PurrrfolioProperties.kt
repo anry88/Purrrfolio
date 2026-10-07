@@ -9,7 +9,19 @@ data class PurrrfolioProperties(
     val telegram: TelegramProperties = TelegramProperties(),
     val economy: EconomyProperties = EconomyProperties(),
     val marketing: MarketingProperties = MarketingProperties(),
+    val notifications: NotificationProperties = NotificationProperties(),
 )
+
+data class NotificationProperties(
+    val enabled: Boolean = true,
+    val batchSize: Int = 100,
+    val retryMinutes: Long = 5,
+) {
+    init {
+        require(batchSize in 1..1000)
+        require(retryMinutes > 0)
+    }
+}
 
 data class TelegramProperties(
     val botToken: String = "",

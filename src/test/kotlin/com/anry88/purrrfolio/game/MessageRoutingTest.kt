@@ -19,6 +19,8 @@ class MessageRoutingTest {
         assertThat(GameService.resolveAction("/help", GameLocale.EN)).isEqualTo(GameService.Action.HELP)
         assertThat(GameService.resolveAction("/pack@purrrfolio_bot", GameLocale.RU)).isEqualTo(GameService.Action.PACK)
         assertThat(GameService.resolveAction("/start referral", GameLocale.EN)).isEqualTo(GameService.Action.START)
+        assertThat(GameService.resolveAction("/notifications@PurrrfolioBot", GameLocale.RU)).isEqualTo(GameService.Action.NOTIFICATIONS)
+        assertThat(GameService.resolveAction("/menu", GameLocale.EN)).isEqualTo(GameService.Action.MENU)
     }
 
     @Test

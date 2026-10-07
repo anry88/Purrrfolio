@@ -14,6 +14,8 @@ object Messages {
                 "/trade — random trade\n" +
                 "/market — card market\n" +
                 "/language — change language\n" +
+                "/menu — action buttons\n" +
+                "/notifications — reminders\n" +
                 "/help — help\n\n" +
                 "📢 *News & updates:*\n" +
                 "🇷🇺 Russian channel: [Purrrfolio RU](https://t.me/Purrrfolio_Ru)\n" +
@@ -29,6 +31,8 @@ object Messages {
                 "/trade — случайный обмен\n" +
                 "/market — биржа карточек\n" +
                 "/language — сменить язык\n" +
+                "/menu — кнопки действий\n" +
+                "/notifications — уведомления\n" +
                 "/help — справка\n\n" +
                 "📢 *Новости и обновления:*\n" +
                 "🇷🇺 Русский канал: [Purrrfolio RU](https://t.me/Purrrfolio_Ru)\n" +
@@ -49,13 +53,15 @@ object Messages {
                 "/trade — random trade duplicates\n" +
                 "/market — list and trade cards\n" +
                 "/language — change language\n" +
+                "/menu — action buttons\n" +
+                "/notifications — manage reminders\n" +
                 "/paysupport — payment support\n\n" +
                 "You can also send simple words:\n" +
                 "• pack / card pack\n" +
                 "• craft\n" +
                 "• market / marketplace\n" +
                 "• card, cat, kitty, kitten — free card\n" +
-                "The buttons below do the same.\n\n" +
+                "Use /menu to show action buttons.\n\n" +
                 "✨ *Special collections*\n" +
                 "• Calendar Cats: a month card drops only in that month; a season card only during its season.\n" +
                 "• Friends: drops only when a pack or free card is requested from a group or supergroup chat.\n" +
@@ -73,13 +79,15 @@ object Messages {
                 "/trade — случайный обмен дубликатами\n" +
                 "/market — выставить и обменять карточки\n" +
                 "/language — сменить язык\n" +
+                "/menu — кнопки действий\n" +
+                "/notifications — настроить уведомления\n" +
                 "/paysupport — поддержка платежей\n\n" +
                 "Можно отправлять и простые слова:\n" +
                 "• набор / пак\n" +
                 "• крафт\n" +
                 "• биржа\n" +
                 "• карточка, котик, кот, котейка, кошка, котёнок — бесплатная карточка\n" +
-                "Кнопки ниже делают то же самое.\n\n" +
+                "Вызови /menu, чтобы показать кнопки действий.\n\n" +
                 "✨ *Спешл-коллекции*\n" +
                 "• Месяцы и сезоны: карточка месяца выпадает только в этот месяц, карточка времени года — только в его месяцы.\n" +
                 "• Друзья: выпадает только при запросе набора или бесплатной карточки из группового чата или супергруппы.\n" +
@@ -89,6 +97,23 @@ object Messages {
                 "🇬🇧 Английский канал: [Purrrfolio EN](https://t.me/Purrrfolio_En)"
             ),
         "menu.collection" to ("🗂 Collection" to "🗂 Коллекция"),
+        "menu.title" to ("🐾 Choose an action:" to "🐾 Выбери действие:"),
+        "menu.notifications" to ("🔔 Notifications" to "🔔 Уведомления"),
+        "cmd.menu" to ("Show action buttons" to "Показать кнопки действий"),
+        "cmd.notifications" to ("Manage reminders" to "Настроить уведомления"),
+        "notifications.on" to (
+            "🔔 Reminders are on. Free cards: once when ready. Unopened packs: daily at 12:00 game time.\n\nPause reminders:" to
+                "🔔 Уведомления включены. Бесплатная карточка: один раз, когда готова. Неоткрытые наборы: ежедневно в 12:00 игрового времени.\n\nОтключить уведомления:"
+            ),
+        "notifications.off" to ("🔕 Reminders are off until you enable them again." to "🔕 Уведомления выключены, пока ты не включишь их снова."),
+        "notifications.paused" to ("🔕 Reminders are paused until %s. They will resume automatically." to "🔕 Уведомления выключены до %s. Затем включатся автоматически."),
+        "notifications.on.button" to ("🔔 Enable reminders" to "🔔 Включить уведомления"),
+        "notifications.10h" to ("🔕 For 10 hours" to "🔕 На 10 часов"),
+        "notifications.1d" to ("🔕 For 1 day" to "🔕 На 1 день"),
+        "notifications.3d" to ("🔕 For 3 days" to "🔕 На 3 дня"),
+        "notifications.off.button" to ("🔕 Forever" to "🔕 Навсегда"),
+        "notifications.freeCard" to ("🐾 Your free card is ready! Come meet your next kitty." to "🐾 Бесплатная карточка готова! Приходи знакомиться с новым котиком."),
+        "notifications.packs" to ("🎁 Unopened packs: %s. Your kitties are waiting!" to "🎁 Неоткрытых наборов: %s. Котики ждут тебя!"),
         "raffle.result" to (
             "🎉 *Daily pack raffle!*\n\n%s members in this chat → %s up for grabs!\n\nOur winners:\n%s\n\nOpen your prize with /pack!" to
                 "🎉 *Ежедневный розыгрыш паков!*\n\nУчастников в чате: %s → разыгрывается %s!\n\nНаши победители:\n%s\n\nОткрой приз через /pack!"

@@ -86,6 +86,7 @@ class GameService(
     private val starsRefundService: StarsRefundService,
     private val gameMetrics: GameMetrics,
     private val telegramClient: TelegramClient,
+    private val notificationService: NotificationService,
     transactionManager: PlatformTransactionManager,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -242,6 +243,8 @@ class GameService(
                 return when (command) {
                     "/start" -> Action.START
                     "/help" -> Action.HELP
+                    "/menu" -> Action.MENU
+                    "/notifications" -> Action.NOTIFICATIONS
                     "/language" -> Action.LANGUAGE
                     "/collection" -> Action.COLLECTION
                     "/themes" -> Action.COLLECTION // legacy alias
@@ -319,6 +322,16 @@ class GameService(
         }
 
         try {
+            update.myChatMember?.let { member ->
+                val chat = member.chat
+                val chatId = chat?.id
+                if (chat?.type == "private" && chatId != null) {
+                    when (member.newChatMember?.status) {
+                        "kicked" -> userRepository.markTelegramBlocked(chatId)
+                        "member" -> userRepository.markTelegramReachable(chatId)
+                    }
+                }
+            }
             update.callbackQuery?.let {
                 it.data?.let { data -> gameMetrics.callback(data) }
                 handleCallback(it, updateId)
@@ -406,6 +419,7 @@ class GameService(
         val chatId = message.chat?.id ?: return
         val telegramId = message.from?.id ?: return
         val fromGroupChat = isGroupChat(message.chat?.type)
+        if (message.chat?.type == "private" && chatId == telegramId) userRepository.markTelegramReachable(telegramId)
         val text = message.text?.trim().orEmpty()
 
         if (isAdminCommand(text)) {
@@ -462,7 +476,11 @@ class GameService(
                     telegramClient.sendMessage(chatId, Messages.t("welcome", gameLocale(user)), mainMenuKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
                 }
             }
-            Action.HELP -> telegramClient.sendMessage(chatId, Messages.t("help", gameLocale(user)), helpKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
+            Action.HELP -> telegramClient.sendMessage(chatId, Messages.t("help", gameLocale(user)),
+                if (fromGroupChat) TelegramReplyMarkup(removeKeyboard = true)
+                else helpKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
+            Action.MENU -> telegramClient.sendMessage(chatId, Messages.t("menu.title", gameLocale(user)), helpKeyboard(gameLocale(user), packLedgerRepository.getTotalAvailablePacks(user.id)))
+            Action.NOTIFICATIONS -> notificationService.showSettings(chatId, user.id)
             Action.LANGUAGE -> handleLanguage(chatId, user)
             Action.COLLECTION -> sendCollectionView(chatId, user, page = 0)
             Action.PACK -> handlePackOpening(chatId, user, fromGroupChat, updateId)
@@ -1891,13 +1909,14 @@ class GameService(
     // ---- Routing ----
 
     internal enum class Action {
-        START, HELP, LANGUAGE, COLLECTION, PACK, FREECARD, CRAFT, BUY, PAYSUPPORT, ANSWER, TRADE, MARKET
+        START, HELP, MENU, NOTIFICATIONS, LANGUAGE, COLLECTION, PACK, FREECARD, CRAFT, BUY, PAYSUPPORT, ANSWER, TRADE, MARKET
     }
 
     private fun handleCallback(callback: TelegramCallbackQuery, updateId: Long? = null) {
         val chatId = callback.message?.chat?.id ?: return
         val telegramId = callback.from?.id ?: return
         val fromGroupChat = isGroupChat(callback.message?.chat?.type)
+        if (callback.message?.chat?.type == "private" && chatId == telegramId) userRepository.markTelegramReachable(telegramId)
         val user = userRepository.findByTelegramUserId(telegramId) ?: run {
             // Handle language selection for new user
             callback.id?.let { telegramClient.answerCallbackQuery(it) }
@@ -1945,6 +1964,9 @@ class GameService(
             "menu:craft" -> handleCraft(chatId, user)
             "menu:market" -> handleMarket(chatId, user)
             "menu:buy" -> handleBuy(chatId, user)
+            "menu:trade" -> handleTrade(chatId, user)
+            "menu:language" -> handleLanguage(chatId, user)
+            "menu:notifications" -> notificationService.showSettings(chatId, user.id)
             "free:card" -> handleFreeCardClaim(chatId, user, fromGroupChat)
             "buy:1" -> handleBuyCallback(chatId, user, 1)
             "buy:3" -> handleBuyCallback(chatId, user, 3)
@@ -1953,6 +1975,7 @@ class GameService(
             else -> {
                 if (data == null) return
                 when {
+                    data.startsWith("notify:") -> notificationService.changePreference(chatId, user.id, data)
                     data.startsWith("trade:add:") -> handleTradeAdd(chatId, user, data.removePrefix("trade:add:"))
                     data.startsWith("trade:ret:") -> handleTradeReturn(chatId, user, data.removePrefix("trade:ret:").toLongOrNull())
                     data.startsWith("craft:add:") -> handleCraftAdd(chatId, user, data.removePrefix("craft:add:"))
@@ -2074,6 +2097,15 @@ class GameService(
                     TelegramInlineButton(Messages.t("menu.craft", locale), "menu:craft"),
                     TelegramInlineButton(Messages.t("menu.market", locale), "menu:market"),
                 ),
+                listOf(
+                    TelegramInlineButton(Messages.t("menu.collection", locale), "menu:collection"),
+                    TelegramInlineButton(Messages.t("menu.trade", locale), "menu:trade"),
+                ),
+                listOf(
+                    TelegramInlineButton(Messages.t("menu.buy", locale), "menu:buy"),
+                    TelegramInlineButton(Messages.t("menu.language", locale), "menu:language"),
+                ),
+                listOf(TelegramInlineButton(Messages.t("menu.notifications", locale), "menu:notifications")),
             ),
         )
 

@@ -1,5 +1,7 @@
 package com.anry88.purrrfolio.telegram
 
+import com.anry88.purrrfolio.repository.UserRepository
+import org.mockito.Mockito.mock
 import com.anry88.purrrfolio.config.PurrrfolioProperties
 import com.anry88.purrrfolio.config.TelegramProperties
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -17,7 +19,7 @@ class TelegramRefundTest {
 
     @Test
     fun `refund fails closed when bot token is missing`() {
-        val client = TelegramClient(PurrrfolioProperties(), RestClient.builder(), ObjectMapper())
+        val client = TelegramClient(PurrrfolioProperties(), RestClient.builder(), ObjectMapper(), mock(UserRepository::class.java))
 
         assertThrows(IllegalStateException::class.java) {
             client.refundStarPayment(123, "charge-1")
@@ -38,6 +40,7 @@ class TelegramRefundTest {
             PurrrfolioProperties(telegram = TelegramProperties(botToken = "test-token")),
             builder,
             ObjectMapper(),
+            mock(UserRepository::class.java),
         )
 
         assertDoesNotThrow { client.refundStarPayment(123, "charge-1") }
@@ -54,6 +57,7 @@ class TelegramRefundTest {
             PurrrfolioProperties(telegram = TelegramProperties(botToken = "test-token")),
             builder,
             ObjectMapper(),
+            mock(UserRepository::class.java),
         )
 
         assertThrows(HttpClientErrorException.BadRequest::class.java) {

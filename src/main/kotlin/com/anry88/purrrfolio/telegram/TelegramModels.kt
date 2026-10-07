@@ -15,6 +15,15 @@ data class TelegramUpdate(
     val inlineQuery: TelegramInlineQuery? = null,
     @JsonProperty("pre_checkout_query")
     val preCheckoutQuery: TelegramPreCheckoutQuery? = null,
+    @JsonProperty("my_chat_member")
+    val myChatMember: TelegramChatMemberUpdated? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TelegramChatMemberUpdated(
+    val chat: TelegramChat? = null,
+    @JsonProperty("new_chat_member")
+    val newChatMember: TelegramChatMember? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -91,6 +100,8 @@ data class TelegramReplyMarkup(
     val resizeKeyboard: Boolean? = null,
     @JsonProperty("one_time_keyboard")
     val oneTimeKeyboard: Boolean? = null,
+    @JsonProperty("remove_keyboard")
+    val removeKeyboard: Boolean? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
