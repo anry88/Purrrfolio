@@ -1,0 +1,28 @@
+{
+  "release": "rank-copy-20261007-6aa363e2d57b",
+  "image": "purrrfolio:rank-copy-20261007-6aa363e2d57b",
+  "previous_image": "sha256:bc65092e0f3c4de019999fde33c9a4b958a72c059b23d62572c349504efcc603",
+  "source_commit": "68a00bf954d828a3aa21cc48a2abb8c11db85bd0",
+  "jar_sha256": "6aa363e2d57b0a00f4bad53d3b2af9a80bf62f98a6307c3631e2849be3cd542c",
+  "tests": {
+    "tests": 182,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "change": "Remove ranking implementation/privacy footer in EN/RU, simplify empty/unavailable copy, show page counter only with multiple pages.",
+  "migrations": [],
+  "deployment": {
+    "verified_at_utc": "2026-10-08T08:36:23.771470+00:00",
+    "client_date": "2026-10-08",
+    "client_timezone": "Europe/Belgrade",
+    "image_id": "sha256:7fd4bcb2d35681c19756af2f738be3026f98d4e8ec8d0079105e6a5f712f1558",
+    "internal_health": "UP",
+    "external_health": "UP",
+    "webhook_pending": 0,
+    "flyway_version": "22",
+    "game_timezone": "UTC",
+    "notification_send_interval_ms": 250,
+    "runtime_jar_hash_verified": true
+  }
+}

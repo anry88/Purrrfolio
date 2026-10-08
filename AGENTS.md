@@ -86,6 +86,8 @@ You usually need to touch:
 
 New players default to English. Russian is auto-selected when the Telegram `language_code` starts with `ru`; `/language` switches at any time. The locale is stored in `users.language`. To change any player-facing text, edit `src/main/kotlin/com/anry88/purrrfolio/i18n/Messages.kt`. Menu button labels are matched case- and space-insensitively in both languages, so new button labels must stay emoji-prefixed (e.g. `🎁 Набор` / `🎁 Pack`).
 
+Player replies should describe the game result or next action. Keep implementation, membership-verification and privacy-policy explanations in engineering documentation. Ranking replies show the title, player rows and navigation when needed.
+
 ### Economy or rarity
 
 You usually need to touch:

@@ -114,8 +114,8 @@ boundaries/restarts, new cycles, quiet/permanent preferences, blocks and existin
 pacing/rate-limit behavior. The full `./gradlew test` suite is required before release.
 
 Local verification on 2026-10-07: `./gradlew test bootJar` passed **182 tests**,
-with zero failures, errors or skipped tests. Production release
-`purrrfolio:xp-ranking-20261007-72833098f3ec` is deployed and verified. Flyway V21–V22
+with zero failures, errors or skipped tests. The initial production release
+`purrrfolio:xp-ranking-20261007-72833098f3ec` was deployed and verified. Flyway V21–V22
 succeeded; internal/public health UP, webhook queue 0, game timezone UTC and delivery
 pacing 250 ms. Telegram registered `/xp` and `/rank`. The initial backfill credited
 3,613 XP to 109 of 119 users: 546 receipt-backed copies and 1,018 estimated baseline
@@ -123,3 +123,12 @@ copies. Every cached XP balance matched the durable journal; reminder timestamps
 were complete. A server-only DB/config backup and previous image were preserved.
 See the [release receipt](source/xp-ranking-release.json) for artifact hashes and
 source commit.
+
+
+On 2026-10-08 (Europe/Belgrade), the ranking copy update
+`purrrfolio:rank-copy-20261007-6aa363e2d57b` was deployed. Replies now show the title,
+player XP rows and pagination only when there are multiple pages. The implementation/
+privacy footer was removed in both languages; empty/unavailable messages use game copy.
+The membership checks and tie rules are unchanged. All 182 tests passed; the running
+JAR hash, internal/public health UP and empty webhook queue were verified.
+See the [copy-update release receipt](source/ranking-copy-release.json).
